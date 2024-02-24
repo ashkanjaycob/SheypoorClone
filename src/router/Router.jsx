@@ -1,17 +1,17 @@
 import { Routes, Route } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+// import { useQuery } from "@tanstack/react-query";
 import Authpage from "../pages/Authpage";
 import Homepage from "../pages/Homepage";
 import Dashboard from "../pages/Dashboard";
 import AdminPage from "../pages/AdminPage";
 import NotFound from "../pages/NotFound";
-import { getProfile } from "../Services/user";
+// import { getProfile } from "../Services/user";
 
 
 function Router() {
 
-  const { data, isLoading , error } = useQuery(["profiles"] , getProfile);
-  console.log({ data, isLoading , error });
+  // const { data, isLoading , error } = useQuery(["profiles"] , getProfile);
+  // console.log({ data, isLoading , error });
 
   return (
     <Routes>

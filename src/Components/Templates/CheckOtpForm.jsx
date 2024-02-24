@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { checkOtp } from '../../Services/Auth';
 import {setCookie} from "../../Utils/cookie";
+import styles from '../../styles/auth.module.css'
 
 function CheckOtpForm({ code, setCode, mobile, setStep }) {
   useEffect(() => {
@@ -24,16 +25,18 @@ function CheckOtpForm({ code, setCode, mobile, setStep }) {
       
     }
     if (error) {
+      console.log(error.response.data.message);
       toast.error("خطایی رخ داده است ، مجدد تلاش کنید");
     }
   };
 
   return (
     <>
-      <form onSubmit={submitHandler}>
-        <p>تایید کد ارسال شده برای شما </p>
+      <form onSubmit={submitHandler} className={styles.checkForm}>
+        <h2>تائید شماره موبایل</h2>
         <span>لطفا کد پیامک شده به شماره {mobile} را وارد نمایید .</span>
-        <label htmlFor="input">کد تایید را وارد نمایید</label>
+        <br /><br />
+        <label htmlFor="input">کد تایید </label>
         <input
           type="text"
           id="input"
@@ -42,9 +45,10 @@ function CheckOtpForm({ code, setCode, mobile, setStep }) {
           onChange={(e) => setCode(e.target.value)}
         />{" "}
         <br />
-        <button type="submit">ورود به حساب</button>
+        <button type="submit">تایید نهایی و ورود به حساب</button>
       </form>
-      <button
+
+      <button className={styles.changeNumber}
           onClick={() => {
             console.log("s");
             setStep(1);
@@ -52,6 +56,7 @@ function CheckOtpForm({ code, setCode, mobile, setStep }) {
         >
           تغییر شماره موبایل
         </button>
+
       <Toaster />
     </>
   );

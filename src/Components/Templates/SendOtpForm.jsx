@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import toast, { Toaster } from "react-hot-toast";
 import { sendOtp } from "../../Services/Auth";
+import styles from '../../styles/auth.module.css'
 
 function SendOtpForm({ mobile, setMobile, setStep }) {
   const submitHandler = async (e) => {
@@ -20,10 +21,9 @@ function SendOtpForm({ mobile, setMobile, setStep }) {
 
   return (
     <>
-      <form onSubmit={submitHandler}>
-        <span>
-          لطفا برای ورود یا ثبت نام شماره تلفن همراه خود را وارد کنید.
-        </span>
+      <form onSubmit={submitHandler} className={styles.sendform}>
+        <h2>ورود / ثبت نام</h2>
+        <p>لطفا برای ورود یا ثبت نام شماره تلفن همراه خود را وارد کنید.</p>
         <br />
         <label htmlFor="input">شماره موبایل</label>
         <input
@@ -33,12 +33,15 @@ function SendOtpForm({ mobile, setMobile, setStep }) {
           value={mobile}
           onChange={(e) => setMobile(e.target.value)}
         />
+        <br /><br />
+        <span>
+          توجه: لطفا پس از ثبت آگهی، از طریق هیچ پیامکی برای پرداخت وجه جهت
+          انتشار آگهی اقدام نکنید.
+        </span>
+        <br />
         <button type="submit">ورود یا ثبت نام در شیپور</button>
       </form>
-      <small>
-        توجه: لطفا پس از ثبت آگهی، از طریق هیچ پیامکی برای پرداخت وجه جهت انتشار
-        آگهی اقدام نکنید.
-      </small>
+
       <Toaster />
     </>
   );
