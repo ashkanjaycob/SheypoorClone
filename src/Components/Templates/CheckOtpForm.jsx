@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useEffect } from "react";
 import toast, { Toaster } from "react-hot-toast";
-import { checkOtp } from "../../Services/Auth";
+import { checkOtp } from '../../Services/Auth';
 import setCookie from "../../Utils/cookie";
 
 function CheckOtpForm({ code, setCode, mobile, setStep }) {
