@@ -1,20 +1,29 @@
+/* eslint-disable react/prop-types */
 import { useEffect } from "react";
 import toast, { Toaster } from "react-hot-toast";
+import { checkOtp } from "../../Services/Auth";
 
 function CheckOtpForm({ code, setCode, mobile, setStep }) {
   useEffect(() => {
     toast.success("کد با موفقیت ارسال شد ");
-  }, [mobile]);
+  }, []);
 
-  const changemobileHandler = () => {
-    setStep(1);
-  };
 
-  const submitHandler = (e) => {
+  const submitHandler = async (e) => {
     e.preventDefault();
-    console.log({code , mobile});
-  };
 
+    if (code.length !== 5) return alert("لطفا کد صحیح را وارد نمایید");
+
+    const { response, error } = await checkOtp(mobile, code);
+    if (response) {
+      console.log(response);
+      toast.success("با موفقیت وارد حساب کاربری شدید");
+      setCode("");
+    }
+    if (error) {
+      toast.error("خطایی رخ داده است ، مجدد تلاش کنید");
+    }
+  };
 
   return (
     <>
@@ -31,8 +40,15 @@ function CheckOtpForm({ code, setCode, mobile, setStep }) {
         />{" "}
         <br />
         <button type="submit">ورود به حساب</button>
-        <button onClick={changemobileHandler}>تغییر شماره موبایل</button>
       </form>
+      <button
+          onClick={() => {
+            console.log("s");
+            setStep(1);
+          }}
+        >
+          تغییر شماره موبایل
+        </button>
       <Toaster />
     </>
   );
