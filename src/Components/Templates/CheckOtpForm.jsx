@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { checkOtp } from '../../Services/Auth';
-import setCookie from "../../Utils/cookie";
+import {setCookie} from "../../Utils/cookie";
 
 function CheckOtpForm({ code, setCode, mobile, setStep }) {
   useEffect(() => {
@@ -21,6 +21,7 @@ function CheckOtpForm({ code, setCode, mobile, setStep }) {
       toast.success("با موفقیت وارد حساب کاربری شدید");
       setCookie(response.data);
       setCode("");
+      
     }
     if (error) {
       toast.error("خطایی رخ داده است ، مجدد تلاش کنید");
