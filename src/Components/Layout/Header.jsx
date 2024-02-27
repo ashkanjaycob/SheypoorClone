@@ -1,4 +1,4 @@
-import styles from "../../styles/header.module.css";
+
 import navLogo from "../../assets/LogosSheypoor/sheypoor-Logo.png";
 import SearchModal from "./Search";
 import NavIcons from "./NavIcons";

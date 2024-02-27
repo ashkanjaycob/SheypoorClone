@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { LocationMarkerIcon } from "@heroicons/react/outline"; // Correct import statement
 
 function SearchModal() {
   const [showModal, setShowModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
+  // eslint-disable-next-line no-unused-vars
   const handleSearch = () => {
     // Handle search functionality here
     console.log("Searching for:", searchQuery);
