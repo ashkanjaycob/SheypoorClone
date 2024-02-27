@@ -2,7 +2,7 @@
 
 function Footer() {
   return (
-    <footer className="bg-zinc-50 rtl">
+    <footer className="mt-5 bg-zinc-50 rtl">
       <div className="container mx-auto py-4 sm:py-6 lg:py-8">
         <div className="flex justify-between gap-20">
           {/* Column 1 */}
