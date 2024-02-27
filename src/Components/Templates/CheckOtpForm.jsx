@@ -4,31 +4,47 @@ import toast, { Toaster } from "react-hot-toast";
 import { checkOtp } from '../../Services/Auth';
 import {setCookie} from "../../Utils/cookie";
 import styles from '../../styles/auth.module.css'
+import { useNavigate } from "react-router-dom";
 
 function CheckOtpForm({ code, setCode, mobile, setStep }) {
+
+  const navigate = useNavigate();
+
   useEffect(() => {
     toast.success("کد با موفقیت ارسال شد ");
   }, []);
 
-
   const submitHandler = async (e) => {
     e.preventDefault();
-
+  
     if (code.length !== 5) return alert("لطفا کد صحیح را وارد نمایید");
-
+  
     const { response, error } = await checkOtp(mobile, code);
     if (response) {
       console.log(response);
-      toast.success("با موفقیت وارد حساب کاربری شدید");
+      await toast.promise(
+        new Promise((resolve) => {
+          setTimeout(() => {
+            resolve("با موفقیت وارد حساب کاربری شدید");
+          }, 2000); // 2000 milliseconds delay before displaying success toast
+        }),
+        {
+          loading: "در حال ورود به حساب کاربری...",
+          success: "با موفقیت وارد حساب کاربری شدید",
+        }
+      ).then(() => {
+        navigate("/");
+      });
       setCookie(response.data);
       setCode("");
-      
     }
     if (error) {
       console.log(error.response.data.message);
       toast.error("خطایی رخ داده است ، مجدد تلاش کنید");
     }
   };
+  
+  
 
   return (
     <>

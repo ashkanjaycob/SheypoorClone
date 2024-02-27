@@ -1,8 +1,11 @@
-
+import  { Toaster } from "react-hot-toast";
 
 function Homepage() {
   return (
-    <div>Homepage</div>
+    <>
+    <h1> Welcome To Home Page</h1>
+    <Toaster />
+    </>
   )
 }
 
