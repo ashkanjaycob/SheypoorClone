@@ -26,7 +26,7 @@ function SearchModal() {
         placeholder="جست و جو در شیپور"
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
-        className="w-full py-3 px-4 border rounded-lg pl-12 focus:outline-none focus:ring focus:border-blue-200"
+        className="w-full py-3 px-4 border rounded-lg desktop:pl-60 laptop:pl-36 pl-20 focus:outline-none focus:ring focus:border-blue-200"
       />
 
       {showModal && (
