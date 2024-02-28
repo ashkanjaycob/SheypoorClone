@@ -4,8 +4,10 @@ import { ThreeCircles } from "react-loader-spinner";
 import styles from "../../router/loader.module.css";
 
 function CtegoryList() {
+  // const { data, isLoading  } = useQuery(["get-categories"], getCategory);
+  // console.log({ data, isLoading });
   const { data, isLoading } = useQuery(["get-categories"], getCategory);
-  console.log({ data, isLoading });
+
 
   return (
     <div className="container mx-auto">

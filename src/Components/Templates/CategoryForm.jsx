@@ -1,9 +1,11 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { addCategory } from "../../Services/Admin";
 import toast, { Toaster } from "react-hot-toast";
 import CtegoryList from "./CategoryList";
 import CategoryDeletionForm from "./CategoryDeletionForm";
+
+
 function CategoryForm() {
   const [form, setForm] = useState({
     name: "",
@@ -11,13 +13,22 @@ function CategoryForm() {
     icon: "",
   });
 
+  const queryClient = useQueryClient();
+
   const changeHandler = (event) => {
     setForm( {...form , [event.target.name] : event.target.value})
   };
 
 
-  const { mutate ,  isLoading , error , data} = useMutation(addCategory);
+  const { mutate ,  isLoading , error , data} = useMutation(addCategory , {
+    onSuccess : () => {
+      queryClient.invalidateQueries(["get-categories"]);  
+    }
+  });
+
+
   console.log({isLoading , error , data});
+
 
 
   const submitHandler = (event) => {
@@ -26,7 +37,7 @@ function CategoryForm() {
     if ( !form.name || !form.icon || !form.icon) return alert("لطفا مقادیر صحیح وارد کنید") ;
     mutate(form);
 
-    if ( data.message === "" ) return toast.success("دسته بندی با موفیقت اضافه شد .")
+    if ( data.message === "category created successfully" ) return toast.success("دسته بندی با موفیقت اضافه شد .")
 
     console.log(form);    
     setForm({
