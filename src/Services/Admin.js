@@ -11,4 +11,24 @@ const addCategory = async (data) => {
     }
 }
 
-export { addCategory };
+const getCategory = async () => {
+    try {
+      const response = await api.get("category");
+      return response.data;
+    } catch (error) {
+      console.error("Error while fetching profile:", error);
+      throw error;
+    }
+  };
+
+  const delCategory = async (id) => {
+    try {
+      const response = await api.get("category" , {id});
+      return response.data;
+    } catch (error) {
+      console.error("Error while fetching profile:", error);
+      throw error;
+    }
+  };
+
+export { addCategory , getCategory , delCategory};
