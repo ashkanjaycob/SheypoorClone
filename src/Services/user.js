@@ -8,7 +8,7 @@ const getProfile = async () => {
   if (!token) {
     token = await getNewTokens(); // Get new access token if current one is missing
   }
-  console.log(token);
+  // console.log(token);
 
   try {
     const response = await api.get("user/whoami", {

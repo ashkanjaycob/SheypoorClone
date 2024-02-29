@@ -51,7 +51,7 @@ function CategoryForm() {
   return (
     <>
     <CtegoryList />
-    <div className="container mx-auto">
+    <div className="container mx-auto my-14">
       <form
         onSubmit={submitHandler}
         onChange={changeHandler}
