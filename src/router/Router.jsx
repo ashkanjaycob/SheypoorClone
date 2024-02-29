@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import Authpage from "../pages/Authpage";

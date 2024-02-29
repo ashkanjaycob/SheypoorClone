@@ -1,9 +1,10 @@
 /* eslint-disable no-unused-vars */
 import { useQuery } from "@tanstack/react-query";
 import { getCategory } from "../../Services/Admin";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
-import { PostApi } from "../../configs/PostApi";
+import { PostApi, getAds } from "../../configs/PostApi";
+import AdsList from "./AdsList";
 
 function AddAdvertising() {
   const { data, isLoading } = useQuery(["get-category"], getCategory);
@@ -214,6 +215,11 @@ function AddAdvertising() {
             ایجاد آگهی در شیپور
           </button>
         </form>
+            <hr className="my-8" />
+        <div>
+          <AdsList />
+        </div>
+
         <Toaster />
       </div>
     </>

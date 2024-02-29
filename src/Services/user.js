@@ -1,5 +1,6 @@
 import { getCookie } from "../Utils/cookie";
 import api from "../configs/Api";
+import {  getAds } from "../configs/PostApi";
 import { getNewTokens } from "./Token";
 
 
@@ -21,4 +22,17 @@ const getProfile = async () => {
   }
 };
 
-export { getProfile };
+
+const getmyAds = async () => {
+  try {
+    const response = await getAds.get("post/my");
+    return response.data;
+  } catch (error) {
+    console.error("Error while fetching profile:", error);
+    throw error;
+  }
+};
+
+
+
+export { getProfile , getmyAds };
