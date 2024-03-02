@@ -16,4 +16,11 @@ const getCookie = (cookieName) => {
     .find((token) => token.trim().split("=")[0] === cookieName)?.split("=")[1];
 };
 
-export { setCookie, getCookie };
+
+const delCookie = (cookieName) => {
+  document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+};
+
+
+
+export { setCookie, getCookie , delCookie};

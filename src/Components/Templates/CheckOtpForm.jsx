@@ -34,6 +34,7 @@ function CheckOtpForm({ code, setCode, mobile, setStep }) {
         }
       ).then(() => {
         navigate("/");
+        window.location.reload(); // Reload the application
       });
       setCookie(response.data);
       setCode("");

@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getCategory } from "../../Services/Admin";
 import { useEffect, useRef, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
@@ -7,6 +7,8 @@ import { PostApi, getAds } from "../../configs/PostApi";
 import AdsList from "./AdsList";
 
 function AddAdvertising() {
+
+
   const { data, isLoading } = useQuery(["get-category"], getCategory);
 
   const fileInputRef = useRef(null); // Reference to the file input
