@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getmyAds } from "../../Services/user";
 import { sp } from "../../Utils/Numbers";
 import { Link } from "react-router-dom";
+import { ThreeCircles } from "react-loader-spinner";
 
 function AdsList() {
   const { data, isLoading } = useQuery(["get-my-ads"], getmyAds);
@@ -12,7 +13,17 @@ function AdsList() {
     <>
       <div>
         {isLoading ? (
-          <p>loading ...</p>
+          <div className="w-full h-full flex items-center justify-center mt-44">
+            <ThreeCircles
+              visible={true}
+              height="60"
+              width="60"
+              color="#1a90ff"
+              ariaLabel="three-circles-loading"
+              wrapperStyle={{}}
+              wrapperClass=""
+            />
+          </div>
         ) : (
           <>
             <h2 className="mb-12 font-bold text-blue-600 text-[1.6rem] py-4 border-b-2">
@@ -20,12 +31,18 @@ function AdsList() {
             </h2>
             <div className="container mx-auto flex justify-evenly flex-wrap gap-8">
               {data.posts.map((post) => (
-                <Link key={post._id} to={`/dashboard/${post._id}`} className="w-[16%]">
+                <Link
+                  key={post._id}
+                  to={`/dashboard/${post._id}`}
+                  className="w-[16%]"
+                >
                   <div className="flex flex-col items-center rounded-lg bg-white cursor-pointer">
                     <div className="relative overflow-hidden bg-cover bg-no-repeat">
                       <img
                         className="rounded-xl w-[180px] h-[180px]"
-                        src={`${import.meta.env.VITE_BASE_URL}${post.images[0]}`}
+                        src={`${import.meta.env.VITE_BASE_URL}${
+                          post.images[0]
+                        }`}
                         alt={post.options.title}
                       />
                     </div>

@@ -21,10 +21,18 @@ function NavIcons() {
   return (
     <div>
       <div className="flex items-center justify-between space-x-2 mr-2">
+
+        {data ? (
+          <Link to="/admin">
         <span onClick={handleLogout} className="text-gray-400 cursor-pointer">
           <LogoutIcon className="h-5 w-5 mr-7 inline-block" />
           <span className="text-gray-400 mr-1">خروج</span>
         </span>
+          </Link>
+        ) : (
+          <span></span>
+        )}
+
 
         {data && data.role === "ADMIN" ? (
           <Link to="/admin">

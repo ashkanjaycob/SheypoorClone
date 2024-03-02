@@ -33,6 +33,28 @@ const getmyAds = async () => {
   }
 };
 
+const getmySpecificAd = async (id) => {
+  try {
+    const response = await getAds.get(`post/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error while fetching profile:", error);
+    throw error;
+  }
+};
 
 
-export { getProfile , getmyAds };
+const delmySpecificAd = async (id) => {
+  try {
+    const response = await getAds.delete(`post/delete/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error while fetching profile:", error);
+    throw error;
+  }
+};
+
+
+
+
+export { getProfile , getmyAds , getmySpecificAd , delmySpecificAd};
