@@ -9,6 +9,7 @@ import NotFound from "../pages/NotFound";
 import { getProfile } from "../Services/user";
 import { ThreeCircles } from "react-loader-spinner";
 import styles from "../router/loader.module.css";
+import AdPage from "../pages/AdPage";
 
 function Router() {
   const { data, isLoading, error } = useQuery(["profile"], getProfile);
@@ -36,6 +37,12 @@ function Router() {
         path="/dashboard"
         element={data ? <Dashboard /> : <Navigate to="/auth" />}
       />
+
+      <Route
+        path="/dashboard/:id"
+        element={data ? <AdPage /> : <Navigate to="/auth" />}
+      />
+
       <Route
         path="/auth"
         element={data ? <Navigate to="/dashboard" /> : <Authpage />}

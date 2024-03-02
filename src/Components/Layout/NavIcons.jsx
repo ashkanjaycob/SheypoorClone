@@ -6,7 +6,6 @@ import { getProfile } from "../../Services/user";
 
 function NavIcons() {
   const { data } = useQuery(["profile"], getProfile);
-  console.log({ data });
 
   const handleLogout = () => {
     // Delete access and refresh tokens from cookies
