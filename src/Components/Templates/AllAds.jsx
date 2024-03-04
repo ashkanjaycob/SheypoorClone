@@ -1,20 +1,21 @@
-/* eslint-disable react/no-unknown-property */
-import { useQuery } from "@tanstack/react-query";
-import { getmyAds } from "../../Services/user";
-import { sp } from "../../Utils/Numbers";
+import { useQuery } from "@tanstack/react-query"
+import { getAllAds } from "../../Services/user"
+import { ThreeDots } from "react-loader-spinner";
 import { Link } from "react-router-dom";
-import { ThreeCircles } from "react-loader-spinner";
+import { sp } from "../../Utils/Numbers";
 
-function AdsList() {
-  const { data, isLoading } = useQuery(["get-my-ads"], getmyAds);
-  console.log({ data, isLoading });
+
+function AllAds() {
+
+    const { data , isLoading } = useQuery(["get-all-ads"] , getAllAds);
+    console.log({data , isLoading });
 
   return (
     <>
       <div>
         {isLoading ? (
           <div className="w-full h-full flex items-center justify-center mt-44">
-            <ThreeCircles
+            <ThreeDots
               visible={true}
               height="60"
               width="60"
@@ -27,7 +28,7 @@ function AdsList() {
         ) : (
           <>
             <div className="container mx-auto flex justify-evenly flex-wrap gap-2">
-              {data.posts.map((post) => (
+              {data.posts.slice(0, 24).map((post) => (
                 <Link
                   key={post._id}
                   to={`/dashboard/${post._id}`}
@@ -78,7 +79,7 @@ function AdsList() {
         )}
       </div>
     </>
-  );
+  )
 }
 
-export default AdsList;
+export default AllAds

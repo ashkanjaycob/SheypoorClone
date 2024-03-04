@@ -8,7 +8,6 @@ import AdsList from "./AdsList";
 
 function AddAdvertising() {
 
-
   const { data, isLoading } = useQuery(["get-category"], getCategory);
 
   const fileInputRef = useRef(null); // Reference to the file input
@@ -118,7 +117,7 @@ function AddAdvertising() {
           city: "",
           category: "",
         });
-        setSelectedImageName("");
+        setSelectedImageName("");       
       });
 
     // DIRECTLY
@@ -219,6 +218,10 @@ function AddAdvertising() {
         </form>
             <hr className="my-8" />
         <div>
+
+        <h2 className="mb-12 font-bold text-blue-600 text-[1.6rem] py-4 border-b-2">
+              لیست آگهی های شما
+            </h2>
           <AdsList />
         </div>
 

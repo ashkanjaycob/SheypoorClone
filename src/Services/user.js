@@ -55,6 +55,17 @@ const delmySpecificAd = async (id) => {
 };
 
 
+const getAllAds = async () => {
+  try {
+    const response = await getAds.get("");
+    return response.data;
+  } catch (error) {
+    console.error("Error while fetching profile:", error);
+    throw error;
+  }
+};
 
 
-export { getProfile , getmyAds , getmySpecificAd , delmySpecificAd};
+
+
+export { getProfile , getmyAds , getmySpecificAd , delmySpecificAd , getAllAds};
