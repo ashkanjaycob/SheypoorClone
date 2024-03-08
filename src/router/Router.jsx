@@ -13,7 +13,7 @@ import AdPage from "../pages/AdPage";
 
 function Router() {
   const { data, isLoading, error } = useQuery(["profile"], getProfile);
-  // console.log({ data, isLoading, error });
+  console.log({ data, isLoading, error });
 
   if (isLoading)
     return (

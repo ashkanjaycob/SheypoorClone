@@ -4,6 +4,8 @@ import { sendOtp } from "../../Services/Auth";
 import styles from '../../styles/auth.module.css'
 
 function SendOtpForm({ mobile, setMobile, setStep }) {
+
+  
   const submitHandler = async (e) => {
     e.preventDefault();
     if (mobile.length !== 11)

