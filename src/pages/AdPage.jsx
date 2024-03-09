@@ -4,13 +4,21 @@ import { getmySpecificAd, delmySpecificAd } from "../Services/user";
 import { sp } from "../Utils/Numbers";
 import toast, { Toaster } from "react-hot-toast";
 import { ThreeCircles } from "react-loader-spinner";
+import { useState } from "react";
 
-const AdPage = () => {
+// eslint-disable-next-line react/prop-types
+const AdPage = ({ userdata }) => {
   const { id } = useParams(); // Access the ad ID from URL parameters
   const { data, isFetching } = useQuery(["get-ad-id", id], () =>
     getmySpecificAd(id)
   ); // Passing id as a dependency to the query key
   console.log({ data });
+
+  const [showFullNumber, setShowFullNumber] = useState(false);
+
+  const toggleShowFullNumber = () => {
+    setShowFullNumber(!showFullNumber);
+  };
 
   const deleteadHandler = async () => {
     try {
@@ -46,8 +54,8 @@ const AdPage = () => {
         <div>
           {data ? ( // Check if data exists
             <div>
-              <div className="flex gap-8  items-center justify-between rounded-lg bg-slate-100 p-5 cursor-pointer">
-                <div className="flex">
+              <div className="flex gap-8 items-center justify-between rounded-lg bg-slate-100 p-5 cursor-pointer">
+                <div className="flex w-full">
                   <div className="relative overflow-hidden bg-cover bg-no-repeat">
                     <img
                       className="rounded-xl w-[180px] h-[180px]"
@@ -70,37 +78,80 @@ const AdPage = () => {
                         {data.post.options.title}
                       </h5>
                     </div>
+
+                    <div
+                      style={{
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "wrap",
+                      }}
+                    >
+                      <h5 className="mb-2 leading-loose text-neutral-800 dark:text-neutral-50">
+                        {data.post.options.content
+                          .split("\r\n")
+                          .map((line, index) => (
+                            <div key={index}>{line}</div>
+                          ))}
+                      </h5>
+                    </div>
+
                     <div className="flex flex-col">
-                      <small className="text-base text-[0.7rem] text-neutral-600 dark:text-neutral-200">
+                      <small className="text-base border-b-2 py-2 text-[0.7rem] text-neutral-600 dark:text-neutral-200">
                         {new Date(data.post.createdAt)
                           .toLocaleString("fa-IR")
                           .replace(/,/, "در ساعت")}
                       </small>
 
-                      <small className="text-base text-[0.7rem] text-neutral-600 dark:text-neutral-200">
+                      <small className="text-base py-4 text-[0.7rem] text-neutral-600 dark:text-neutral-200">
                         در {data.post.options.city}
                       </small>
                     </div>
 
-                    <p className="flex text-base dark:text-neutral-200">
-                      {sp(data.post.amount)}{" "}
-                      <img
-                        className="w-[22px] mr-2"
-                        src="/Toman.svg"
-                        alt="آیکون_تومان"
-                      />
-                    </p>
+                    <div className="flex justify-between">
+                      <p className="flex text-2xl text-base dark:text-neutral-200">
+                        {sp(data.post.amount)}{" "}
+                        <img
+                          className="w-[22px] mr-2"
+                          src="/Toman.svg"
+                          alt="آیکون_تومان"
+                        />
+                      </p>
+
+                      <span className="p-4">
+                        <small className="px-6 text-xl">شماره تماس </small>
+                        <span
+                          onClick={toggleShowFullNumber}
+                          className=" hover:text-blue-600 text-2xl"
+                        >
+                          {showFullNumber ? (
+                            data.post.userMobile // Display full number if showFullNumber is true
+                          ) : (
+                            <span>
+                              {/* Display partial number and provide onClick handler to toggle showFullNumber */}
+                              {data.post.userMobile.replace(
+                                /^(\d{4})(\d{4})/,
+                                "$1********"
+                              )}{" "}
+                              (نمایش کامل)
+                            </span>
+                          )}
+                        </span>
+                      </span>
+                    </div>
                   </div>
                 </div>
-
-                <div>
-                  <button
-                    onClick={deleteadHandler}
-                    className="bg-red-600 px-10 py-3 rounded-full text-white"
-                  >
-                    حذف آگهی
-                  </button>
-                </div>
+                {userdata.role === "ADMIN" ? (
+                  <div>
+                    <button
+                      onClick={deleteadHandler}
+                      className="bg-red-600 px-10 py-3 rounded-full text-white"
+                    >
+                      حذف آگهی
+                    </button>
+                  </div>
+                ) : (
+                  <div></div>
+                )}
               </div>
             </div>
           ) : (

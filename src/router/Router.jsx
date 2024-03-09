@@ -40,7 +40,7 @@ function Router() {
 
       <Route
         path="/dashboard/:id"
-        element={data ? <AdPage /> : <Navigate to="/auth" />}
+        element={data ? <AdPage userdata={data} /> : <Navigate to="/auth" />}
       />
 
       <Route
