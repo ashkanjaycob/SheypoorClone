@@ -1,14 +1,18 @@
-import { useQuery } from "@tanstack/react-query"
-import { getAllAds } from "../../Services/user"
-import { ThreeDots } from "react-loader-spinner";
+import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { getAllAds } from "../../Services/user";
+import { ThreeDots } from "react-loader-spinner";
 import { sp } from "../../Utils/Numbers";
 
-
 function AllAds() {
+  const { data, isLoading } = useQuery(["get-all-ads"], getAllAds);
+  const [displayCount, setDisplayCount] = useState(24); // Initial number of ads to display
 
-    const { data , isLoading } = useQuery(["get-all-ads"] , getAllAds);
-    console.log({data , isLoading });
+  const handleLoadMore = () => {
+    // Increase the display count by 6 each time the user clicks "Load More"
+    setDisplayCount(displayCount + 6);
+  };
 
   return (
     <>
@@ -28,7 +32,7 @@ function AllAds() {
         ) : (
           <>
             <div className="container mx-auto flex justify-evenly flex-wrap gap-2">
-              {data.posts.slice(0, 24).map((post) => (
+              {data.posts.slice(0, displayCount).map((post) => (
                 <Link
                   key={post._id}
                   to={`/dashboard/${post._id}`}
@@ -38,9 +42,7 @@ function AllAds() {
                     <div className="relative overflow-hidden bg-cover bg-no-repeat">
                       <img
                         className="rounded-xl w-[180px] h-[180px]"
-                        src={`${import.meta.env.VITE_BASE_URL}${
-                          post.images[0]
-                        }`}
+                        src={`${import.meta.env.VITE_BASE_URL}${post.images[0]}`}
                         alt="عکس آگهی"
                       />
                     </div>
@@ -65,21 +67,27 @@ function AllAds() {
                           alt="آیکون_تومان"
                         />
                       </p>
-                      <small className="text-base text-[0.7rem] text-neutral-600 dark:text-neutral-200">
-                        {new Date(post.createdAt)
-                          .toLocaleString("fa-IR")
-                          .replace(/,/, "در ساعت")}
-                      </small>
+                      <small>در {post.options.city}</small>
                     </div>
                   </div>
                 </Link>
               ))}
             </div>
+            {data.posts.length > displayCount && (
+              <div className="flex justify-center mt-4">
+                <button
+                  onClick={handleLoadMore}
+                  className="text-blue-500 border-2 border-blue-500 font-bold py-2 px-16 rounded-full"
+                >
+                  مشاهده آگهی های بیشتر
+                </button>
+              </div>
+            )}
           </>
         )}
       </div>
     </>
-  )
+  );
 }
 
-export default AllAds
+export default AllAds;
