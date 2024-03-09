@@ -1,16 +1,24 @@
 import { useState } from "react";
-import { LocationMarkerIcon } from "@heroicons/react/outline"; // Correct import statement
+import { LocationMarkerIcon } from "@heroicons/react/outline";
+import { useQuery } from "@tanstack/react-query";
+import { getAllAds } from "../../Services/user";
+import { Link } from "react-router-dom";
 
 function SearchModal() {
+  const { data } = useQuery(["get-all-ads"], getAllAds);
   const [showModal, setShowModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
 
-  // eslint-disable-next-line no-unused-vars
   const handleSearch = () => {
-    // Handle search functionality here
-    console.log("Searching for:", searchQuery);
+    // Filter data based on searchQuery
+    const filteredResults = data.posts.filter((item) =>
+      item.options.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    console.log(filteredResults);
+    setSearchResults(filteredResults);
   };
-
+  console.log(searchResults);
   const handleModalClose = () => setShowModal(false);
 
   return (
@@ -27,8 +35,42 @@ function SearchModal() {
         placeholder="جست و جو در شیپور"
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
+        onKeyUp={handleSearch} // Call handleSearch on each key press
         className="w-full py-3 px-4 border rounded-lg desktop:pl-60 laptop:pl-36 pl-20 focus:outline-none focus:ring focus:border-blue-200"
       />
+
+      {searchQuery && ( // Render dropdown only when searchQuery is not empty
+        <div className="absolute left-0 right-0 top-14">
+          <div className="rounded-md bg-slate-100 shadow-xs overflow-hidden">
+            <div
+              className="py-1"
+              role="menu"
+              aria-orientation="vertical"
+              aria-labelledby="menu-button"
+              // eslint-disable-next-line react/no-unknown-property
+              tabindex="-1"
+            >
+              {searchResults.length > 0 ? ( // If there are search results, display them
+                searchResults.map((result) => (
+                  // eslint-disable-next-line react/jsx-key
+                  <Link
+                     to={`/dashboard/${result._id}`}
+                    className="block px-4 py-2 text-sm text-gray-500 hover:bg-blue-100" 
+                    role="menuitem" 
+                    // eslint-disable-next-line react/no-unknown-property
+                    tabindex="-1" 
+                    id="menu-item-0"
+                  >
+                    {result.options.title}
+                  </Link>
+                ))
+              ) : (
+                <p className="px-4 py-2 text-sm text-gray-700">چیزی با این عنوان یافت نشد  !</p> // If no results, show a message
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {showModal && (
         <div className="fixed z-10 inset-0 overflow-y-auto">
@@ -39,31 +81,24 @@ function SearchModal() {
             ></div>
 
             <div className="relative bg-white rounded-lg p-8 max-w-md mx-auto">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold">در حال توسعه </h2>
-                <button
+              <div className="flex flex-col justify-between items-center mb-4">
+              <button
                   className="text-gray-500 hover:text-gray-600 focus:outline-none"
                   onClick={handleModalClose}
                 >
-                  <svg
-                    className="w-6 h-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
+                <h2 className="text-xl font-semibold">در حال توسعه </h2>
+                <br />
+                <small>لطفا بعدا سعی کنید !!!</small>
+                <br />
+                <h2 className="text-red-800 mt-8">اینجا کلیک کنید </h2>
                 </button>
               </div>
               <div>
                 {/* Display search results here */}
-                نمایش نتایج
+                {/* You can map through searchResults to display search results */}
+                {searchResults.map((result) => (
+                  <div key={result.id}>{result.title}</div>
+                ))}
               </div>
             </div>
           </div>

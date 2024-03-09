@@ -6,7 +6,6 @@ function Homepage() {
 
   return (
     <>
-
     <div className="container mx-auto">
     <CtegoryList />
     <div className="flex mb-16">
