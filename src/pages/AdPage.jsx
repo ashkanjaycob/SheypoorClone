@@ -56,9 +56,9 @@ const AdPage = ({ userdata }) => {
             <div>
               <div className="flex gap-8 items-center justify-between rounded-lg bg-slate-100 p-5 cursor-pointer">
                 <div className="flex w-full">
-                  <div className="relative overflow-hidden bg-cover bg-no-repeat">
+                  <div className="relative min-w-48 overflow-hidden bg-cover bg-no-repeat">
                     <img
-                      className="rounded-xl w-[180px] h-[180px]"
+                      className="rounded-xl  w-[180px] h-[180px]"
                       src={`${import.meta.env.VITE_BASE_URL}${
                         data.post.images[0]
                       }`}

@@ -170,6 +170,16 @@ function AddAdvertising() {
             placeholder="مثلا تهران"
           />
           <label htmlFor="category">دسته بندی</label>
+
+          <label htmlFor="city">کد پستی</label>
+          <input
+            className="py-2 desktop:w-[50%] my-3 px-4 border rounded-lg desktop:pl-60 laptop:pl-36 pl-20 focus:outline-none focus:ring focus:border-blue-200"
+            type="text"
+            name="city"
+            placeholder="مثلا کد پستی"
+          />
+          <label htmlFor="category">دسته بندی</label>
+
           <select
             className="py-2 desktop:w-[50%] my-3 px-4 border rounded-lg desktop:pl-60 laptop:pl-36 pl-20 focus:outline-none focus:ring focus:border-blue-200"
             name="category"
