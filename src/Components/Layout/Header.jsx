@@ -1,4 +1,3 @@
-
 import navLogo from "../../assets/LogosSheypoor/sheypoor-Logo.png";
 import SearchModal from "./Search";
 import NavIcons from "./NavIcons";
@@ -22,9 +21,13 @@ function Header() {
             <div className="hidden hidden laptop:block">
               <NavIcons />
             </div>
-            <button className="hidden tablet:flex left-0 py-3 px-4 bg-blue-500 text-white rounded-full">
-              ثبت آگهی رایگان +
-            </button>
+
+            <Link to="/dashboard">
+              <button className="hidden tablet:flex left-0 py-3 px-4 bg-blue-500 text-white rounded-full">
+                <span className="text-gray-400 cursor-pointer"></span>
+                ثبت آگهی رایگان +
+              </button>
+            </Link>
           </div>
         </div>
       </div>

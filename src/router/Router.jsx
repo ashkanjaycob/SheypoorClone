@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import Authpage from "../pages/Authpage";
@@ -15,7 +14,7 @@ function Router() {
   const { data, isLoading, error } = useQuery(["profile"], getProfile);
   console.log({ data, isLoading, error });
 
-  if (isLoading)
+  if (isLoading) {
     return (
       <div className={styles.loader}>
         <ThreeCircles
@@ -29,31 +28,34 @@ function Router() {
         />
       </div>
     );
+  }
 
   return (
     <Routes>
       <Route path="/" element={<Homepage />} />
+      <Route path="/auth/*" element={<Authpage />} />
       <Route
-        path="/dashboard"
-        element={data ? <Dashboard /> : <Navigate to="/auth" />}
-      />
-
-      <Route
-        path="/dashboard/:id"
-        element={data ? <AdPage userdata={data} /> : <Navigate to="/auth" />}
-      />
-
-      <Route
-        path="/auth"
-        element={data ? <Navigate to="/dashboard" /> : <Authpage />}
-      />
-      <Route
-        path="/admin"
+        path="/dashboard/*"
         element={
-          data && data.role === "ADMIN" ? <AdminPage /> : <Navigate to="/" />
+          data ? (
+            <Dashboard />
+          ) : (
+            <Navigate to="/auth" replace />
+          )
         }
       />
-      <Route path="/*" element={<NotFound />} />
+      <Route
+        path="/admin/*"
+        element={
+          data && data.role === "ADMIN" ? (
+            <AdminPage />
+          ) : (
+            <Navigate to="/" replace />
+          )
+        }
+      />
+      <Route path="/dashboard/:id" element={<AdPage userdata={data} />} />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }

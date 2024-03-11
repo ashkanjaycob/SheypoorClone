@@ -92,6 +92,10 @@ function Footer() {
             <div>
               <small className="text-gray-500">
                 کليه حقوق اين سایت متعلق به شرکت نت تجارت اهورا (شیپور) است.
+                <span className="text-blue-600">
+                  {" "}
+                  توسعه داده شده توسط اشکان یعقوبی
+                </span>
               </small>
             </div>
             <div className="flex justify-end text-gray-500 gap-6">
