@@ -5,6 +5,7 @@ import Homepage from "../pages/Homepage";
 import Dashboard from "../pages/Dashboard";
 import AdminPage from "../pages/AdminPage";
 import NotFound from "../pages/NotFound";
+import Category from "../pages/Category";
 import { getProfile } from "../Services/user";
 import { ThreeCircles } from "react-loader-spinner";
 import styles from "../router/loader.module.css";
@@ -12,7 +13,7 @@ import AdPage from "../pages/AdPage";
 
 function Router() {
   const { data, isLoading, error } = useQuery(["profile"], getProfile);
-  console.log({ data, isLoading, error });
+  // console.log({ data, isLoading, error });
 
   if (isLoading) {
     return (
@@ -33,6 +34,7 @@ function Router() {
   return (
     <Routes>
       <Route path="/" element={<Homepage />} />
+      <Route path="/category/*" element={<Category />} />
       <Route path="/auth/*" element={<Authpage />} />
       <Route
         path="/dashboard/*"

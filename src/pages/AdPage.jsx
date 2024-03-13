@@ -15,7 +15,8 @@ const AdPage = ({ userdata }) => {
   const { data, isFetching } = useQuery(["get-ad-id", id], () =>
     getmySpecificAd(id)
   ); // Passing id as a dependency to the query key
-  console.log({ data });
+  // console.log({ data });
+  console.log({ userdata });
 
   const [showFullNumber, setShowFullNumber] = useState(false);
 
@@ -174,10 +175,11 @@ const AdPage = ({ userdata }) => {
                       </div>
 
                       <div className="flex justify-center items-center flex-col py-16">
-                        دسترسی ادمین : 
+
                         
-                        {userdata.role === "ADMIN" ? (
+                        {userdata && userdata.role === "ADMIN" ? (
                           <div>
+                              دسترسی ادمین : 
                             <button
                               onClick={deleteadHandler}
                               className="bg-red-600 px-10 py-3 rounded-full text-white"

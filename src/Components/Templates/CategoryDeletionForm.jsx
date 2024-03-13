@@ -39,7 +39,7 @@ function CategoryDeletionForm() {
 
   return (
     <form
-      className="w-full flex flex-col items-center text-right"
+      className="w-full flex flex-col items-start text-right"
     >
       <h2 className="font-bold desktop:w-[50%] text-[2rem] border-b-4 m-4 py-2">حذف دسته بندی</h2>
       <label htmlFor="category">انتخاب دسته بندی</label>

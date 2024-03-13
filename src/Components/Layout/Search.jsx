@@ -15,10 +15,10 @@ function SearchModal() {
     const filteredResults = data.posts.filter((item) =>
       item.options.title.toLowerCase().includes(searchQuery.toLowerCase())
     );
-    console.log(filteredResults);
+    // console.log(filteredResults);
     setSearchResults(filteredResults);
   };
-  console.log(searchResults);
+  // console.log(searchResults);
   const handleModalClose = () => setShowModal(false);
 
   return (

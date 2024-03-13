@@ -51,11 +51,11 @@ function CategoryForm() {
   return (
     <>
     <CtegoryList />
-    <div className="container mx-auto my-14">
+    <div className="container my-14">
       <form
         onSubmit={submitHandler}
         onChange={changeHandler}
-        className="w-full flex flex-col items-center text-right"
+        className="w-full flex flex-col items-start text-right"
       >
         <h2 className="font-bold desktop:w-[50%] text-[2rem] border-b-4 m-4 py-2">ایجاد دسته بندی</h2>
         <label htmlFor="name">نام دسته بندی</label>
