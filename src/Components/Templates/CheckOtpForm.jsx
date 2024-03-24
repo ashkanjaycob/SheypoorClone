@@ -67,7 +67,6 @@ function CheckOtpForm({ code, setCode, mobile, setStep }) {
 
       <button className={styles.changeNumber}
           onClick={() => {
-            console.log("s");
             setStep(1);
           }}
         >

@@ -73,6 +73,7 @@ function AddAdvertising() {
     const { name, value, type } = event.target;
     if (type === "file") {
       const file = event.target.files[0];
+      console.log(file);
       if (file) {
         if (file.size > 2 * 1024 * 1024) {
           toast.error(

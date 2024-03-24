@@ -12,6 +12,7 @@ import styles from "../router/loader.module.css";
 import AdPage from "../pages/AdPage";
 
 function Router() {
+  // eslint-disable-next-line no-unused-vars
   const { data, isLoading, error } = useQuery(["profile"], getProfile);
   // console.log({ data, isLoading, error });
 

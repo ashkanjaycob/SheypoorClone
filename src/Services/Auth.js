@@ -12,6 +12,7 @@ const sendOtp = async (mobile) => {
 const checkOtp = async (mobile, code) => {
   try {
     const response = await api.post("/auth/check-otp", { mobile, code });
+    console.log(response);
     return { response };
   } catch (error) {
     return { error };
