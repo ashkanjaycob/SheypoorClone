@@ -5,10 +5,8 @@ import styles from "../../router/loader.module.css";
 import { Link } from "react-router-dom";
 
 function CtegoryList() {
-  // const { data, isLoading  } = useQuery(["get-categories"], getCategory);
   const { data, isLoading } = useQuery(["get-categories"], getCategory);
   console.log({ data, isLoading });
-
 
   return (
     <div className="container mx-auto">
@@ -25,16 +23,17 @@ function CtegoryList() {
           />
         </div>
       ) : (
-        <ul className="flex items-center justify-evenly">
+        <ul className="flex flex-wrap justify-evenly max-desktop:justify-between">
           {data.map((category) => (
-
             <Link key={category._id} to={`/category/${category._id}`}>
-            <li
-              className="cursor-pointer mx-4 text-center flex flex-col items-center justify-center"
-            >
-              <img className="bg-gray-100 p-3 w-[70px] rounded-full" src={`${category.icon}.svg`} alt="" />
-              <span className="m-2 text-[14px]">{category.name}</span>
-            </li>
+              <li className="cursor-pointer m-2 text-center flex flex-col items-center">
+                <img
+                  className="bg-gray-100 p-2 w-[60px] h-[60px] md:w-[100px] md:h-[100px] rounded-full"
+                  src={`${category.icon}.svg`}
+                  alt=""
+                />
+                <span className="mt-2 text-sm md:text-lg">{category.name}</span>
+              </li>
             </Link>
           ))}
         </ul>

@@ -11,18 +11,17 @@ function SearchModal() {
   const [searchResults, setSearchResults] = useState([]);
 
   const handleSearch = () => {
-    // Filter data based on searchQuery
+    if (!data) return; // Check if data is available
     const filteredResults = data.posts.filter((item) =>
-      item.options.title.toLowerCase().includes(searchQuery.toLowerCase())
+      item.options.title.includes(searchQuery)
     );
-    // console.log(filteredResults);
     setSearchResults(filteredResults);
   };
-  // console.log(searchResults);
+
   const handleModalClose = () => setShowModal(false);
 
   return (
-    <div className="relative flex items-center mr-5 xs:m-0">
+    <div className="relative flex items-center xs:m-0">
       <button
         className="absolute text-sm flex left-0 py-3 px-4 bg-secondary-500  rounded-l-lg hover:bg-slate-200 focus:outline-none focus:ring focus:bg-slate-600 focus:text-white"
         onClick={() => setShowModal(true)}
@@ -48,24 +47,27 @@ function SearchModal() {
               aria-orientation="vertical"
               aria-labelledby="menu-button"
               // eslint-disable-next-line react/no-unknown-property
-              tabindex="-1"
+              tabIndex="-1"
             >
-              {searchResults.length > 0 ? ( // If there are search results, display them
+              {searchResults.length > 0 ? (
+                // If there are search results, display them
                 searchResults.map((result) => (
-                  // eslint-disable-next-line react/jsx-key
                   <Link
-                     to={`/dashboard/${result._id}`}
-                    className="block px-4 py-2 text-sm text-gray-500 hover:bg-blue-100" 
-                    role="menuitem" 
+                    to={`/dashboard/${result._id}`}
+                    className="block px-4 py-2 text-sm text-gray-500 hover:bg-blue-100"
+                    role="menuitem"
                     // eslint-disable-next-line react/no-unknown-property
-                    tabindex="-1" 
+                    tabIndex="-1"
                     id="menu-item-0"
+                    key={result._id} // Provide a unique key for each result
                   >
                     {result.options.title}
                   </Link>
                 ))
               ) : (
-                <p className="px-4 py-2 text-sm text-gray-700">چیزی با این عنوان یافت نشد  !</p> // If no results, show a message
+                <p className="px-4 py-2 text-sm text-gray-700">
+                  چیزی با این عنوان یافت نشد !
+                </p> // If no results, show a message
               )}
             </div>
           </div>
@@ -82,22 +84,22 @@ function SearchModal() {
 
             <div className="relative bg-white rounded-lg p-8 max-w-md mx-auto">
               <div className="flex flex-col justify-between items-center mb-4">
-              <button
+                <button
                   className="text-gray-500 hover:text-gray-600 focus:outline-none"
                   onClick={handleModalClose}
                 >
-                <h2 className="text-xl font-semibold">در حال توسعه </h2>
-                <br />
-                <small>لطفا بعدا سعی کنید !!!</small>
-                <br />
-                <h2 className="text-red-800 mt-8">اینجا کلیک کنید </h2>
+                  <h2 className="text-xl font-semibold">در حال توسعه </h2>
+                  <br />
+                  <small>لطفا بعدا سعی کنید !!!</small>
+                  <br />
+                  <h2 className="text-red-800 mt-8">اینجا کلیک کنید </h2>
                 </button>
               </div>
               <div>
                 {/* Display search results here */}
                 {/* You can map through searchResults to display search results */}
                 {searchResults.map((result) => (
-                  <div key={result.id}>{result.title}</div>
+                  <div key={result._id}>{result.options.title}</div>
                 ))}
               </div>
             </div>

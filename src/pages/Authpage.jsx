@@ -10,7 +10,7 @@ function Authpage() {
 
   return (
     <>
-      <div className={styles.container}>
+      <div className='container md:w-full lg:w-3/4 mx-auto p-2 mt-3'>
         <div className={styles.childs}>
         {step === 1 && (
           <SendOtpForm

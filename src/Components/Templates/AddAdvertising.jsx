@@ -107,7 +107,8 @@ function AddAdvertising() {
       })
       .catch((error) => {
         console.log(error);
-        toast.success(error.message);
+        toast.error(error.message);
+        toast.error("لطفا فیلد های فرم را پر کنید و مجددا تلاس کنید !!!")
       })
       .finally(() => {
         // Reset form data after submission, regardless of success or failure
@@ -133,11 +134,11 @@ function AddAdvertising() {
 
   return (
     <>
-      <div className="container mx-auto">
+      <div className="container mx-auto px-4">
         <form
           onChange={changeHandler}
           onSubmit={submitAdformHandler}
-          className="w-full flex flex-col  text-right"
+          className="w-full flex flex-col text-right"
         >
           <label htmlFor="title">عنوان آگهی</label>
           <input
@@ -169,15 +170,6 @@ function AddAdvertising() {
             type="text"
             name="city"
             placeholder="مثلا تهران"
-          />
-          <label htmlFor="category">دسته بندی</label>
-
-          <label htmlFor="city">کد پستی</label>
-          <input
-            className="py-2 desktop:w-[50%] my-3 px-4 border rounded-lg desktop:pl-60 laptop:pl-36 pl-20 focus:outline-none focus:ring focus:border-blue-200"
-            type="text"
-            name="city"
-            placeholder="مثلا کد پستی"
           />
           <label htmlFor="category">دسته بندی</label>
 
@@ -229,15 +221,15 @@ function AddAdvertising() {
         </form>
             <hr className="my-8" />
         <div>
-
         <h2 className="mb-12 font-bold text-blue-600 text-[1.6rem] py-4 border-b-2">
               لیست آگهی های شما
             </h2>
-          <AdsList />
         </div>
-
         <Toaster />
       </div>
+      <div className="container mx-auto">
+      <AdsList />
+      </div >
     </>
   );
 }

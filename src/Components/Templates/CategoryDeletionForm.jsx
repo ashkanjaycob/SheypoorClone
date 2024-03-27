@@ -39,12 +39,12 @@ function CategoryDeletionForm() {
 
   return (
     <form
-      className="w-full flex flex-col items-start text-right"
+      className="w-full flex flex-col items-start text-right p-4"
     >
-      <h2 className="font-bold desktop:w-[50%] text-[2rem] border-b-4 m-4 py-2">حذف دسته بندی</h2>
+      <h2 className="font-bold w-full text-[2rem] border-b-4 m-4 py-2">حذف دسته بندی</h2>
       <label htmlFor="category">انتخاب دسته بندی</label>
       <select
-        className="py-2 desktop:w-[50%] my-3 px-4 border rounded-lg desktop:pl-60 laptop:pl-36 pl-20 focus:outline-none focus:ring focus:border-blue-200"
+        className="py-2 w-full my-3 px-4 border rounded-lg desktop:pl-60 laptop:pl-36 pl-20 focus:outline-none focus:ring focus:border-blue-200"
         name="category"
         id="category"
         value={selectedCategoryId}
@@ -53,11 +53,11 @@ function CategoryDeletionForm() {
         <option value="">انتخاب دسته بندی</option>
         {/* Map over the categories data to render options */}
         {data && data.map(category => (
-          <option key={category._id} value={category._id}>{category.name}</option>
+          <option className="w-full" key={category._id} value={category._id}>{category.name}</option>
         ))}
       </select>
       <button 
-        className="my-4 desktop:w-[50%] text-white bg-red-400 p-4 rounded-full" 
+        className="my-4 w-full text-white bg-red-400 p-4 rounded-full" 
         type="button" // Use type="button" to prevent form submission
         onClick={handleDelete} // Call handleDelete onClick
       >

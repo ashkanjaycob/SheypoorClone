@@ -36,30 +36,31 @@ function AllAds() {
                 <Link
                   key={post._id}
                   to={`/dashboard/${post._id}`}
-                  className="w-[16%]"
+                  className="w-[16%] max-desktop:w-[96%] max-desktop:border-b-2 max-desktop:pb-4"
                 >
-                  <div className="flex flex-col items-center rounded-lg bg-white cursor-pointer">
+                  <div className="flex max-desktop:flex-row-reverse flex-col max-desktop:items-start items-center justify-between rounded-lg bg-white cursor-pointer">
                     <div className="relative overflow-hidden bg-cover bg-no-repeat">
                       <img
-                        className="rounded-xl w-[180px] h-[180px]"
+                        className="rounded-xl w-[180px] h-[180px] max-desktop:w-[120px] max-desktop:h-[120px]" 
                         src={`${import.meta.env.VITE_BASE_URL}${post.images[0]}`}
                         alt="عکس آگهی"
                       />
                     </div>
-                    <div className="p-6">
-                      <div
+                    <div className="max-desktop:p-2 p-6 text-start">
+                    <div
                         style={{
                           maxWidth: "200px",
                           overflow: "hidden",
                           textOverflow: "ellipsis",
                           whiteSpace: "nowrap",
                         }}
+                        className="mb-2 font-medium leading-tight text-neutral-800 dark:text-neutral-50 md:max-w-[200px]"
                       >
-                        <h5 className="mb-2 font-medium leading-tight text-neutral-800 dark:text-neutral-50">
+                        <h5 className="text-base max-desktop:text-lg">
                           {post.options.title}
                         </h5>
                       </div>
-                      <p className="flex text-base dark:text-neutral-200">
+                      <p className="flex text-base max-desktop:mt-8 dark:text-neutral-200">
                         {sp(post.amount)}{" "}
                         <img
                           className="w-[22px] mr-2"

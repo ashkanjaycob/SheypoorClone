@@ -10,10 +10,10 @@ function Footer() {
   return (
     <footer className="mt-5 bg-zinc-50 rtl">
       <div className="container mx-auto py-4 sm:py-6 lg:py-8">
-        <div className="flex justify-between">
-          <div className="flex justify-start gap-20">
+        <div className="flex max-desktop:flex-col justify-between ">
+          <div className="flex max-desktop:flex-col justify-start gap-20 px-3">
             {/* Column 1 */}
-            <div>
+            <div className="max-desktop:border-b-4 max-desktop:pb-8">
               <h4 className="mb-3 text-lg">شیپور</h4>
               <ul className="space-y-2 text-gray-400">
                 <li>
@@ -28,7 +28,7 @@ function Footer() {
               </ul>
             </div>
             {/* Column 2 */}
-            <div>
+            <div className="max-desktop:hidden">
               <h4 className="mb-3 text-lg">راهنمای مشتریان</h4>
               <ul className="space-y-2 text-gray-400">
                 <li>
@@ -46,7 +46,7 @@ function Footer() {
               </ul>
             </div>
             {/* Column 3 */}
-            <div>
+            <div className="max-desktop:hidden">
               <h4 className="mb-3 text-lg">خدمات</h4>
               <ul className="space-y-2 text-gray-400">
                 <li>
@@ -62,7 +62,7 @@ function Footer() {
             </div>
           </div>
 
-          <div className="flex justufy-end">
+          <div className="flex justufy-end pr-5">
             <div className="flex self-end flex-col gap-2 mt-6">
               {/* Buttons */}
               <button className="flex items-center justify-between w-40 bg-white h-12 rounded-md border border-gray-500 p-2 mb-2 overflow-hidden">
@@ -86,7 +86,7 @@ function Footer() {
         </div>
       </div>
 
-      <div className="w-full bg-zinc-200">
+      <div className="w-full bg-zinc-200 px-4">
         <div className="container mx-auto py-4">
           <div className="flex justify-between">
             <div>
@@ -98,7 +98,7 @@ function Footer() {
                 </span>
               </small>
             </div>
-            <div className="flex justify-end text-gray-500 gap-6">
+            <div className="flex justify-end text-gray-500 max-desktop:gap-3 gap-14">
               <div>
                 {/* <!-- Linkedin --> */}
                 <svg
