@@ -23,7 +23,7 @@ function CtegoryList() {
           />
         </div>
       ) : (
-        <ul className="flex flex-wrap justify-evenly max-desktop:justify-between">
+        <ul className="flex flex-wrap justify-evenly max-desktop:justify-between px-6">
           {data.map((category) => (
             <Link key={category._id} to={`/category/${category._id}`}>
               <li className="cursor-pointer m-2 text-center flex flex-col items-center">

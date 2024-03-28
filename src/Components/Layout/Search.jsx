@@ -3,6 +3,7 @@ import { LocationMarkerIcon } from "@heroicons/react/outline";
 import { useQuery } from "@tanstack/react-query";
 import { getAllAds } from "../../Services/user";
 import { Link } from "react-router-dom";
+import styles from "../../styles/auth.module.css";
 
 function SearchModal() {
   const { data } = useQuery(["get-all-ads"], getAllAds);
@@ -18,7 +19,14 @@ function SearchModal() {
     setSearchResults(filteredResults);
   };
 
-  const handleModalClose = () => setShowModal(false);
+  const handleModalClose = () => {
+    setShowModal(false);
+    setSearchQuery(""); // Clear search query
+  };
+
+  const handleSearchResultClick = () => {
+    setSearchQuery(""); // Clear search query
+  };
 
   return (
     <div className="relative flex items-center xs:m-0">
@@ -35,10 +43,10 @@ function SearchModal() {
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         onKeyUp={handleSearch} // Call handleSearch on each key press
-        className="w-full py-3 px-4 border rounded-lg desktop:pl-60 laptop:pl-36 pl-20 focus:outline-none focus:ring focus:border-blue-200"
+        className={`w-full py-3 px-4 border rounded-lg desktop:pl-60 laptop:pl-36 pl-20 focus:outline-none focus:ring focus:border-blue-200 ${styles["placeholder-text"]}`}
       />
 
-      {searchQuery && ( // Render dropdown only when searchQuery is not empty
+      {searchQuery && (
         <div className="absolute left-0 right-0 top-14">
           <div className="rounded-md bg-slate-100 shadow-xs overflow-hidden">
             <div
@@ -46,20 +54,18 @@ function SearchModal() {
               role="menu"
               aria-orientation="vertical"
               aria-labelledby="menu-button"
-              // eslint-disable-next-line react/no-unknown-property
               tabIndex="-1"
             >
               {searchResults.length > 0 ? (
-                // If there are search results, display them
                 searchResults.map((result) => (
                   <Link
                     to={`/dashboard/${result._id}`}
                     className="block px-4 py-2 text-sm text-gray-500 hover:bg-blue-100"
                     role="menuitem"
-                    // eslint-disable-next-line react/no-unknown-property
                     tabIndex="-1"
                     id="menu-item-0"
-                    key={result._id} // Provide a unique key for each result
+                    key={result._id}
+                    onClick={handleSearchResultClick} // Clear search query on result click
                   >
                     {result.options.title}
                   </Link>
@@ -67,7 +73,7 @@ function SearchModal() {
               ) : (
                 <p className="px-4 py-2 text-sm text-gray-700">
                   چیزی با این عنوان یافت نشد !
-                </p> // If no results, show a message
+                </p>
               )}
             </div>
           </div>
@@ -94,13 +100,6 @@ function SearchModal() {
                   <br />
                   <h2 className="text-red-800 mt-8">اینجا کلیک کنید </h2>
                 </button>
-              </div>
-              <div>
-                {/* Display search results here */}
-                {/* You can map through searchResults to display search results */}
-                {searchResults.map((result) => (
-                  <div key={result._id}>{result.options.title}</div>
-                ))}
               </div>
             </div>
           </div>

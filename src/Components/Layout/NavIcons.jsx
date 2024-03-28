@@ -4,7 +4,7 @@ import { delCookie } from "../../Utils/cookie";
 import { useQuery } from "@tanstack/react-query";
 import { getProfile } from "../../Services/user";
 
-function NavIcons() {
+function    NavIcons() {
   const { data } = useQuery(["profile"], getProfile);
 
   const handleLogout = () => {
@@ -19,13 +19,12 @@ function NavIcons() {
   //   };
 
   return (
-    <div>
-      <div className="flex items-center justify-between space-x-2 mr-2">
+      <div className="flex flex-row-reverse items-center text-start justify-evenly mr-2">
 
         {data ? (
           <Link to="/admin">
-        <span onClick={handleLogout} className="text-gray-400 cursor-pointer">
-          <LogoutIcon className="h-5 w-5 mr-7 inline-block" />
+        <span onClick={handleLogout} className="text-gray-400 cursor-pointer flex flex-col items-center border-l-2 pl-3">
+          <LogoutIcon className="h-5 w-5 mr-2 inline-block" />
           <span className="text-gray-400 mr-1">خروج</span>
         </span>
           </Link>
@@ -36,8 +35,8 @@ function NavIcons() {
 
         {data && data.role === "ADMIN" ? (
           <Link to="/admin">
-            <span className="text-gray-400 cursor-pointer">
-              <UserAddIcon className="h-5 w-5 mr-7 inline-block" />
+            <span className="text-gray-400 cursor-pointer flex flex-col items-center border-l-2 pl-3">
+              <UserAddIcon className="h-5 w-5 mr-2 inline-block" />
               <span className="text-gray-400 mr-1">ادمین پنل</span>
             </span>
           </Link>
@@ -46,13 +45,12 @@ function NavIcons() {
         )}
 
         <Link to="/dashboard">
-          <span className="text-gray-400 cursor-pointer">
-            <UserIcon className="h-5 w-5 mr-7 inline-block" />
+          <span className="text-gray-400 cursor-pointer flex flex-col items-center border-l-2 pl-3">
+            <UserIcon className="h-5 w-5 mr-2 inline-block" />
             <span className="text-gray-400 mr-1">حساب من</span>
           </span>
         </Link>
       </div>
-    </div>
   );
 }
 

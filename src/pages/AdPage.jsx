@@ -16,7 +16,7 @@ const AdPage = ({ userdata }) => {
     getmySpecificAd(id)
   ); // Passing id as a dependency to the query key
   // console.log({ data });
-  console.log({ userdata });
+  // console.log({ userdata });
 
   const [showFullNumber, setShowFullNumber] = useState(false);
 
@@ -39,7 +39,7 @@ const AdPage = ({ userdata }) => {
 
   return (
     <div className="container mx-auto">
-      <h2 className="mb-12 font-bold text-blue-600 text-[1rem] py-4 border-b-2">
+      <h2 className="mb-12 font-bold text-blue-600 text-[1rem] pb-2 border-b-2 px-5">
         نمایش آگهی بارگذاری شده شما
       </h2>
       {isFetching ? (
@@ -60,7 +60,7 @@ const AdPage = ({ userdata }) => {
             <div>
               <div className="flex gap-8 items-center justify-between rounded-lg p-5">
                 <div className="flex w-full flex-col">
-                  <div className="relative bg-zinc-50 rounded-xl p-2 w-full items-center justify-center flex mx-auto overflow-hidden bg-cover bg-no-repeat">
+                  <div className="relative bg-zinc-50  rounded-xl p-2 w-full items-center justify-center flex mx-auto overflow-hidden bg-cover bg-no-repeat">
                     <img
                       className=" w-[600px] h-[50vh]"
                       src={`${import.meta.env.VITE_BASE_URL}${
@@ -70,8 +70,8 @@ const AdPage = ({ userdata }) => {
                     />
                   </div>
 
-                  <div className="flex mt-8">
-                    <div className="w-4/6">
+                  <div className="flex max-desktop:flex-col flex-row mt-8 ">
+                    <div className="max-desktop:w-full w-4/6 max-desktop:border-b-4">
                       <div className="flex justify-between">
                         <div
                           style={{
@@ -82,10 +82,10 @@ const AdPage = ({ userdata }) => {
                           }}
                         >
                           <div className="mb-2">
-                            <h5 className="mb-2 text-2xl py-2 font-medium leading-tight text-neutral-800 dark:text-neutral-50">
+                            <h5 className="mb-2 text-2xl py-2 font-medium leading-tight text-neutral-800 ">
                               {data.post.options.title}
                             </h5>
-                            <p className="flex text-[18px] dark:text-neutral-200">
+                            <p className="flex text-[18px]">
                               {sp(data.post.amount)}{" "}
                               <img
                                 className="w-[24px] mr-2"
@@ -103,7 +103,7 @@ const AdPage = ({ userdata }) => {
                             <HeartIcon className="bg-slate-50 w-24 p-2 rounded cursor-pointer" />
                           </div>
                           <br />
-                          <small className="text-base py-4 text-[0.7rem] text-neutral-600 dark:text-neutral-200">
+                          <small className="text-base py-4 text-[0.7rem] text-neutral-600 ">
                             در {data.post.options.city}
                           </small>
                         </div>
@@ -117,7 +117,7 @@ const AdPage = ({ userdata }) => {
                           whiteSpace: "wrap",
                         }}
                       >
-                        <h5 className="mb-2 leading-loose text-neutral-800 dark:text-neutral-50">
+                        <h5 className="mb-2 leading-loose text-neutral-800">
                           {data.post.options.content
                             .split("\r\n")
                             .map((line, index) => (
@@ -127,7 +127,7 @@ const AdPage = ({ userdata }) => {
                       </div>
 
                       <div className="flex flex-col">
-                        <small className="text-base border-b-2 py-2 text-[0.7rem] text-neutral-600 dark:text-neutral-200">
+                        <small className="text-base border-b-2 py-2 text-[0.7rem] text-neutral-600">
                           تاریخ :
                           {new Date(data.post.createdAt)
                             .toLocaleString("fa-IR")
@@ -161,25 +161,26 @@ const AdPage = ({ userdata }) => {
                       </div>
                     </div>
 
-                    <div className="w-2/6 text-center border-2 border-gray-100 rounded-xl m-4 h-[50vh]">
+                    <div className="max-desktop:w-full w-2/6 text-center border-2 border-gray-100 rounded-xl mt-4 mx-2 h-[40vh]">
                       <div className="flex justify-center items-center flex-col pt-6">
                         <UserCircleIcon className="w-[4rem] text-gray-300" />
                         <h3 className="text-gray-500">کاربر شیپور</h3>
                         <br />
-                        <button className="mt-6 border-2 w-5/6 rounded-full bg-blue-500 text-white py-3">
+                        <Link
+                          to="/"
+                          className="mt-6 border-2 w-5/6 rounded-full bg-blue-500 text-white py-3"
+                        >
                           مشاهده سایر آگهی ها
-                        </button>
+                        </Link>
                         <button className="mt-6 border-2 w-5/6 rounded-full bg-white text-blue-600 py-3">
                           چت با کاربر شیپور
                         </button>
                       </div>
 
                       <div className="flex justify-center items-center flex-col py-16">
-
-                        
                         {userdata && userdata.role === "ADMIN" ? (
                           <div>
-                              دسترسی ادمین : 
+                            دسترسی ادمین :
                             <button
                               onClick={deleteadHandler}
                               className="bg-red-600 px-10 py-3 rounded-full text-white"

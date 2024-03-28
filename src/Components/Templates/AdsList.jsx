@@ -45,7 +45,7 @@ function AdsList() {
                       <img
                         className="rounded-xl w-[180px] h-[180px] max-desktop:w-[120px] max-desktop:h-[120px]" 
                         src={`${import.meta.env.VITE_BASE_URL}${post.images[0]}`}
-                        alt="عکس آگهی"
+                        alt="این آگهی فاقد عکس است !"
                       />
                     </div>
                     <div className="max-desktop:p-2 p-6 text-start">
@@ -56,13 +56,13 @@ function AdsList() {
                           textOverflow: "ellipsis",
                           whiteSpace: "nowrap",
                         }}
-                        className="mb-2 font-medium leading-tight text-neutral-800 dark:text-neutral-50 md:max-w-[200px]"
+                        className="mb-2 font-medium leading-tight text-neutral-800 md:max-w-[200px]"
                       >
                         <h5 className="text-base max-desktop:text-lg">
                           {post.options.title}
                         </h5>
                       </div>
-                      <p className="flex text-base max-desktop:mt-8 dark:text-neutral-200">
+                      <p className="flex text-base max-desktop:mt-8">
                         {sp(post.amount)}{" "}
                         <img
                           className="w-[22px] mr-2"

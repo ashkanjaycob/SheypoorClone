@@ -54,13 +54,13 @@ function AllAds() {
                           textOverflow: "ellipsis",
                           whiteSpace: "nowrap",
                         }}
-                        className="mb-2 font-medium leading-tight text-neutral-800 dark:text-neutral-50 md:max-w-[200px]"
+                        className="mb-2 font-medium leading-tight text-neutral-800 md:max-w-[200px]"
                       >
                         <h5 className="text-base max-desktop:text-lg">
                           {post.options.title}
                         </h5>
                       </div>
-                      <p className="flex text-base max-desktop:mt-8 dark:text-neutral-200">
+                      <p className="flex text-base max-desktop:mt-8 ">
                         {sp(post.amount)}{" "}
                         <img
                           className="w-[22px] mr-2"
