@@ -27,7 +27,7 @@ function Category() {
 
   return (
     <div className="container mx-auto">
-      <div className="flex mb-4 items-center border-b-2 pb-8">
+      <div className="flex mb-4 items-center border-b-2 pb-8 px-2">
         <img className="w-6 h-6 ml-2" src="/sheypoorBlack.svg" alt="" />
         <h2 className="font-bold text-lg">دسته بندی فیلتر شده</h2>
       </div>

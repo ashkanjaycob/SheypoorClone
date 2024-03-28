@@ -58,7 +58,7 @@ function Header() {
       </div>
 
       {isMobileView && ( // Render only in mobile view
-        <div className="fixed bottom-0 left-0 w-full h-[8vh] bg-white z-50 border-t-[1px] p-2 shadow-xl">
+        <div className="fixed bottom-0 left-0 w-full h-[10vh] bg-white z-50 border-t-[1px] p-2 shadow-xl">
           <div className="container mx-auto">
             <div className="flex justify-between items-center">
               {isMobileView && (

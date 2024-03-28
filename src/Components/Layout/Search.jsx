@@ -31,7 +31,7 @@ function SearchModal() {
   return (
     <div className="relative flex items-center xs:m-0">
       <button
-        className="absolute text-sm flex left-0 py-3 px-4 bg-secondary-500  rounded-l-lg hover:bg-slate-200 focus:outline-none focus:ring focus:bg-slate-600 focus:text-white"
+        className="absolute text-[12px] flex left-0 py-3 px-2 bg-secondary-500 rounded-l-lg hover:bg-slate-200 focus:outline-none focus:ring focus:bg-slate-600 focus:text-white"
         onClick={() => setShowModal(true)}
       >
         سراسر ایران

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { getAllAds } from "../../Services/user";
@@ -6,8 +6,13 @@ import { ThreeDots } from "react-loader-spinner";
 import { sp } from "../../Utils/Numbers";
 
 function AllAds() {
-  const { data, isLoading } = useQuery(["get-all-ads"], getAllAds);
+  const { data, isLoading, refetch } = useQuery(["get-all-ads"], getAllAds);
   const [displayCount, setDisplayCount] = useState(24); // Initial number of ads to display
+
+  useEffect(() => {
+    // This effect will run when the data changes, triggering a refetch
+    refetch();
+  }, [data, refetch]);
 
   const handleLoadMore = () => {
     // Increase the display count by 6 each time the user clicks "Load More"

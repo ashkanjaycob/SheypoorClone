@@ -5,9 +5,11 @@ import Header from "./Header";
 function Layout({ children }) {
   return (
     <>
+    <div className="flex flex-col min-h-screen max-desktop:mt-24 max-desktop:mb-16 mt-32">
       <Header />
-      <div className="mt-16 pt-12"> {children}</div>
+      <div className="flex-grow">{children}</div>
       <Footer />
+    </div>
     </>
   );
 }
