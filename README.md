@@ -1,8 +1,31 @@
-# React + Vite
+# Sheypoor Clone By React
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Table of Contents
+- [Introduction](#introduction)
+- [Features](#features)
+- [Technologies Used](#technologies-used)
 
-Currently, two official plugins are available:
+## Introduction
+ Sheypoor clone project made with tailwind and stlyled componenets ui with otp login , admin panel , user panel and other features.
+ 
+## Features
+- List of features in bullet points:
+  - OTP login system 
+  - Connect Otp with Sms Panel Providers
+  - Admin panel for adding Category in platform
+  - User panel for adding advertisment in platform
+  - Define a routing for admin and clients
+  - Same UI UX as Orginal Platform ( SHEYPOOR )
+  - ...
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Technologies Used
+Front
+- React
+- Tailwind CSS
+- Styled Components
+Back
+- Node js
+- Express Js
+- Atlas MongoDB
+
+
