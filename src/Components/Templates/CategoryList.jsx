@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getCategory } from "../../Services/Admin";
-import { ThreeCircles } from "react-loader-spinner";
+import { ThreeDots } from "react-loader-spinner";
 import styles from "../../router/loader.module.css";
 import { Link } from "react-router-dom";
 
@@ -12,7 +12,7 @@ function CtegoryList() {
     <div className="container mx-auto">
       {isLoading ? (
         <div className={styles.loader}>
-          <ThreeCircles
+          <ThreeDots
             visible={true}
             height="60"
             width="60"
@@ -23,7 +23,7 @@ function CtegoryList() {
           />
         </div>
       ) : (
-        <ul className="flex flex-wrap justify-evenly max-desktop:justify-between px-6">
+        <ul className="grid grid-cols-10 gap-y-4 justify-items-center px-6  max-desktop:grid-cols-5">
           {data.map((category) => (
             <Link key={category._id} to={`/category/${category._id}`}>
               <li className="cursor-pointer m-2 text-center flex flex-col items-center">

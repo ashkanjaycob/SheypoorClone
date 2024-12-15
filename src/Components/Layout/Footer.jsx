@@ -3,7 +3,7 @@ import {
   PlusCircleIcon,
   ChevronLeftIcon,
 } from "@heroicons/react/solid";
-
+import { Link } from "react-router-dom";
 // import { ReactComponent as LinkedinIcon } from '../../assets/Social Logos/Linkedin.svg';
 
 function Footer() {
@@ -63,7 +63,7 @@ function Footer() {
           </div>
 
           <div className="flex justufy-end pr-5">
-            <div className="flex self-end flex-col gap-2 mt-6">
+            <div className="flex self-end flex-col gap-2 mt-6 text-sm">
               {/* Buttons */}
               <button className="flex items-center justify-between w-40 bg-white h-12 rounded-md border border-gray-500 p-2 mb-2 overflow-hidden">
                 <h5 className="block">اپلیکیشن</h5>
@@ -72,8 +72,8 @@ function Footer() {
               </button>
 
               <button className="flex items-center justify-between w-40 bg-white h-12 rounded-md border border-gray-500 p-2 mb-2 overflow-hidden">
-                <h5 className="block"> ios اپلیکیشن</h5>
-                <small className="w-18 ">سیب اپ</small>
+                <h5 className="block">  اپلیکیشن ios</h5>
+                {/* <small className="w-18 ">سیب اپ</small> */}
                 <PlusCircleIcon className="w-8  text-blue-700" />
               </button>
 
@@ -92,10 +92,12 @@ function Footer() {
             <div>
               <small className="text-gray-500">
                 کليه حقوق اين سایت متعلق به شرکت نت تجارت اهورا (شیپور) است.
+                <Link to="https://linkedin.com/in/ashkanyaghobi" target="_blank">
                 <span className="text-blue-600">
                   {" "}
                   توسعه داده شده توسط اشکان یعقوبی
                 </span>
+                </Link>
               </small>
             </div>
             <div className="flex justify-end text-gray-500 max-desktop:gap-3 gap-14">

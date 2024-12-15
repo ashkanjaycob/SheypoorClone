@@ -46,7 +46,7 @@ function Header() {
                 </div>
                 <div>
                   <Link to="/dashboard">
-                    <button className="py-3 px-4 bg-blue-500 text-white rounded-full">
+                    <button className="py-2 px-4 bg-blue-500 text-white text-sm rounded-full">
                       ثبت آگهی رایگان +
                     </button>
                   </Link>
@@ -58,9 +58,9 @@ function Header() {
       </div>
 
       {isMobileView && ( // Render only in mobile view
-        <div className="fixed bottom-0 left-0 w-full h-[10vh] bg-white z-50 border-t-[1px] p-2 shadow-xl">
+        <div className="fixed bottom-0 left-0 w-full h-[10vh] flex items-center bg-white z-50 border-t-[1px] px-6 shadow-xl">
           <div className="container mx-auto">
-            <div className="flex justify-between items-center">
+            <div className="flex justify-evenly items-center">
               {isMobileView && (
                 <div className="flex w-full justify-between items-center">
                   <div className="w-2/6 text-right">

@@ -7,15 +7,13 @@ import { sp } from "../../Utils/Numbers";
 
 function AllAds() {
   const { data, isLoading, refetch } = useQuery(["get-all-ads"], getAllAds);
-  const [displayCount, setDisplayCount] = useState(24); // Initial number of ads to display
+  const [displayCount, setDisplayCount] = useState(24); 
 
   useEffect(() => {
-    // This effect will run when the data changes, triggering a refetch
     refetch();
   }, [data, refetch]);
 
   const handleLoadMore = () => {
-    // Increase the display count by 6 each time the user clicks "Load More"
     setDisplayCount(displayCount + 6);
   };
 
@@ -59,7 +57,7 @@ function AllAds() {
                           textOverflow: "ellipsis",
                           whiteSpace: "nowrap",
                         }}
-                        className="mb-2 font-medium leading-tight text-neutral-800 md:max-w-[200px]"
+                        className="mb-2 leading-tight text-neutral-800 md:max-w-[200px]"
                       >
                         <h5 className="text-base max-desktop:text-lg">
                           {post.options.title}
