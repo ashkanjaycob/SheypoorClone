@@ -7,7 +7,7 @@ import { sp } from "../../Utils/Numbers";
 
 function AllAds() {
   const { data, isLoading, refetch } = useQuery(["get-all-ads"], getAllAds);
-  const [displayCount, setDisplayCount] = useState(24); 
+  const [displayCount, setDisplayCount] = useState(24);
 
   useEffect(() => {
     refetch();
@@ -44,13 +44,15 @@ function AllAds() {
                   <div className="flex max-desktop:flex-row-reverse flex-col max-desktop:items-start items-center justify-between rounded-lg bg-white cursor-pointer">
                     <div className="relative overflow-hidden bg-cover bg-no-repeat">
                       <img
-                        className="rounded-xl w-[180px] h-[180px] max-desktop:w-[120px] max-desktop:h-[120px]" 
-                        src={`${import.meta.env.VITE_BASE_URL}${post.images[0]}`}
+                        className="rounded-xl w-[180px] h-[180px] max-desktop:w-[120px] max-desktop:h-[120px]"
+                        src={`${import.meta.env.VITE_BASE_URL}${
+                          post.images[0]
+                        }`}
                         alt="عکس آگهی"
                       />
                     </div>
                     <div className="max-desktop:p-2 p-6 text-start">
-                    <div
+                      <div
                         style={{
                           maxWidth: "200px",
                           overflow: "hidden",
@@ -60,7 +62,9 @@ function AllAds() {
                         className="mb-2 leading-tight text-neutral-800 md:max-w-[200px]"
                       >
                         <h5 className="text-base max-desktop:text-lg">
-                          {post.options.title}
+                          {post.options.title.length > 20
+                            ? `${post.options.title.substring(0, 20)}...`
+                            : post.options.title}
                         </h5>
                       </div>
                       <p className="flex text-base max-desktop:mt-8 ">

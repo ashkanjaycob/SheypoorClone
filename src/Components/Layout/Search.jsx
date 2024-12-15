@@ -43,7 +43,7 @@ function SearchModal() {
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         onKeyUp={handleSearch} // Call handleSearch on each key press
-        className={`w-full py-3 px-4 border rounded-lg desktop:pl-60 laptop:pl-36 pl-20 focus:outline-none focus:ring focus:border-blue-200 ${styles["placeholder-text"]}`}
+        className={`w-full py-3 px-4 border rounded-lg desktop:pl-60 laptop:pl-36 pl-20 focus:outline-none focus:ring focus:border-blue-200 ${styles["placeholder-text"]} overflow-auto`}
       />
 
       {searchQuery && (

@@ -43,7 +43,7 @@ function Category() {
         </div>
       ) : (
         <>
-          <div className="container mx-auto flex justify-evenly flex-wrap gap-2">
+          <div className="container mx-auto flex justify-start flex-wrap gap-2">
             {data &&
               data.posts
                 .filter((post) => post.category === categorySlug)
