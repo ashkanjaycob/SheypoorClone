@@ -8,8 +8,8 @@ import { ThreeCircles } from "react-loader-spinner";
 
 function AdsList() {
   const { data, isLoading } = useQuery(["get-my-ads"], getmyAds);
-  console.log({ data, isLoading });
-  const [displayCount, setDisplayCount] = useState(10); 
+
+  const [displayCount, setDisplayCount] = useState(12); 
 
   const handleLoadMore = () => {
     // Increase the display count by 6 each time the user clicks "Load More"
@@ -33,7 +33,7 @@ function AdsList() {
           </div>
         ) : (
           <>
-            <div className="container mx-auto flex justify-evenly flex-wrap gap-2">
+            <div className="container mx-auto flex justify-start flex-wrap gap-2">
               {data.posts.slice(0, displayCount).map((post) => (
                 <Link
                   key={post._id}

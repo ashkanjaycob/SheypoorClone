@@ -5,8 +5,8 @@ import styles from "../../router/loader.module.css";
 import { Link } from "react-router-dom";
 
 function CtegoryList() {
+  
   const { data, isLoading } = useQuery(["get-categories"], getCategory);
-  console.log({ data, isLoading });
 
   return (
     <div className="container mx-auto">

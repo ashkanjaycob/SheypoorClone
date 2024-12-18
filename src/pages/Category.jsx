@@ -3,11 +3,13 @@ import { Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { getAllAds } from "../Services/user";
+import { getCategory } from "../Services/Admin";
 import { ThreeDots } from "react-loader-spinner";
 import { sp } from "../Utils/Numbers";
 
 function Category() {
   const [currentUrl, setCurrentUrl] = useState("");
+  const [categoryTitle, setCategoryTitle] = useState("");
   const location = useLocation();
   const categorySlug = location.pathname.split("/").pop();
 
@@ -19,17 +21,36 @@ function Category() {
     getAllAds(currentUrl)
   );
 
+  const { data: CategoriesList } = useQuery(["get-categories"], getCategory);
+
   const [displayCount, setDisplayCount] = useState(6);
 
   const handleLoadMore = () => {
     setDisplayCount(displayCount + 6);
   };
 
+  useEffect(() => {
+    if (CategoriesList && Array.isArray(CategoriesList)) {
+      const foundCategory = CategoriesList.find(
+        (category) => category._id === currentUrl
+      );
+
+      if (foundCategory) {
+        setCategoryTitle(foundCategory?.name);
+      } else {
+        setCategoryTitle("دسته‌بندی پیدا نشد");
+      }
+    }
+  }, [currentUrl, CategoriesList]);
+
   return (
     <div className="container mx-auto">
       <div className="flex mb-4 items-center border-b-2 pb-8 px-2">
         <img className="w-6 h-6 ml-2" src="/sheypoorBlack.svg" alt="" />
-        <h2 className="font-bold text-lg">دسته بندی فیلتر شده</h2>
+        <h2 className="font-bold text-md">
+          همه ی آگهی های{" "}
+          <span className="text-2xl text-blue-500">{categoryTitle}</span>{" "}
+        </h2>
       </div>
       {isLoading ? (
         <div className="w-full h-full flex items-center justify-center mt-20">

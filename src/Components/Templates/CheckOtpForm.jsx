@@ -16,7 +16,7 @@ function CheckOtpForm({ code, setCode, mobile, setStep }) {
   const submitHandler = async (e) => {
     e.preventDefault();
 
-    if (code.length !== 5) return alert("لطفا کد صحیح را وارد نمایید");
+    if (code.length !== 5) return toast.error("کد وارد شده صحیح نمی باشد !");
 
     const { response, error } = await checkOtp(mobile, code);
     if (response) {
@@ -26,7 +26,7 @@ function CheckOtpForm({ code, setCode, mobile, setStep }) {
           new Promise((resolve) => {
             setTimeout(() => {
               resolve("با موفقیت وارد حساب کاربری شدید");
-            }, 2000); // 2000 milliseconds delay before displaying success toast
+            }, 2000); 
           }),
           {
             loading: "در حال ورود به حساب کاربری...",
@@ -35,7 +35,7 @@ function CheckOtpForm({ code, setCode, mobile, setStep }) {
         )
         .then(() => {
           navigate("/");
-          window.location.reload(); // Reload the application
+          window.location.reload();
         });
       setCookie(response.data);
       setCode("");

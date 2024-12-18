@@ -88,13 +88,13 @@ function SearchModal() {
               aria-hidden="true"
             ></div>
 
-            <div className="relative bg-white rounded-lg p-8 max-w-md mx-auto">
+            <div className=" w-2/3 relative bg-white rounded-lg p-8 max-w-md mx-auto">
               <div className="flex flex-col justify-between items-center mb-4">
                 <button
                   className="text-gray-500 hover:text-gray-600 focus:outline-none"
                   onClick={handleModalClose}
                 >
-                  <h2 className="text-xl font-semibold">در حال توسعه </h2>
+                  <h2 className="text-xl font-semibold">در حال توسعه ...</h2>
                   <br />
                   <small>لطفا بعدا سعی کنید !!!</small>
                   <br />

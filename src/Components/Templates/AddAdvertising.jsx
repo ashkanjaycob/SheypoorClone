@@ -10,9 +10,10 @@ function AddAdvertising() {
 
   const { data, isLoading } = useQuery(["get-category"], getCategory);
 
-  const fileInputRef = useRef(null); // Reference to the file input
+  const fileInputRef = useRef(null); 
 
-  const [selectedImageName, setSelectedImageName] = useState(""); // State to hold the name of the selected image
+  const [selectedImageName, setSelectedImageName] = useState(""); 
+
   const [adform, setAdform] = useState({
     title: "",
     content: "",
@@ -22,53 +23,9 @@ function AddAdvertising() {
   });
 
   const handleClickChooseFile = () => {
-    fileInputRef.current.click(); // Trigger the file input click event when custom button is clicked
+    fileInputRef.current.click(); 
   };
 
-  //   const formatPrice = (value) => {
-  //     // Remove non-digit characters
-  //     let formattedValue = value.replace(/\D/g, "");
-  //     // Remove leading zeros
-  //     formattedValue = formattedValue.replace(/^0+/, "");
-  //     // Prevent negative numbers
-  //     if (formattedValue.length > 0 && formattedValue[0] === "-") {
-  //       formattedValue = formattedValue.substring(1);
-  //     }
-  //     // Separate numbers into groups of three digits
-  //     let parts = [];
-  //     while (formattedValue.length > 3) {
-  //       parts.unshift(formattedValue.slice(-3));
-  //       formattedValue = formattedValue.slice(0, -3);
-  //     }
-  //     parts.unshift(formattedValue);
-  //     // Join parts with Persian thousand separator
-  //     return parts.join(".");
-  //   };
-
-  //   const changeHandler = (event) => {
-  //     const { name, type } = event.target;
-  //     if (type === "file") {
-  //       const file = event.target.files[0];
-  //       if (file) {
-  //         if (file.size > 2 * 1024 * 1024) {
-  //           // If file size exceeds 2MB, display an alert
-  //           toast.error(
-  //             "فایل انتخاب شده باید حجم کمتری از 2 مگابایت و فرمت jpeg / png داشته باشد."
-  //           );
-  //           event.target.value = null; // Reset the file input
-  //           setSelectedImageName(""); // Reset selected image name
-  //         } else {
-  //           // Set the selected file to the state
-  //           setAdform({ ...adform, [name]: file });
-  //           setSelectedImageName(file.name); // Set selected image name
-  //         }
-  //       }
-  //     } else {
-  //       // For other input types, update the state normally
-  //       const { value } = event.target;
-  //       setAdform({ ...adform, [name]: value });
-  //     }
-  //   };
   const changeHandler = (event) => {
     const { name, value, type } = event.target;
     if (type === "file") {
@@ -87,7 +44,7 @@ function AddAdvertising() {
         }
       }
     } else {
-      setAdform({ ...adform, [name]: value }); // Update the state for other input types
+      setAdform({ ...adform, [name]: value });
     }
   };
 
@@ -107,8 +64,7 @@ function AddAdvertising() {
       })
       .catch((error) => {
         console.log(error);
-        toast.error(error.message);
-        toast.error("لطفا فیلد های فرم را پر کنید و مجددا تلاس کنید !!!")
+        toast.error("لطفا فیلد های فرم را پر کنید و مجددا تلاس کنید !!!");
       })
       .finally(() => {
         // Reset form data after submission, regardless of success or failure
@@ -119,22 +75,14 @@ function AddAdvertising() {
           city: "",
           category: "",
         });
-        setSelectedImageName("");       
+        setSelectedImageName("");
       });
-
-    // DIRECTLY
-    // const token = getCookie("accessToken")
-    // axios.post(`${import.meta.env.VITE_BASE_URL}post/create` , formData , {
-    //     headers : {
-    //         "Content-Type" : "multipart/form-data" ,
-    //         Authorization : `bearer ${token}`
-    //     }
-    // }).then((res) => console.log(res))
   };
 
   return (
     <>
       <div className="container mx-auto px-4">
+        <div className="flex justify-center align-middle">
         <form
           onChange={changeHandler}
           onSubmit={submitAdformHandler}
@@ -219,17 +167,18 @@ function AddAdvertising() {
             ایجاد آگهی در شیپور
           </button>
         </form>
-            <hr className="my-8" />
+        </div>
+        <hr className="my-8" />
         <div>
-        <h2 className="mb-12 font-bold text-blue-600 text-[1.6rem] py-4 border-b-2">
-              لیست آگهی های شما
-            </h2>
+          <h2 className="mb-12 font-bold text-blue-600 text-[1.6rem] py-4 border-b-2">
+            لیست آگهی های شما
+          </h2>
         </div>
         <Toaster />
       </div>
       <div className="container mx-auto">
-      <AdsList />
-      </div >
+        <AdsList />
+      </div>
     </>
   );
 }

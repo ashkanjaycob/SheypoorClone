@@ -7,7 +7,7 @@ function SendOtpForm({ mobile, setMobile, setStep }) {
   const submitHandler = async (e) => {
     e.preventDefault();
     if (mobile.length !== 11)
-      return alert("لطفا شماره موبایل 11 رقمی را وارد نمایید");
+      return toast.error("لطفا شماره موبایل 11 رقمی را وارد نمایید"); 
 
     const { response, error } = await sendOtp(mobile);
     if (response) {
@@ -23,7 +23,7 @@ function SendOtpForm({ mobile, setMobile, setStep }) {
     }
     if (error) {
       console.log(error.response.data.message);
-      toast.error("خطا در برقراری ارتباط ، مجدد تلاش کنید"); // Display error message as a toast
+      toast.error("خطا در برقراری ارتباط ، مجدد تلاش کنید"); 
     }
   };
 

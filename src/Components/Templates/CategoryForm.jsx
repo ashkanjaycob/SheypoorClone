@@ -48,7 +48,7 @@ function CategoryForm() {
         <form
           onSubmit={submitHandler}
           onChange={changeHandler}
-          className="w-full flex flex-col items-start text-right px-4"
+          className="w-full desktop:w-1/2 flex flex-col items-start text-right px-4 border-b-2 pb-10"
         >
           <h2 className="font-bold w-full text-[2rem] border-b-4 m-4 py-2">ایجاد دسته بندی</h2>
           {/* Name Input */}
@@ -86,8 +86,6 @@ function CategoryForm() {
           </div>
           <button className="my-4 w-full text-white bg-blue-400 p-4 rounded-full" type="submit">ایجاد دسته بندی</button>
         </form>
-
-        <hr className="my-4" />
 
         <CategoryDeletionForm />
 

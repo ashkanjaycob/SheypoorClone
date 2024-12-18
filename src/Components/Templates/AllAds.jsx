@@ -34,7 +34,7 @@ function AllAds() {
           </div>
         ) : (
           <>
-            <div className="container mx-auto flex justify-evenly flex-wrap gap-2">
+            <div className="container mx-auto flex justify-start flex-wrap gap-2">
               {data.posts.slice(0, displayCount).map((post) => (
                 <Link
                   key={post._id}
