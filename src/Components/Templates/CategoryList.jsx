@@ -23,7 +23,7 @@ function CtegoryList() {
           />
         </div>
       ) : (
-        <ul className="grid grid-cols-10 gap-y-4 justify-items-center px-6  max-desktop:grid-cols-5">
+        <ul className="grid grid-cols-10 gap-y-4 justify-items-center desktop:px-6  max-desktop:grid-cols-5">
           {data.map((category) => (
             <Link key={category._id} to={`/category/${category._id}`}>
               <li className="cursor-pointer m-2 text-center flex flex-col items-center">

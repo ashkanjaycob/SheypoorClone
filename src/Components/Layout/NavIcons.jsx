@@ -20,7 +20,7 @@ function NavIcons() {
   };
 
   return (
-    <div className="flex flex-row-reverse items-center text-start justify-center gap-2 mr-2">
+    <div className="flex flex-row-reverse items-center text-center justify-center gap-2 mr-2 text-xs">
       {data ? (
         <Link to="/admin">
           <span
@@ -37,7 +37,7 @@ function NavIcons() {
 
       <Link to="/dashboard">
         <span
-          className="text-gray-400 text-sm cursor-pointer flex flex-col items-center pl-3"
+          className="text-gray-400 cursor-pointer flex flex-col items-center pl-3 text-xs"
           onClick={scrollToTop}
         >
           <UserIcon className="h-5 w-5 mr-2 inline-block" />
@@ -48,7 +48,7 @@ function NavIcons() {
       {data && data.role === "ADMIN" ? (
         <Link to="/admin">
           <span
-            className="text-gray-400  cursor-pointer flex flex-col items-center pl-3"
+            className="text-gray-400 text-xs cursor-pointer flex flex-col items-center pl-3"
             onClick={scrollToTop}
           >
             <UserAddIcon className="h-5 w-5 mr-2 inline-block" />

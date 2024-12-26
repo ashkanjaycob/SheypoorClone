@@ -102,6 +102,6 @@
 
 /* SearchInput.module.css */
 .placeholder-text {
-    font-size: 13px; /* Adjust the font size as needed */
+    font-size: 12px !important; /* Adjust the font size as needed */
   }
   

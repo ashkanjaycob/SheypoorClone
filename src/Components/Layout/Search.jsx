@@ -28,6 +28,8 @@ function SearchModal() {
     setSearchQuery(""); // Clear search query
   };
 
+  
+
   return (
     <div className="relative flex items-center xs:m-0">
       <button
@@ -38,11 +40,12 @@ function SearchModal() {
         <LocationMarkerIcon className="h-4 w-4 mr-2" />
       </button>
       <input
+        onFocus={false}
         type="text"
         placeholder="جست و جو در شیپور"
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
-        onKeyUp={handleSearch} // Call handleSearch on each key press
+        onKeyUp={handleSearch}
         className={`w-full py-3 px-4 border rounded-lg desktop:pl-60 laptop:pl-36 pl-20 focus:outline-none focus:ring focus:border-blue-200 ${styles["placeholder-text"]} overflow-auto`}
       />
 

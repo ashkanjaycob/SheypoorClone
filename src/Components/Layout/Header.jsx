@@ -58,7 +58,7 @@ function Header() {
       </div>
 
       {isMobileView && ( // Render only in mobile view
-        <div className="fixed bottom-0 left-0 w-full h-[10vh] flex items-center bg-white z-50 border-t-[1px] px-6 shadow-xl">
+        <div className="fixed bottom-0 left-0 w-full h-[10vh] flex items-center bg-white px-4 z-50 border-t-[1px] shadow-xl">
           <div className="container mx-auto">
             <div className="flex justify-evenly items-center">
               {isMobileView && (
@@ -68,7 +68,7 @@ function Header() {
                     {/* 25% width */}
                     <Link to="/dashboard">
                       <button className="text-[12px] py-3 px-4 bg-blue-500 text-white rounded-full">
-                        ثبت آگهی رایگان +
+                        ثبت آگهی +
                       </button>
                     </Link>
                   </div>
