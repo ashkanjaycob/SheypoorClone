@@ -20,12 +20,12 @@ function NavIcons() {
   };
 
   return (
-    <div className="flex flex-row-reverse items-center text-center justify-center gap-2 mr-2 text-xs">
+    <div className="flex flex-row-reverse items-center text-center justify-start gap-4 text-xs">
       {data ? (
         <Link to="/admin">
           <span
             onClick={handleLogout}
-            className="text-gray-400  cursor-pointer flex flex-col items-center  pl-3"
+            className="text-gray-400  cursor-pointer flex flex-col items-center "
           >
             <LogoutIcon className="h-5 w-5 mr-2 inline-block" />
             <span className="text-gray-400 mr-1">خروج</span>
