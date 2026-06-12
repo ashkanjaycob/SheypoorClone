@@ -65,7 +65,7 @@ function Category() {
       ) : (
         <>
           <div className="container mx-auto flex justify-start flex-wrap gap-2">
-            {data &&
+            {data?.posts &&
               data.posts
                 .filter((post) => post.category === categorySlug)
                 .slice(0, displayCount)
@@ -113,7 +113,7 @@ function Category() {
                   </Link>
                 ))}
           </div>
-          {data && data.posts.length > displayCount && (
+          {data?.posts && data.posts.length > displayCount && (
             <div className="flex justify-center mt-4">
               <button
                 onClick={handleLoadMore}

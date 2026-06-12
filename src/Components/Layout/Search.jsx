@@ -12,7 +12,7 @@ function SearchModal() {
   const [searchResults, setSearchResults] = useState([]);
 
   const handleSearch = () => {
-    if (!data) return; // Check if data is available
+    if (!data?.posts) return; // Check if data is available
     const filteredResults = data.posts.filter((item) =>
       item.options.title.includes(searchQuery)
     );
@@ -59,7 +59,7 @@ function SearchModal() {
               aria-labelledby="menu-button"
               tabIndex="-1"
             >
-              {searchResults.length > 0 ? (
+              {searchResults?.length > 0 ? (
                 searchResults.map((result) => (
                   <Link
                     to={`/dashboard/${result._id}`}

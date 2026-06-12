@@ -35,7 +35,7 @@ function AllAds() {
         ) : (
           <>
             <div className="container mx-auto flex justify-start flex-wrap gap-2">
-              {data.posts.slice(0, displayCount).map((post) => (
+              {data?.posts?.slice(0, displayCount).map((post) => (
                 <Link
                   key={post._id}
                   to={`/dashboard/${post._id}`}
@@ -81,7 +81,7 @@ function AllAds() {
                 </Link>
               ))}
             </div>
-            {data.posts.length > displayCount && (
+            {data?.posts?.length > displayCount && (
               <div className="flex justify-center mt-4">
                 <button
                   onClick={handleLoadMore}
