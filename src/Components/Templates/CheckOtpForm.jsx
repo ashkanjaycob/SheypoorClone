@@ -6,8 +6,11 @@ import { setCookie } from "../../Utils/cookie";
 import styles from "../../styles/auth.module.css";
 import { useNavigate } from "react-router-dom";
 
-function CheckOtpForm({ code, setCode, mobile, setStep }) {
+import { useState } from "react";
+
+function CheckOtpForm({ code, setCode, mobile, setStep, otpResponse }) {
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     toast.success("کد با موفقیت ارسال شد ");
@@ -18,7 +21,10 @@ function CheckOtpForm({ code, setCode, mobile, setStep }) {
 
     if (code.length !== 5) return toast.error("کد وارد شده صحیح نمی باشد !");
 
+    setIsLoading(true);
     const { response, error } = await checkOtp(mobile, code);
+    setIsLoading(false);
+    
     if (response) {
       console.log(response);
       await toast
@@ -54,6 +60,12 @@ function CheckOtpForm({ code, setCode, mobile, setStep }) {
           <span>لطفا کد پیامک شده به شماره {mobile} را وارد نمایید .</span>
           <br />
           <br />
+          {otpResponse && (
+            <div style={{ padding: "15px", marginBottom: "20px", border: "1px dashed #007bff", borderRadius: "8px", backgroundColor: "#f0f8ff", textAlign: "center", color: "#007bff" }}>
+              <span>کد تایید شما (شبیه‌ساز پیامک): </span>
+              <strong style={{ letterSpacing: "3px", fontSize: "1.2rem" }}>{otpResponse}</strong>
+            </div>
+          )}
           <label htmlFor="input">کد تایید </label>
           <input
             type="text"
@@ -63,7 +75,9 @@ function CheckOtpForm({ code, setCode, mobile, setStep }) {
             onChange={(e) => setCode(e.target.value)}
           />{" "}
           <br />
-          <button type="submit">تایید نهایی و ورود به حساب</button>
+          <button type="submit" disabled={isLoading} style={{ opacity: isLoading ? 0.7 : 1 }}>
+            {isLoading ? "در حال تایید..." : "تایید نهایی و ورود به حساب"}
+          </button>
         </form>
 
         <button

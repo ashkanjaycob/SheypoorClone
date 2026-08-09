@@ -3,15 +3,22 @@ import toast, { Toaster } from "react-hot-toast";
 import { sendOtp } from "../../Services/Auth";
 import styles from "../../styles/auth.module.css";
 
-function SendOtpForm({ mobile, setMobile, setStep }) {
+import { useState } from "react";
+
+function SendOtpForm({ mobile, setMobile, setStep, setOtpResponse }) {
+  const [isLoading, setIsLoading] = useState(false);
+
   const submitHandler = async (e) => {
     e.preventDefault();
     if (mobile.length !== 11)
       return toast.error("لطفا شماره موبایل 11 رقمی را وارد نمایید"); 
 
+    setIsLoading(true);
     const { response, error } = await sendOtp(mobile);
+    setIsLoading(false);
+    
     if (response) {
-      toast(`کد ورود شما به کپی شیپور اشکان یعقوبی : ${response.data.otpCode.otp.code} `, {
+      toast(`کد ورود شما به کپی شیپور اشکان یعقوبی : ${response.data.code} `, {
         icon: "👏",
         style: {
           borderRadius: "10px",
@@ -19,6 +26,7 @@ function SendOtpForm({ mobile, setMobile, setStep }) {
           color: "#fff",
         },
       });
+      setOtpResponse(response.data.code);
       setStep(2);
     }
     if (error) {
@@ -48,7 +56,9 @@ function SendOtpForm({ mobile, setMobile, setStep }) {
           انتشار آگهی اقدام نکنید.
         </span>
         <br />
-        <button type="submit">ورود یا ثبت نام در شیپور</button>
+        <button type="submit" disabled={isLoading} style={{ opacity: isLoading ? 0.7 : 1 }}>
+          {isLoading ? "در حال ارسال..." : "ورود یا ثبت نام در شیپور"}
+        </button>
       </form>
 
       <Toaster />

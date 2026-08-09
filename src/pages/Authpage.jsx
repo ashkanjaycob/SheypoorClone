@@ -7,6 +7,7 @@ function Authpage() {
   const [step, setStep] = useState(1);
   const [mobile, setMobile] = useState("");
   const [code, setCode] = useState("");
+  const [otpResponse, setOtpResponse] = useState(null);
 
   return (
     <>
@@ -17,6 +18,7 @@ function Authpage() {
             setStep={setStep}
             mobile={mobile}
             setMobile={setMobile}
+            setOtpResponse={setOtpResponse}
           />
         )}
         {step === 2 && (
@@ -25,6 +27,7 @@ function Authpage() {
             setCode={setCode}
             mobile={mobile}
             setStep={setStep}
+            otpResponse={otpResponse}
           />
         )}
         </div>
