@@ -84,7 +84,7 @@ function AllAds({ isAdmin = false }) {
                     <div className="relative w-full pt-[75%] bg-gray-100">
                       <img
                         className="absolute top-0 left-0 w-full h-full object-cover"
-                        src={`${import.meta.env.VITE_BASE_URL}${post.images[0]}`}
+                        src={post.images[0]?.startsWith("http") ? post.images[0] : `${import.meta.env.VITE_BASE_URL}${post.images[0]}`}
                         alt={post.options.title || "تصویر آگهی"}
                         onError={(e) => {
                           e.target.onerror = null;

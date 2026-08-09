@@ -79,9 +79,7 @@ function Category() {
                       <div className="relative overflow-hidden bg-cover bg-no-repeat">
                         <img
                           className="rounded-xl w-[180px] h-[180px] max-desktop:w-[120px] max-desktop:h-[120px]"
-                          src={`${import.meta.env.VITE_BASE_URL}${
-                            post.images[0]
-                          }`}
+                          src={post.images[0]?.startsWith("http") ? post.images[0] : `${import.meta.env.VITE_BASE_URL}${post.images[0]}`}
                           alt="عکس آگهی"
                         />
                       </div>

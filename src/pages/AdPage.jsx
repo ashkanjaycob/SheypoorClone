@@ -63,9 +63,7 @@ const AdPage = ({ userdata }) => {
                   <div className="relative bg-zinc-50  rounded-xl p-2 w-full items-center justify-center flex mx-auto overflow-hidden bg-cover bg-no-repeat">
                     <img
                       className=" w-[600px] h-[50vh]"
-                      src={`${import.meta.env.VITE_BASE_URL}${
-                        data.post.images[0]
-                      }`}
+                      src={data.post.images[0]?.startsWith("http") ? data.post.images[0] : `${import.meta.env.VITE_BASE_URL}${data.post.images[0]}`}
                       alt={data.post.options.title}
                     />
                   </div>

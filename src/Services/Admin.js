@@ -32,5 +32,15 @@ const delCategory = async (id) => {
   }
 };
 
+const scrapeDivar = async (data) => {
+  try {
+    const response = await api.post("post/scrape", data);
+    return response.data;
+  } catch (error) {
+    console.error("Error while scraping:", error);
+    throw error;
+  }
+};
 
-export { addCategory, getCategory, delCategory };
+
+export { addCategory, getCategory, delCategory, scrapeDivar };
