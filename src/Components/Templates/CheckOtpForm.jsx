@@ -5,6 +5,7 @@ import { checkOtp } from "../../Services/Auth";
 import { setCookie } from "../../Utils/cookie";
 import styles from "../../styles/auth.module.css";
 import { useNavigate } from "react-router-dom";
+import { p2e } from "../../Utils/Numbers";
 
 import { useState } from "react";
 
@@ -72,7 +73,7 @@ function CheckOtpForm({ code, setCode, mobile, setStep, otpResponse }) {
             id="input"
             placeholder="کد تایید"
             value={code}
-            onChange={(e) => setCode(e.target.value)}
+            onChange={(e) => setCode(p2e(e.target.value))}
           />{" "}
           <br />
           <button type="submit" disabled={isLoading} style={{ opacity: isLoading ? 0.7 : 1 }}>

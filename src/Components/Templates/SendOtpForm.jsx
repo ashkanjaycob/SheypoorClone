@@ -2,6 +2,7 @@
 import toast, { Toaster } from "react-hot-toast";
 import { sendOtp } from "../../Services/Auth";
 import styles from "../../styles/auth.module.css";
+import { p2e } from "../../Utils/Numbers";
 
 import { useState } from "react";
 
@@ -47,7 +48,7 @@ function SendOtpForm({ mobile, setMobile, setStep, setOtpResponse }) {
           id="input"
           placeholder="شماره موبایل"
           value={mobile}
-          onChange={(e) => setMobile(e.target.value)}
+          onChange={(e) => setMobile(p2e(e.target.value))}
         />
         <br />
         <br />

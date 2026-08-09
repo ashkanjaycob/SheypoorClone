@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { PostApi, getAds } from "../../configs/PostApi";
 import AdsList from "./AdsList";
+import { p2e, sp } from "../../Utils/Numbers";
 
 function AddAdvertising() {
 
@@ -44,7 +45,12 @@ function AddAdvertising() {
         }
       }
     } else {
-      setAdform({ ...adform, [name]: value });
+      let finalValue = value;
+      if (name === "amount") {
+        // Convert to english digits and strip all non-digit characters (like commas)
+        finalValue = p2e(value).replace(/\D/g, "");
+      }
+      setAdform({ ...adform, [name]: finalValue });
       // Clear error for this field when user types
       if (errors[name]) {
         setErrors({ ...errors, [name]: "" });
@@ -142,12 +148,13 @@ function AddAdvertising() {
               <div>
                 <label htmlFor="amount" className="block mb-2 font-medium text-gray-700">مبلغ (تومان)</label>
                 <input
-                  className={`w-full py-3 px-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200 transition-colors ${errors.amount ? 'border-red-500' : 'border-gray-300'}`}
-                  value={adform.amount}
+                  className={`w-full py-3 px-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200 transition-colors ${errors.amount ? 'border-red-500' : 'border-gray-300'} text-left dir-ltr`}
+                  value={adform.amount ? sp(adform.amount) : ""}
                   onChange={changeHandler}
                   type="text"
                   name="amount"
-                  placeholder="مثلا 5000000"
+                  placeholder="مثلا 5,000,000"
+                  dir="ltr"
                 />
                 {errors.amount && <span className="text-red-500 text-sm mt-1 block">{errors.amount}</span>}
               </div>
