@@ -35,7 +35,7 @@ function Router() {
   return (
     <Routes>
       <Route path="/" element={<Homepage />} />
-      <Route path="/category/*" element={<Category />} />
+      <Route path="/category/:id" element={<Category />} />
       <Route path="/auth/*" element={<Authpage />} />
       <Route
         path="/dashboard/*"

@@ -25,12 +25,13 @@ function CtegoryList() {
       ) : (
         <ul className="grid grid-cols-10 gap-y-4 justify-items-center desktop:px-6  max-desktop:grid-cols-5">
           {data?.map((category) => (
-            <Link key={category._id} to={`/category/${category._id}`}>
+            <Link key={category._id || category.id} to={`/category/${category._id || category.id}`}>
               <li className="cursor-pointer m-2 text-center flex flex-col items-center">
                 <img
-                  className="bg-gray-100 p-2 w-[60px] h-[60px] md:w-[100px] md:h-[100px] rounded-full"
+                  className="bg-gray-100 p-2 w-[60px] h-[60px] md:w-[100px] md:h-[100px] rounded-full object-contain"
                   src={`${category.icon}.svg`}
-                  alt=""
+                  alt={category.name}
+                  onError={(e) => { e.target.onerror = null; e.target.src = "/sheypoorBlack.svg" }}
                 />
                 <span className="mt-2 text-sm md:text-lg">{category.name}</span>
               </li>

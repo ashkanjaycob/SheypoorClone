@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { useLocation } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { getAllAds } from "../Services/user";
 import { getCategory } from "../Services/Admin";
@@ -10,8 +9,8 @@ import { sp } from "../Utils/Numbers";
 function Category() {
   const [currentUrl, setCurrentUrl] = useState("");
   const [categoryTitle, setCategoryTitle] = useState("");
-  const location = useLocation();
-  const categorySlug = location.pathname.split("/").pop();
+  const { id } = useParams();
+  const categorySlug = id;
 
   useEffect(() => {
     setCurrentUrl(categorySlug);
@@ -67,7 +66,7 @@ function Category() {
           <div className="container mx-auto flex justify-start flex-wrap gap-2">
             {data?.posts &&
               data.posts
-                .filter((post) => post.category === categorySlug)
+                .filter((post) => post.category === categorySlug || post.category?._id === categorySlug)
                 .slice(0, displayCount)
                 .map((post) => (
                   <Link
@@ -78,9 +77,10 @@ function Category() {
                     <div className="flex max-desktop:flex-row-reverse flex-col max-desktop:items-start items-center justify-between rounded-lg bg-white cursor-pointer">
                       <div className="relative overflow-hidden bg-cover bg-no-repeat">
                         <img
-                          className="rounded-xl w-[180px] h-[180px] max-desktop:w-[120px] max-desktop:h-[120px]"
-                          src={post.images[0]?.startsWith("http") ? post.images[0] : `${import.meta.env.VITE_BASE_URL}${post.images[0]}`}
-                          alt="عکس آگهی"
+                          className="rounded-xl object-cover w-[180px] h-[180px] max-desktop:w-[120px] max-desktop:h-[120px]"
+                          src={post.images && post.images[0] ? (post.images[0].startsWith("http") ? post.images[0] : `${import.meta.env.VITE_BASE_URL}${post.images[0]}`) : "/default-image.jpg"}
+                          alt={post.options?.title || "عکس آگهی"}
+                          onError={(e) => { e.target.onerror = null; e.target.src = "/sheypoorBlack.svg" }}
                         />
                       </div>
                       <div className="max-desktop:p-2 p-6 text-start">
