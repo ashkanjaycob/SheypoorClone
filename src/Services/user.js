@@ -1,6 +1,6 @@
 import { getCookie } from "../Utils/cookie";
 import api from "../configs/Api";
-import {  getAds } from "../configs/PostApi";
+import { PostApi, getAds } from "../configs/PostApi";
 import { getNewTokens } from "./Token";
 
 
@@ -72,7 +72,15 @@ const getAllAds = async () => {
   }
 };
 
+const updateMyAd = async (id, formData) => {
+  try {
+    const response = await PostApi.put(`post/update/${id}`, formData);
+    return response.data;
+  } catch (error) {
+    console.error("Error while updating ad:", error);
+    throw error;
+  }
+};
 
 
-
-export { getProfile , getmyAds , getmySpecificAd , delmySpecificAd , getAllAds};
+export { getProfile , getmyAds , getmySpecificAd , delmySpecificAd , getAllAds, updateMyAd};

@@ -10,7 +10,7 @@ import { getProfile } from "../Services/user";
 import { ThreeCircles } from "react-loader-spinner";
 import styles from "../router/loader.module.css";
 import AdPage from "../pages/AdPage";
-
+import UpdateAdPage from "../pages/UpdateAdPage";
 function Router() {
   // eslint-disable-next-line no-unused-vars
   const { data, isLoading, error } = useQuery(["profile"], getProfile);
@@ -57,6 +57,7 @@ function Router() {
           )
         }
       />
+      <Route path="/dashboard/update/:id" element={data ? <UpdateAdPage /> : <Navigate to="/auth" replace />} />
       <Route path="/dashboard/:id" element={<AdPage userdata={data} />} />
       <Route path="*" element={<NotFound />} />
     </Routes>

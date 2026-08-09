@@ -175,19 +175,25 @@ const AdPage = ({ userdata }) => {
                         </button>
                       </div>
 
-                      <div className="flex justify-center items-center flex-col py-16">
-                        {userdata && userdata.role === "ADMIN" ? (
-                          <div>
-                            دسترسی ادمین :
-                            <button
-                              onClick={deleteadHandler}
-                              className="bg-red-600 px-10 py-3 rounded-full text-white"
-                            >
-                              حذف آگهی
-                            </button>
+                      <div className="flex justify-center items-center flex-col py-16 gap-4">
+                        <div className="w-full flex flex-col gap-3 px-6">
+                          <Link
+                            to={`/dashboard/update/${id}`}
+                            className="bg-blue-500 hover:bg-blue-600 w-full text-center py-3 rounded-full text-white transition-colors"
+                          >
+                            ویرایش آگهی
+                          </Link>
+                          <button
+                            onClick={deleteadHandler}
+                            className="bg-red-500 hover:bg-red-600 w-full py-3 rounded-full text-white transition-colors"
+                          >
+                            حذف آگهی
+                          </button>
+                        </div>
+                        {userdata && userdata.role === "ADMIN" && (
+                          <div className="mt-4 text-gray-500 text-sm">
+                            شما با دسترسی ادمین وارد شده‌اید
                           </div>
-                        ) : (
-                          <div></div>
                         )}
                       </div>
                     </div>
