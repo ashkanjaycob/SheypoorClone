@@ -1,4 +1,5 @@
 import CategoryForm from "../Components/Templates/CategoryForm"
+import AllAds from "../Components/Templates/AllAds"
 
 
 function AdminPage() {
@@ -7,6 +8,11 @@ function AdminPage() {
   <div className="container mx-auto">
   <h2 className="mb-12 font-bold text-blue-600 text-[2rem] p-4 border-b-2">پنل ادمین</h2>
     <CategoryForm />
+    
+    <div className="mt-16">
+      <h2 className="mb-8 font-bold text-blue-600 text-[2rem] p-4 border-b-2">مدیریت آگهی‌ها</h2>
+      <AllAds isAdmin={true} />
+    </div>
   </div>
     </>
   )
