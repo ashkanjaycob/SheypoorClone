@@ -50,25 +50,41 @@ body {
 /* ===== Sheypoor Button Component Styles ===== */
 @layer components {
   .btn-primary {
-    @apply bg-main hover:bg-main-lighter active:bg-main-darker text-white font-semibold rounded-full px-6 py-3 transition-all duration-200 ease-out;
+    @apply bg-main hover:bg-main-lighter active:bg-main-darker text-white font-semibold rounded-full h-12 px-6 inline-flex items-center justify-center transition-all duration-200 ease-out disabled:opacity-50 disabled:cursor-not-allowed;
   }
   
   .btn-outline {
-    @apply border-2 border-main text-main hover:bg-light-special font-semibold rounded-full px-6 py-3 transition-all duration-200 ease-out;
+    @apply border-2 border-main text-main hover:bg-light-special font-semibold rounded-full h-12 px-6 inline-flex items-center justify-center transition-all duration-200 ease-out disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-danger {
+    @apply bg-accent-red-bg text-accent-red hover:bg-red-100 font-semibold rounded-full h-12 px-6 inline-flex items-center justify-center transition-all duration-200 ease-out disabled:opacity-50 disabled:cursor-not-allowed;
   }
   
   .btn-ghost {
-    @apply text-dark-2 hover:bg-light-2 rounded-lg px-4 py-2 transition-colors duration-150;
+    @apply text-dark-2 hover:bg-light-2 rounded-full px-4 py-2 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   /* ===== Card Component ===== */
   .card-sheypoor {
-    @apply bg-white rounded-sheypoor border border-light-0 shadow-card hover:shadow-card-hover transition-shadow duration-200;
+    @apply bg-white rounded-sheypoor-lg border border-light-0 shadow-card hover:shadow-card-hover transition-shadow duration-200;
   }
 
   /* ===== Input Component ===== */
   .input-sheypoor {
-    @apply w-full py-3 px-4 bg-light-3 border border-light-0 rounded-sheypoor text-dark-0 placeholder-dark-3 focus:outline-none focus:ring-2 focus:ring-main/30 focus:border-main transition-all duration-200;
+    @apply w-full h-12 py-3 px-4 bg-light-3 border border-light-0 rounded-sheypoor text-dark-0 placeholder-dark-3 focus:outline-none focus:ring-2 focus:ring-main/30 focus:border-main transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed;
+  }
+
+  /* ===== Textarea Component ===== */
+  textarea.input-sheypoor {
+    @apply h-auto;
+  }
+
+  /* ===== Select Component ===== */
+  select.input-sheypoor {
+    @apply appearance-none bg-no-repeat;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238F90A6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-position: left 12px center;
   }
 
   /* ===== Chip Component ===== */
@@ -89,6 +105,15 @@ body {
   .badge-verified {
     @apply inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-accent-green-bg text-accent-green;
   }
+}
+
+/* ===== Fade In Animation ===== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fadeIn 0.25s ease-out;
 }
 
 /* ===== Smooth Page Transitions ===== */

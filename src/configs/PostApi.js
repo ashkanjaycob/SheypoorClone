@@ -1,23 +1,35 @@
 import axios from "axios";
 import { getCookie } from "../Utils/cookie";
 
-const accessToken = getCookie("accessToken");
-
 const PostApi = axios.create({
-    baseURL: import.meta.env.VITE_BASE_URL,
-    headers: {
-      "Content-Type": "multipart/form-data",
-      Authorization: `bearer ${accessToken}`
-    },
-  });
+  baseURL: import.meta.env.VITE_BASE_URL,
+  headers: {
+    "Content-Type": "multipart/form-data",
+  },
+});
 
-  const getAds = axios.create({
-    baseURL: import.meta.env.VITE_BASE_URL,
-    headers: {
+// Dynamic token injection — fixes stale-token bug
+PostApi.interceptors.request.use((config) => {
+  const accessToken = getCookie("accessToken");
+  if (accessToken) {
+    config.headers["Authorization"] = `bearer ${accessToken}`;
+  }
+  return config;
+});
+
+const getAds = axios.create({
+  baseURL: import.meta.env.VITE_BASE_URL,
+  headers: {
     "Content-Type": "application/json",
-      Authorization: `bearer ${accessToken}`
-    },
-  });
-  
+  },
+});
 
-  export {PostApi , getAds} ;
+getAds.interceptors.request.use((config) => {
+  const accessToken = getCookie("accessToken");
+  if (accessToken) {
+    config.headers["Authorization"] = `bearer ${accessToken}`;
+  }
+  return config;
+});
+
+export { PostApi, getAds };

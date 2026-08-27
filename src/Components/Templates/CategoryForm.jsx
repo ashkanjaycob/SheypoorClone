@@ -3,10 +3,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { addCategory } from "../../Services/Admin";
 import toast, { Toaster } from "react-hot-toast";
-import CtegoryList from "./CategoryList";
-import CategoryDeletionForm from "./CategoryDeletionForm";
-import { ThreeDots } from "react-loader-spinner";
-
 
 function CategoryForm() {
   const [form, setForm] = useState({
@@ -14,110 +10,125 @@ function CategoryForm() {
     slug: "",
     icon: "",
   });
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [errors, setErrors] = useState({});
 
   const queryClient = useQueryClient();
 
   const changeHandler = (event) => {
-    setForm({ ...form, [event.target.name]: event.target.value });
+    const { name, value } = event.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
-  const { mutate, isLoading, error, data } = useMutation(addCategory, {
+  const { mutate, isLoading } = useMutation(addCategory, {
     onSuccess: () => {
       queryClient.invalidateQueries(["get-categories"]);
-      toast.success("دسته بندی با موفقیت اضافه شد.");
-      setForm({
-        name: "",
-        slug: "",
-        icon: "",
-      });
-      setIsSubmitted(false);
+      toast.success("دسته‌بندی با موفقیت افزوده شد");
+      setForm({ name: "", slug: "", icon: "" });
+      setErrors({});
+    },
+    onError: (err) => {
+      toast.error(err.response?.data?.message || "خطا در ایجاد دسته‌بندی");
     },
   });
 
+  const validate = () => {
+    const errs = {};
+    if (!form.name.trim()) errs.name = "نام دسته‌بندی الزامی است";
+    if (!form.slug.trim()) errs.slug = "اسلاگ انگلیسی الزامی است";
+    else if (!/^[a-z0-9-]+$/.test(form.slug.trim())) errs.slug = "اسلاگ فقط حروف کوچک انگلیسی و خط تیره مجاز است";
+    if (!form.icon.trim()) errs.icon = "نام آیکون الزامی است";
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
   const submitHandler = (event) => {
     event.preventDefault();
-    setIsSubmitted(true);
-
-    if (!form.name || !form.slug || !form.icon) return toast.error("لطفاً همه مقادیر صحیح را وارد کنید");
+    if (!validate()) return;
     mutate(form);
   };
 
   return (
-    <>
-      <CtegoryList />
-      <div className="container mx-auto my-14 flex flex-col items-center">
-        <form
-          onSubmit={submitHandler}
-          onChange={changeHandler}
-          className="w-full tablet:w-3/4 laptop:w-1/2 flex flex-col items-start text-right px-6 py-8 bg-white border border-gray-100 shadow-md rounded-2xl mb-10"
-        >
-          <h2 className="font-bold w-full text-2xl laptop:text-3xl border-b-2 border-gray-100 pb-4 mb-6 text-blue-600">ایجاد دسته بندی</h2>
-          {/* Name Input */}
-          <div className="w-full flex flex-col mb-5">
-            <label htmlFor="name" className="mb-2 font-semibold text-gray-700 text-sm laptop:text-base">نام دسته بندی</label>
-            <input
-              className={`py-3 w-full px-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition-shadow bg-gray-50 ${isSubmitted && form.name === "" ? "border-red-400" : "border-gray-200"}`}
-              type="text"
-              name="name"
-              id="name"
-              value={form.name}
-              placeholder="مثال: املاک"
-            />
-            {isSubmitted && form.name === "" && <p className="text-red-500 text-sm mt-2">نام دسته بندی الزامی است</p>}
-          </div>
-          {/* Slug Input */}
-          <div className="w-full flex flex-col mb-5">
-            <label htmlFor="slug" className="mb-2 font-semibold text-gray-700 text-sm laptop:text-base">اسلاگ (انگلیسی)</label>
-            <input
-              className={`py-3 w-full px-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition-shadow bg-gray-50 text-left ${isSubmitted && form.slug === "" ? "border-red-400" : "border-gray-200"}`}
-              type="text"
-              name="slug"
-              id="slug"
-              value={form.slug}
-              placeholder="e.g. real-estate"
-              dir="ltr"
-            />
-            {isSubmitted && form.slug === "" && <p className="text-red-500 text-sm mt-2">اسلاگ الزامی است</p>}
-          </div>
-          {/* Icon Input */}
-          <div className="w-full flex flex-col mb-6">
-            <label htmlFor="icon" className="mb-2 font-semibold text-gray-700 text-sm laptop:text-base">نام آیکون</label>
-            <input
-              className={`py-3 w-full px-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 transition-shadow bg-gray-50 text-left ${isSubmitted && form.icon === "" ? "border-red-400" : "border-gray-200"}`}
-              type="text"
-              name="icon"
-              id="icon"
-              value={form.icon}
-              placeholder="e.g. home"
-              dir="ltr"
-            />
-            {isSubmitted && form.icon === "" && <p className="text-red-500 text-sm mt-2">آیکون الزامی است</p>}
-          </div>
-          <button 
-            className="mt-2 w-full text-white bg-blue-600 hover:bg-blue-700 py-4 rounded-xl transition-colors flex justify-center items-center font-bold text-lg disabled:opacity-60 disabled:cursor-not-allowed shadow-md hover:shadow-lg" 
-            type="submit"
+    <div className="bg-white rounded-sheypoor-xl p-6 laptop:p-8 border border-light-0 shadow-card">
+      <h2 className="text-heading-4 text-dark-0 mb-6 pb-4 border-b border-light-1">
+        ایجاد دسته‌بندی جدید
+      </h2>
+
+      <form onSubmit={submitHandler} className="space-y-5">
+        <div>
+          <label htmlFor="name" className="block mb-2 text-body-2 font-medium text-dark-1">
+            نام دسته‌بندی (فارسی) *
+          </label>
+          <input
+            className={`input-sheypoor ${errors.name ? "!border-accent-red !ring-accent-red/20" : ""}`}
+            type="text"
+            name="name"
+            id="name"
             disabled={isLoading}
-          >
-            {isLoading ? (
-               <ThreeDots
-                 visible={true}
-                 height="24"
-                 width="40"
-                 color="#ffffff"
-                 ariaLabel="three-dots-loading"
-               />
-            ) : "ایجاد دسته بندی"}
-          </button>
-        </form>
+            value={form.name}
+            onChange={changeHandler}
+            placeholder="مثال: املاک و مستغلات"
+          />
+          {errors.name && <span className="text-accent-red text-body-4 mt-1 block">{errors.name}</span>}
+        </div>
 
-        <CategoryDeletionForm />
+        <div>
+          <label htmlFor="slug" className="block mb-2 text-body-2 font-medium text-dark-1">
+            اسلاگ انگلیسی (Slug) *
+          </label>
+          <input
+            className={`input-sheypoor text-left font-mono ${errors.slug ? "!border-accent-red !ring-accent-red/20" : ""}`}
+            type="text"
+            name="slug"
+            id="slug"
+            disabled={isLoading}
+            value={form.slug}
+            onChange={changeHandler}
+            placeholder="e.g. real-estate"
+            dir="ltr"
+          />
+          {errors.slug && <span className="text-accent-red text-body-4 mt-1 block">{errors.slug}</span>}
+        </div>
 
-      </div>
+        <div>
+          <label htmlFor="icon" className="block mb-2 text-body-2 font-medium text-dark-1">
+            نام فایل آیکون (SVG) *
+          </label>
+          <input
+            className={`input-sheypoor text-left font-mono ${errors.icon ? "!border-accent-red !ring-accent-red/20" : ""}`}
+            type="text"
+            name="icon"
+            id="icon"
+            disabled={isLoading}
+            value={form.icon}
+            onChange={changeHandler}
+            placeholder="e.g. home"
+            dir="ltr"
+          />
+          {errors.icon && <span className="text-accent-red text-body-4 mt-1 block">{errors.icon}</span>}
+        </div>
+
+        <button
+          className="btn-primary w-full mt-2"
+          type="submit"
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <span className="flex items-center justify-center gap-2">
+              <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+              در حال ایجاد...
+            </span>
+          ) : (
+            "ایجاد دسته‌بندی"
+          )}
+        </button>
+      </form>
       <Toaster />
-    </>
+    </div>
   );
 }
 
 export default CategoryForm;
-

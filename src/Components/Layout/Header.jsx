@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { getAllAds } from "../../Services/user";
-import { getProfile } from "../../Services/user";
+import { getAllAds, getProfile } from "../../Services/user";
 import { delCookie } from "../../Utils/cookie";
 import navLogo from "../../assets/LogosSheypoor/sheypoor-Logo.png";
 import MobileBottomNav from "./MobileBottomNav";
+import ComingSoonModal, { useComingSoon } from "./ComingSoonModal";
 
 function Header() {
   const [isMobile, setIsMobile] = useState(false);
@@ -13,9 +13,10 @@ function Header() {
   const [searchResults, setSearchResults] = useState([]);
   const [showSearch, setShowSearch] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const comingSoon = useComingSoon();
 
   const { data: profileData } = useQuery(["profile"], getProfile);
-  const { data: adsData } = useQuery(["get-all-ads"], getAllAds);
+  const { data: adsData } = useQuery(["get-all-ads"], () => getAllAds());
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -31,7 +32,7 @@ function Header() {
       return;
     }
     const filtered = adsData.posts.filter((p) =>
-      p.options.title.includes(query)
+      (p.options?.title || p.title || "").toLowerCase().includes(query.toLowerCase())
     );
     setSearchResults(filtered.slice(0, 8));
   };
@@ -39,7 +40,7 @@ function Header() {
   const handleLogout = () => {
     delCookie("accessToken");
     delCookie("refreshToken");
-    window.location.reload();
+    window.location.href = "/";
   };
 
   // Close menus when clicking outside
@@ -57,7 +58,7 @@ function Header() {
 
   return (
     <>
-      {/* ===== DESKTOP HEADER ===== */}
+      {/* ===== DESKTOP / MAIN HEADER ===== */}
       <header className="fixed top-0 left-0 w-full bg-white z-50 shadow-header">
         <div className="max-w-container mx-auto px-4">
           <div className="flex items-center justify-between h-header-mobile laptop:h-header-desktop gap-3">
@@ -86,7 +87,7 @@ function Header() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
                 {/* Location Trigger */}
-                <button className="absolute left-1 top-1/2 -translate-y-1/2 flex items-center gap-1 px-3 py-1.5 text-body-3 text-dark-2 bg-light-2 rounded-full hover:bg-light-1 transition-colors">
+                <button className="absolute left-1.5 top-1/2 -translate-y-1/2 flex items-center gap-1 px-3 py-1.5 text-body-3 text-dark-2 bg-light-2 rounded-full hover:bg-light-1 transition-colors">
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -97,18 +98,18 @@ function Header() {
 
               {/* Search Dropdown */}
               {searchResults.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-sheypoor shadow-modal border border-light-0 overflow-hidden z-50 animate-fade-in">
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-sheypoor-lg shadow-modal border border-light-0 overflow-hidden z-50 animate-fade-in">
                   {searchResults.map((result) => (
                     <Link
-                      key={result._id}
-                      to={`/dashboard/${result._id}`}
+                      key={result._id || result.id}
+                      to={`/dashboard/${result._id || result.id}`}
                       onClick={() => { setSearchQuery(""); setSearchResults([]); }}
                       className="flex items-center gap-3 px-4 py-3 hover:bg-light-3 transition-colors border-b border-light-1 last:border-0"
                     >
                       <svg className="w-4 h-4 text-dark-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                       </svg>
-                      <span className="text-body-2 text-dark-1 line-clamp-1">{result.options.title}</span>
+                      <span className="text-body-2 text-dark-1 line-clamp-1">{result.options?.title || result.title}</span>
                     </Link>
                   ))}
                 </div>
@@ -120,6 +121,7 @@ function Header() {
               <button
                 onClick={(e) => { e.stopPropagation(); setShowSearch(!showSearch); }}
                 className="p-2 rounded-full hover:bg-light-2 transition-colors"
+                aria-label="جستجو"
               >
                 <svg className="w-6 h-6 text-dark-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -130,28 +132,32 @@ function Header() {
             {/* Desktop Nav Actions */}
             <div className="hidden laptop:flex items-center gap-2">
               {/* Bookmarks */}
-              <Link to="/dashboard" className="btn-ghost flex items-center gap-1.5 text-body-3">
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <Link to="/saved" className="btn-ghost flex items-center gap-1.5 text-body-3">
+                <svg className="w-5 h-5 text-dark-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
                 </svg>
                 <span>ذخیره‌ها</span>
               </Link>
 
-              {/* Chat */}
-              <Link to="/dashboard" className="btn-ghost flex items-center gap-1.5 text-body-3 relative">
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              {/* Chat / Messages -> triggers ComingSoonModal */}
+              <button
+                type="button"
+                onClick={comingSoon.open}
+                className="btn-ghost flex items-center gap-1.5 text-body-3"
+              >
+                <svg className="w-5 h-5 text-dark-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
                 <span>پیام‌ها</span>
-              </Link>
+              </button>
 
-              {/* User Account */}
+              {/* User Account Dropdown */}
               <div className="relative user-menu-container">
                 <button
                   onClick={(e) => { e.stopPropagation(); setShowUserMenu(!showUserMenu); }}
                   className="btn-ghost flex items-center gap-1.5 text-body-3"
                 >
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-5 h-5 text-dark-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
                   <span>حساب من</span>
@@ -159,16 +165,23 @@ function Header() {
 
                 {showUserMenu && (
                   <div className="absolute left-0 top-full mt-2 w-48 bg-white rounded-sheypoor shadow-modal border border-light-0 py-1 z-50 animate-fade-in">
-                    <Link to="/dashboard" className="block px-4 py-2.5 text-body-2 text-dark-1 hover:bg-light-3 transition-colors">
-                      داشبورد
-                    </Link>
-                    {profileData?.role === "ADMIN" && (
-                      <Link to="/admin" className="block px-4 py-2.5 text-body-2 text-dark-1 hover:bg-light-3 transition-colors">
-                        پنل ادمین
-                      </Link>
-                    )}
-                    {profileData && (
+                    {profileData ? (
                       <>
+                        <div className="px-4 py-2 border-b border-light-1">
+                          <span className="text-body-4 text-dark-3 block">کاربر لاگین‌شده</span>
+                          <span className="text-body-3 font-semibold text-dark-1" dir="ltr">{profileData.mobile}</span>
+                        </div>
+                        <Link to="/dashboard" className="block px-4 py-2.5 text-body-2 text-dark-1 hover:bg-light-3 transition-colors">
+                          داشبورد آگهی‌ها
+                        </Link>
+                        <Link to="/saved" className="block px-4 py-2.5 text-body-2 text-dark-1 hover:bg-light-3 transition-colors">
+                          آگهی‌های ذخیره‌شده
+                        </Link>
+                        {profileData.role === "ADMIN" && (
+                          <Link to="/admin" className="block px-4 py-2.5 text-body-2 text-main font-medium hover:bg-light-special transition-colors">
+                            پنل مدیریت ادمین
+                          </Link>
+                        )}
                         <div className="border-t border-light-1 my-1"></div>
                         <button
                           onClick={handleLogout}
@@ -177,19 +190,23 @@ function Header() {
                           خروج از حساب
                         </button>
                       </>
-                    )}
-                    {!profileData && (
-                      <Link to="/auth" className="block px-4 py-2.5 text-body-2 text-main hover:bg-light-special transition-colors">
-                        ورود / ثبت‌نام
-                      </Link>
+                    ) : (
+                      <>
+                        <Link to="/auth" className="block px-4 py-2.5 text-body-2 text-main font-medium hover:bg-light-special transition-colors">
+                          ورود / ثبت‌نام در شیپور
+                        </Link>
+                        <Link to="/saved" className="block px-4 py-2.5 text-body-2 text-dark-1 hover:bg-light-3 transition-colors">
+                          آگهی‌های ذخیره‌شده
+                        </Link>
+                      </>
                     )}
                   </div>
                 )}
               </div>
 
               {/* Post Ad CTA */}
-              <Link to="/dashboard" className="mr-2">
-                <button className="btn-primary flex items-center gap-1.5 text-body-3 !py-2.5 !px-5">
+              <Link to="/dashboard" className="mr-1">
+                <button className="btn-primary !h-10 !py-2 !px-5 text-body-3 flex items-center gap-1.5">
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                   </svg>
@@ -202,7 +219,7 @@ function Header() {
 
         {/* Mobile Search Expanded */}
         {isMobile && showSearch && (
-          <div className="search-container px-4 pb-3 bg-white animate-slide-up">
+          <div className="search-container px-4 pb-3 bg-white border-t border-light-1 animate-slide-up">
             <div className="relative">
               <input
                 type="text"
@@ -217,15 +234,15 @@ function Header() {
               </svg>
             </div>
             {searchResults.length > 0 && (
-              <div className="mt-2 bg-white rounded-sheypoor shadow-modal border border-light-0 overflow-hidden animate-fade-in">
+              <div className="mt-2 bg-white rounded-sheypoor shadow-modal border border-light-0 overflow-hidden animate-fade-in max-h-60 overflow-y-auto">
                 {searchResults.map((result) => (
                   <Link
-                    key={result._id}
-                    to={`/dashboard/${result._id}`}
+                    key={result._id || result.id}
+                    to={`/dashboard/${result._id || result.id}`}
                     onClick={() => { setSearchQuery(""); setSearchResults([]); setShowSearch(false); }}
                     className="flex items-center gap-3 px-4 py-3 hover:bg-light-3 transition-colors border-b border-light-1 last:border-0"
                   >
-                    <span className="text-body-2 text-dark-1 line-clamp-1">{result.options.title}</span>
+                    <span className="text-body-2 text-dark-1 line-clamp-1">{result.options?.title || result.title}</span>
                   </Link>
                 ))}
               </div>
@@ -235,7 +252,10 @@ function Header() {
       </header>
 
       {/* Mobile Bottom Nav */}
-      {isMobile && <MobileBottomNav profileData={profileData} />}
+      {isMobile && <MobileBottomNav profileData={profileData} onOpenMessages={comingSoon.open} />}
+
+      {/* Coming Soon Dialog */}
+      <ComingSoonModal isOpen={comingSoon.isOpen} onClose={comingSoon.close} />
     </>
   );
 }

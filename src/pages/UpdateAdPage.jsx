@@ -5,22 +5,21 @@ import toast, { Toaster } from "react-hot-toast";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { getmySpecificAd, updateMyAd } from "../Services/user";
 import { p2e, sp } from "../Utils/Numbers";
-import { ThreeCircles } from "react-loader-spinner";
 
 function UpdateAdPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const { data: categoryData, isLoading: categoryLoading } = useQuery(["get-category"], getCategory);
-  
-  const { data: adData, isFetching: adLoading } = useQuery(["get-ad-id", id], () => getmySpecificAd(id), {
-    staleTime: 0,
-    cacheTime: 0
-  });
+  const { data: categoryData } = useQuery(["get-categories"], getCategory);
+  const { data: adData, isLoading: adLoading } = useQuery(
+    ["get-ad-id", id],
+    () => getmySpecificAd(id)
+  );
 
-  const fileInputRef = useRef(null); 
-  const [selectedImageName, setSelectedImageName] = useState(""); 
+  const fileInputRef = useRef(null);
+  const [selectedImageName, setSelectedImageName] = useState("");
+  const [imagePreview, setImagePreview] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
 
@@ -30,23 +29,26 @@ function UpdateAdPage() {
     amount: "",
     city: "",
     category: "",
+    images: null,
   });
 
-  // Populate form when ad data is loaded
+  // Populate form once ad data is ready
   useEffect(() => {
-    if (adData && adData.post) {
+    if (adData?.post) {
+      const p = adData.post;
       setAdform({
-        title: adData.post.options.title || "",
-        content: adData.post.options.content || "",
-        amount: adData.post.amount ? adData.post.amount.toString() : "",
-        city: adData.post.options.city || "",
-        category: adData.post.category || "",
+        title: p.options?.title || p.title || "",
+        content: p.options?.content || p.content || "",
+        amount: p.amount ? String(p.amount) : "0",
+        city: p.options?.city || p.city || "",
+        category: p.category || p.categoryId || "",
+        images: null,
       });
     }
   }, [adData]);
 
   const handleClickChooseFile = () => {
-    fileInputRef.current.click(); 
+    if (!isSubmitting) fileInputRef.current.click();
   };
 
   const changeHandler = (event) => {
@@ -55,250 +57,254 @@ function UpdateAdPage() {
       const file = event.target.files[0];
       if (file) {
         if (file.size > 2 * 1024 * 1024) {
-          toast.error(
-            "فایل انتخاب شده باید حجم کمتری از 2 مگابایت و فرمت jpeg / png داشته باشد."
-          );
+          toast.error("فایل باید کمتر از ۲ مگابایت باشد");
           event.target.value = null;
           setSelectedImageName("");
+          setImagePreview(null);
         } else {
-          setAdform({ ...adform, [name]: file });
+          setAdform((prev) => ({ ...prev, images: file }));
           setSelectedImageName(file.name);
+          const reader = new FileReader();
+          reader.onloadend = () => setImagePreview(reader.result);
+          reader.readAsDataURL(file);
         }
       }
     } else {
       let finalValue = value;
       if (name === "amount") {
-        // Convert to english digits and strip all non-digit characters (like commas)
         finalValue = p2e(value).replace(/\D/g, "");
       }
-      setAdform({ ...adform, [name]: finalValue });
-      // Clear error for this field when user types
-      if (errors[name]) {
-        setErrors({ ...errors, [name]: "" });
-      }
+      setAdform((prev) => ({ ...prev, [name]: finalValue }));
+      if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
   const validateForm = () => {
     const newErrors = {};
-    if (!adform.title.trim()) newErrors.title = "لطفا عنوان آگهی را وارد کنید";
-    if (!adform.content.trim()) newErrors.content = "لطفا توضیحات آگهی را وارد کنید";
+    if (!adform.title.trim()) newErrors.title = "لطفاً عنوان آگهی را وارد کنید";
+    if (!adform.content.trim()) newErrors.content = "لطفاً توضیحات آگهی را وارد کنید";
     if (!adform.amount.toString().trim()) {
-      newErrors.amount = "لطفا مبلغ را وارد کنید";
-    } else if (isNaN(adform.amount.toString().replace(/,/g, ''))) {
-      newErrors.amount = "مبلغ باید به صورت عددی باشد";
+      newErrors.amount = "لطفاً مبلغ را وارد کنید (یا ۰ برای توافقی)";
     }
-    if (!adform.city.trim()) newErrors.city = "لطفا شهر را وارد کنید";
-    if (!adform.category) newErrors.category = "لطفا یک دسته‌بندی انتخاب کنید";
-    
+    if (!adform.city.trim()) newErrors.city = "لطفاً شهر را وارد کنید";
+    if (!adform.category) newErrors.category = "لطفاً دسته‌بندی را انتخاب کنید";
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const submitAdformHandler = (event) => {
+  const submitAdformHandler = async (event) => {
     event.preventDefault();
     if (!validateForm()) return;
 
     setIsSubmitting(true);
     const formData = new FormData();
-    for (let i in adform) {
-      if (adform[i] !== undefined && adform[i] !== null && adform[i] !== "") {
-          formData.append(i, adform[i]);
-      }
+    formData.append("title", adform.title);
+    formData.append("title_post", adform.title);
+    formData.append("content", adform.content);
+    formData.append("description", adform.content);
+    formData.append("amount", adform.amount);
+    formData.append("city", adform.city);
+    formData.append("category", adform.category);
+
+    if (adform.images) {
+      formData.append("images", adform.images);
     }
 
-    updateMyAd(id, formData)
-      .then((res) => {
-        toast.success(res?.message || "آگهی با موفقیت بروزرسانی شد!");
-        // Invalidate queries so that lists update
-        queryClient.invalidateQueries(["get-my-ads"]);
-        queryClient.invalidateQueries(["get-ad-id", id]);
-        
-        setTimeout(() => {
-          navigate(`/dashboard/${id}`);
-        }, 1500);
-      })
-      .catch((error) => {
-        toast.error("خطا در بروزرسانی آگهی، لطفا مجددا تلاش کنید");
-        console.error(error);
-      })
-      .finally(() => {
-        setIsSubmitting(false);
-      });
+    try {
+      const res = await updateMyAd(id, formData);
+      toast.success(res?.message || "آگهی با موفقیت ویرایش شد");
+      queryClient.invalidateQueries(["get-all-ads"]);
+      queryClient.invalidateQueries(["get-my-ads"]);
+      queryClient.invalidateQueries(["get-ad-id", id]);
+      setTimeout(() => navigate(`/dashboard/${id}`), 1200);
+    } catch (err) {
+      toast.error(err.response?.data?.message || "خطا در بروزرسانی آگهی");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  if (adLoading || categoryLoading) {
+  if (adLoading) {
     return (
-      <div className="w-full h-full flex items-center justify-center mt-44">
-        <ThreeCircles
-          visible={true}
-          height="60"
-          width="60"
-          color="#1a90ff"
-          ariaLabel="three-circles-loading"
-        />
-      </div>
-    );
-  }
-
-  if (!adData || !adData.post) {
-    return (
-      <div className="container mx-auto">
-        <div className="text-center mt-32">
-          <p className="mb-12 font-bold text-red-600 text-[1.6rem] py-2">
-            آگهی یافت نشد.
-          </p>
-          <Link
-            className="bg-blue-500 px-10 py-3 rounded-full text-white"
-            to="/dashboard"
-          >
-            بازگشت به داشبورد
-          </Link>
+      <div className="min-h-screen bg-light-3 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <svg className="animate-spin w-8 h-8 text-main" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
+          <span className="text-body-2 text-dark-3">در حال بارگذاری اطلاعات آگهی...</span>
         </div>
       </div>
     );
   }
 
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8 border-b-2 pb-4">
-        <h2 className="font-bold text-blue-600 text-xl laptop:text-2xl">
-          ویرایش آگهی
-        </h2>
-        <Link
-          className="text-blue-500 hover:text-blue-700 font-bold"
-          to={`/dashboard/${id}`}
-        >
-          بازگشت به آگهی
-        </Link>
+  if (!adData?.post) {
+    return (
+      <div className="min-h-[70vh] bg-light-3 flex flex-col items-center justify-center text-center px-4">
+        <h2 className="text-heading-4 text-dark-1 mb-3">آگهی یافت نشد</h2>
+        <Link to="/dashboard" className="btn-primary">بازگشت به داشبورد</Link>
       </div>
+    );
+  }
 
-      <div className="flex justify-center align-middle">
+  const existingImage = adData.post.images?.[0];
+
+  return (
+    <div className="min-h-screen bg-light-3 py-8">
+      <div className="max-w-2xl mx-auto px-4">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-heading-3 text-dark-0">ویرایش آگهی</h1>
+          <Link to={`/dashboard/${id}`} className="text-body-2 text-main hover:text-main-darker font-medium transition-colors">
+            ← بازگشت به آگهی
+          </Link>
+        </div>
+
         <form
-          onChange={changeHandler}
           onSubmit={submitAdformHandler}
-          className="w-full max-w-2xl flex flex-col text-right bg-white p-6 rounded-xl shadow-sm border border-gray-100"
+          className="bg-white rounded-sheypoor-xl p-6 laptop:p-8 border border-light-0 shadow-card space-y-5"
         >
-          <div className="mb-4">
-            <label htmlFor="title" className="block mb-2 font-medium text-gray-700">عنوان آگهی</label>
+          <div>
+            <label className="block mb-2 text-body-2 font-medium text-dark-1">عنوان آگهی *</label>
             <input
-              className={`w-full py-3 px-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200 transition-colors ${errors.title ? 'border-red-500' : 'border-gray-300'}`}
+              className={`input-sheypoor ${errors.title ? "!border-accent-red !ring-accent-red/20" : ""}`}
               type="text"
               name="title"
+              disabled={isSubmitting}
               value={adform.title}
               onChange={changeHandler}
-              placeholder="مثلا خودرو 206 مدل 1399"
+              placeholder="عنوان آگهی"
             />
-            {errors.title && <span className="text-red-500 text-sm mt-1 block">{errors.title}</span>}
+            {errors.title && <span className="text-accent-red text-body-4 mt-1 block">{errors.title}</span>}
           </div>
 
-          <div className="mb-4">
-            <label htmlFor="content" className="block mb-2 font-medium text-gray-700">توضیحات</label>
+          <div>
+            <label className="block mb-2 text-body-2 font-medium text-dark-1">توضیحات آگهی *</label>
             <textarea
-              className={`w-full py-3 px-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200 transition-colors ${errors.content ? 'border-red-500' : 'border-gray-300'}`}
+              className={`input-sheypoor min-h-[120px] ${errors.content ? "!border-accent-red !ring-accent-red/20" : ""}`}
               name="content"
+              disabled={isSubmitting}
               value={adform.content}
               onChange={changeHandler}
               rows="4"
-              placeholder="مثلا خودرو کم کارکرد ، بدنه سالم ، دارای بیمه تا یکسال"
-            ></textarea>
-            {errors.content && <span className="text-red-500 text-sm mt-1 block">{errors.content}</span>}
+              placeholder="توضیحات آگهی..."
+            />
+            {errors.content && <span className="text-accent-red text-body-4 mt-1 block">{errors.content}</span>}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="amount" className="block mb-2 font-medium text-gray-700">مبلغ (تومان)</label>
+              <label className="block mb-2 text-body-2 font-medium text-dark-1">مبلغ (تومان) *</label>
               <input
-                className={`w-full py-3 px-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200 transition-colors ${errors.amount ? 'border-red-500' : 'border-gray-300'} text-left dir-ltr`}
-                value={adform.amount ? sp(adform.amount.toString()) : ""}
+                className={`input-sheypoor text-left font-mono ${errors.amount ? "!border-accent-red !ring-accent-red/20" : ""}`}
+                value={adform.amount ? sp(adform.amount) : ""}
                 onChange={changeHandler}
+                disabled={isSubmitting}
                 type="text"
                 name="amount"
-                placeholder="مثلا 5,000,000"
+                placeholder="مبلغ به تومان"
                 dir="ltr"
               />
-              {errors.amount && <span className="text-red-500 text-sm mt-1 block">{errors.amount}</span>}
+              {errors.amount && <span className="text-accent-red text-body-4 mt-1 block">{errors.amount}</span>}
             </div>
-            
+
             <div>
-              <label htmlFor="city" className="block mb-2 font-medium text-gray-700">شهر</label>
+              <label className="block mb-2 text-body-2 font-medium text-dark-1">شهر *</label>
               <input
-                className={`w-full py-3 px-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200 transition-colors ${errors.city ? 'border-red-500' : 'border-gray-300'}`}
+                className={`input-sheypoor ${errors.city ? "!border-accent-red !ring-accent-red/20" : ""}`}
                 type="text"
                 name="city"
+                disabled={isSubmitting}
                 value={adform.city}
                 onChange={changeHandler}
-                placeholder="مثلا تهران"
+                placeholder="شهر / محدوده"
               />
-              {errors.city && <span className="text-red-500 text-sm mt-1 block">{errors.city}</span>}
+              {errors.city && <span className="text-accent-red text-body-4 mt-1 block">{errors.city}</span>}
             </div>
           </div>
 
-          <div className="mb-4">
-            <label htmlFor="category" className="block mb-2 font-medium text-gray-700">دسته بندی</label>
+          <div>
+            <label className="block mb-2 text-body-2 font-medium text-dark-1">دسته‌بندی *</label>
             <select
-              className={`w-full py-3 px-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200 transition-colors ${errors.category ? 'border-red-500' : 'border-gray-300'} bg-white`}
+              className={`input-sheypoor ${errors.category ? "!border-accent-red !ring-accent-red/20" : ""}`}
               name="category"
+              disabled={isSubmitting}
               value={adform.category}
               onChange={changeHandler}
             >
               <option value="">انتخاب دسته‌بندی...</option>
-              {categoryData &&
-                categoryData.map((item) => (
-                  <option key={item._id} value={item._id}>
-                    {item.name}
-                  </option>
-                ))}
+              {categoryData?.map((item) => (
+                <option key={item.id || item._id} value={item.id || item._id}>
+                  {item.name}
+                </option>
+              ))}
             </select>
-            {errors.category && <span className="text-red-500 text-sm mt-1 block">{errors.category}</span>}
+            {errors.category && <span className="text-accent-red text-body-4 mt-1 block">{errors.category}</span>}
           </div>
 
-          <div className="mb-6">
-            <label htmlFor="images" className="block mb-2 font-medium text-gray-700">عکس آگهی (در صورت انتخاب عکس جدید، جایگزین عکس قبلی می‌شود)</label>
+          {/* Image Replacement */}
+          <div>
+            <label className="block mb-2 text-body-2 font-medium text-dark-1">تصویر آگهی</label>
             <input
               type="file"
               name="images"
-              accept="image/*"
+              accept="image/jpeg,image/png,image/webp"
               ref={fileInputRef}
               style={{ display: "none" }}
               onChange={changeHandler}
+              disabled={isSubmitting}
             />
+
             <button
               type="button"
               onClick={handleClickChooseFile}
-              className="w-full py-4 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors flex flex-col items-center justify-center gap-2 text-gray-600"
+              disabled={isSubmitting}
+              className="w-full py-6 border-2 border-dashed border-light-0 rounded-sheypoor-lg bg-light-3 hover:bg-light-2 hover:border-main/40 transition-all flex flex-col items-center justify-center gap-2 text-dark-3"
             >
-              {selectedImageName ? (
-                <span className="font-medium text-blue-600">{selectedImageName}</span>
+              {imagePreview ? (
+                <div className="flex flex-col items-center">
+                  <img src={imagePreview} alt="new-preview" className="w-28 h-28 object-cover rounded-sheypoor border" />
+                  <span className="text-body-3 text-main font-medium mt-2">{selectedImageName}</span>
+                </div>
+              ) : existingImage ? (
+                <div className="flex flex-col items-center">
+                  <img
+                    src={existingImage.startsWith("http") ? existingImage : `${import.meta.env.VITE_BASE_URL}${existingImage}`}
+                    alt="current"
+                    className="w-28 h-28 object-cover rounded-sheypoor border"
+                  />
+                  <span className="text-body-4 text-dark-3 mt-2">برای تغییر عکس کلیک کنید</span>
+                </div>
               ) : (
                 <>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  <svg className="h-8 w-8 text-dark-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
-                  <span>برای انتخاب عکس جدید کلیک کنید</span>
-                  <small className="text-gray-400">در صورت عدم انتخاب، عکس قبلی حفظ می‌شود.</small>
+                  <span className="text-body-2">انتخاب عکس جدید</span>
                 </>
               )}
             </button>
-            {adData.post.images && adData.post.images[0] && !selectedImageName && (
-              <div className="mt-4">
-                <p className="text-sm text-gray-500 mb-2">عکس فعلی:</p>
-                <img 
-                  src={adData.post.images[0]?.startsWith("http") ? adData.post.images[0] : `${import.meta.env.VITE_BASE_URL}${adData.post.images[0]}`}
-                  alt="عکس فعلی آگهی" 
-                  className="w-32 h-32 object-cover rounded-lg border"
-                />
-              </div>
-            )}
           </div>
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className={`w-full py-4 rounded-xl text-white font-bold text-lg transition-all ${isSubmitting ? 'bg-blue-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 active:scale-[0.98]'}`}
-          >
-            {isSubmitting ? "در حال بروزرسانی..." : "بروزرسانی آگهی"}
-          </button>
+          <div className="pt-2">
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="btn-primary w-full"
+            >
+              {isSubmitting ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  در حال ذخیره تغییرات...
+                </span>
+              ) : (
+                "ذخیره تغییرات"
+              )}
+            </button>
+          </div>
         </form>
       </div>
       <Toaster />
