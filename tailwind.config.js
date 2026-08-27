@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class',
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
@@ -34,6 +35,15 @@ export default {
           4: '#FFFFFF',
           special: '#F5F9FF',
         },
+        // Dark theme specific tokens
+        night: {
+          bg: '#0A0A0E',
+          surface: '#121218',
+          card: '#161622',
+          border: '#242436',
+          muted: '#8E8EA8',
+          text: '#F5F5FA',
+        },
         accent: {
           red: '#FF3B3B',
           'red-bg': '#FFE6E6',
@@ -47,6 +57,7 @@ export default {
       },
       fontFamily: {
         vazir: ['Vazir', 'Vazirmatn', 'system-ui', 'sans-serif'],
+        latin: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
       },
       fontSize: {
         'heading-1': ['2.1875rem', { lineHeight: '1.3', fontWeight: '700' }],
@@ -78,10 +89,15 @@ export default {
       },
       boxShadow: {
         'card': '0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04)',
+        'card-dark': '0 2px 8px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.3)',
         'card-hover': '0 4px 12px rgba(0, 0, 0, 0.1)',
+        'card-hover-dark': '0 6px 16px rgba(0, 0, 0, 0.6)',
         'header': '0 2px 8px rgba(0, 0, 0, 0.06)',
+        'header-dark': '0 2px 8px rgba(0, 0, 0, 0.5)',
         'bottom-nav': '0 -2px 10px rgba(0, 0, 0, 0.08)',
+        'bottom-nav-dark': '0 -2px 10px rgba(0, 0, 0, 0.5)',
         'modal': '0 8px 32px rgba(0, 0, 0, 0.15)',
+        'modal-dark': '0 8px 32px rgba(0, 0, 0, 0.7)',
       },
       animation: {
         'fade-in': 'fadeIn 0.3s ease-out',

@@ -48,18 +48,18 @@ function ScraperForm() {
   };
 
   return (
-    <div className="bg-white rounded-sheypoor-xl p-6 laptop:p-8 border border-light-0 shadow-card">
+    <div className="bg-white dark:bg-night-card rounded-sheypoor-xl p-6 laptop:p-8 border border-light-0 dark:border-night-border shadow-card dark:shadow-card-dark transition-colors">
       <div className="flex flex-col laptop:flex-row gap-8 items-center">
         <form onSubmit={submitHandler} className="w-full laptop:w-3/5 space-y-5">
           <div>
-            <h3 className="text-heading-4 text-dark-0 mb-1">اسکرپر و انتقال خودکار آگهی‌ها</h3>
-            <p className="text-body-3 text-dark-3">
+            <h3 className="text-heading-4 text-dark-0 dark:text-white font-bold mb-1">اسکرپر و انتقال خودکار آگهی‌ها</h3>
+            <p className="text-body-3 text-dark-3 dark:text-gray-400">
               لینک صفحه‌ی دسته‌بندی شیپور را وارد کنید تا آگهی‌های آن مستقیماً در دیتابیس بارگذاری شوند.
             </p>
           </div>
 
           <div>
-            <label htmlFor="url" className="block text-body-2 font-medium text-dark-1 mb-2">
+            <label htmlFor="url" className="block text-body-2 font-medium text-dark-1 dark:text-gray-200 mb-2">
               آدرس اینترنتی شیپور *
             </label>
             <input
@@ -77,7 +77,7 @@ function ScraperForm() {
           </div>
 
           <div>
-            <label htmlFor="categoryId" className="block text-body-2 font-medium text-dark-1 mb-2">
+            <label htmlFor="categoryId" className="block text-body-2 font-medium text-dark-1 dark:text-gray-200 mb-2">
               دسته‌بندی مقصد در سیستم *
             </label>
             <select
@@ -117,14 +117,14 @@ function ScraperForm() {
           </button>
         </form>
 
-        <div className="w-full laptop:w-2/5 p-6 bg-light-2 rounded-sheypoor-lg border border-light-0 text-center flex flex-col items-center justify-center">
-          <div className="w-16 h-16 rounded-full bg-light-special flex items-center justify-center text-main mb-4">
+        <div className="w-full laptop:w-2/5 p-6 bg-light-2 dark:bg-night-surface rounded-sheypoor-lg border border-light-0 dark:border-night-border text-center flex flex-col items-center justify-center">
+          <div className="w-16 h-16 rounded-full bg-light-special dark:bg-white/10 flex items-center justify-center text-main dark:text-white mb-4">
             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
             </svg>
           </div>
-          <h4 className="text-heading-5 text-dark-0 mb-2">انتقال سریع اطلاعات</h4>
-          <p className="text-body-3 text-dark-3 leading-6">
+          <h4 className="text-heading-5 text-dark-0 dark:text-white font-bold mb-2">انتقال سریع اطلاعات</h4>
+          <p className="text-body-3 text-dark-3 dark:text-gray-400 leading-6">
             تمامی تصاویر، عناوین، قیمت‌ها و مشخصات به صورت خودکار دانلود و برای کاربران شما در دسترس قرار می‌گیرند.
           </p>
         </div>

@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-no-duplicate-props */
 import { LogoutIcon, UserAddIcon, UserIcon } from "@heroicons/react/solid";
 import { Link } from "react-router-dom";
 import { delCookie } from "../../Utils/cookie";

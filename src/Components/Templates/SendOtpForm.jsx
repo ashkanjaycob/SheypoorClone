@@ -2,18 +2,34 @@
 import toast, { Toaster } from "react-hot-toast";
 import { sendOtp } from "../../Services/Auth";
 import { p2e } from "../../Utils/Numbers";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { t, getSavedLanguage } from "../../Utils/i18n";
 
 function SendOtpForm({ mobile, setMobile, setStep, setOtpResponse }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [currentLang, setCurrentLang] = useState(getSavedLanguage());
+
+  useEffect(() => {
+    const handleLangChange = (e) => setCurrentLang(e.detail || getSavedLanguage());
+    window.addEventListener("sheypoor_lang_changed", handleLangChange);
+    return () => window.removeEventListener("sheypoor_lang_changed", handleLangChange);
+  }, []);
 
   const validateMobile = (phone) => {
     const clean = p2e(phone).trim();
-    if (!clean) return "لطفاً شماره موبایل خود را وارد کنید";
-    if (!clean.startsWith("09")) return "شماره موبایل باید با ۰۹ شروع شود";
-    if (clean.length !== 11) return "شماره موبایل باید ۱۱ رقم باشد";
-    if (!/^\d+$/.test(clean)) return "شماره موبایل فقط باید شامل اعداد باشد";
+    if (!clean) {
+      return currentLang === "fa" ? "لطفاً شماره موبایل خود را وارد کنید" : "Please enter your mobile number";
+    }
+    if (!clean.startsWith("09")) {
+      return currentLang === "fa" ? "شماره موبایل باید با ۰۹ شروع شود" : "Mobile number must start with 09";
+    }
+    if (clean.length !== 11) {
+      return currentLang === "fa" ? "شماره موبایل باید ۱۱ رقم باشد" : "Mobile number must be 11 digits";
+    }
+    if (!/^\d+$/.test(clean)) {
+      return currentLang === "fa" ? "شماره موبایل فقط باید شامل اعداد باشد" : "Mobile number must contain digits only";
+    }
     return "";
   };
 
@@ -35,11 +51,11 @@ function SendOtpForm({ mobile, setMobile, setStep, setOtpResponse }) {
       if (response.data.code) {
         setOtpResponse(response.data.code);
       }
-      toast.success(response.data.message || "کد تایید ارسال شد");
+      toast.success(response.data.message || (currentLang === "fa" ? "کد تایید ارسال شد" : "Verification code sent"));
       setStep(2);
     }
     if (apiError) {
-      const msg = apiError.response?.data?.message || "خطا در ارسال کد تایید، لطفاً مجدداً تلاش کنید";
+      const msg = apiError.response?.data?.message || (currentLang === "fa" ? "خطا در ارسال کد تایید" : "Error sending verification code");
       setError(msg);
       toast.error(msg);
     }
@@ -48,15 +64,17 @@ function SendOtpForm({ mobile, setMobile, setStep, setOtpResponse }) {
   return (
     <form onSubmit={submitHandler} className="space-y-6">
       <div>
-        <h2 className="text-heading-3 text-dark-0 mb-2">ورود یا ثبت‌نام</h2>
-        <p className="text-body-2 text-dark-3">
-          برای ورود یا ساخت حساب در شیپور، شماره موبایل خود را وارد کنید.
+        <h2 className="text-heading-3 text-dark-0 dark:text-white font-bold mb-2">
+          {t("login", {}, currentLang)}
+        </h2>
+        <p className="text-body-2 text-dark-3 dark:text-gray-300">
+          {t("loginSubtitle", {}, currentLang)}
         </p>
       </div>
 
       <div>
-        <label htmlFor="mobile" className="block text-body-2 font-medium text-dark-1 mb-2">
-          شماره موبایل
+        <label htmlFor="mobile" className="block text-body-2 font-medium text-dark-1 dark:text-gray-200 mb-2">
+          {currentLang === "fa" ? "شماره موبایل" : "Mobile Number"}
         </label>
         <input
           type="tel"
@@ -64,7 +82,7 @@ function SendOtpForm({ mobile, setMobile, setStep, setOtpResponse }) {
           name="mobile"
           disabled={isLoading}
           dir="ltr"
-          placeholder="۰۹۱۲۳۴۵۶۷۸۹"
+          placeholder="09123456789"
           value={mobile}
           onChange={(e) => {
             setMobile(p2e(e.target.value));
@@ -79,8 +97,10 @@ function SendOtpForm({ mobile, setMobile, setStep, setOtpResponse }) {
         {error && <span className="text-accent-red text-body-4 mt-1.5 block">{error}</span>}
       </div>
 
-      <div className="bg-light-2 rounded-sheypoor p-3.5 text-body-4 text-dark-3 leading-6">
-        ℹ️ با ورود به حساب، کد تایید ۵ رقمی به صورت پیامک برای شما ارسال می‌شود.
+      <div className="bg-light-2 dark:bg-night-surface rounded-sheypoor p-3.5 text-body-4 text-dark-3 dark:text-gray-400 leading-6 border border-light-1 dark:border-night-border">
+        ℹ️ {currentLang === "fa"
+          ? "با ورود به حساب، کد تایید ۵ رقمی به صورت پیامک برای شما ارسال می‌شود."
+          : "A 5-digit verification code will be sent to your phone via SMS."}
       </div>
 
       <button
@@ -94,10 +114,10 @@ function SendOtpForm({ mobile, setMobile, setStep, setOtpResponse }) {
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
             </svg>
-            در حال ارسال کد...
+            {currentLang === "fa" ? "در حال ارسال کد..." : "Sending Code..."}
           </span>
         ) : (
-          "دریافت کد تایید"
+          currentLang === "fa" ? "دریافت کد تایید" : "Get Verification Code"
         )}
       </button>
 
