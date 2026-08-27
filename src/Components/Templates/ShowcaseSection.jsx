@@ -55,7 +55,7 @@ function ShowcaseSection({ className = "" }) {
 
   return (
     <div className={`my-8 ${className}`}>
-      <div className="bg-gradient-to-r from-[#1D4ED8] via-[#2563EB] to-[#1E40AF] dark:from-[#111320] dark:via-[#16192E] dark:to-[#0F111D] dark:border dark:border-night-border rounded-2xl laptop:rounded-3xl p-5 laptop:p-7 text-white shadow-xl relative overflow-hidden transition-colors">
+      <div className="bg-gradient-to-r from-[#1D4ED8] via-[#2563EB] to-[#1E40AF] dark:from-[#151C2C] dark:via-[#1B2438] dark:to-[#141A28] dark:border dark:border-[#2A374F] rounded-2xl laptop:rounded-3xl p-5 laptop:p-7 text-white shadow-xl relative overflow-hidden transition-colors">
         {/* Top Header */}
         <div className="flex items-center justify-between mb-5">
           <div>
@@ -140,10 +140,10 @@ function ShowcaseSection({ className = "" }) {
                   <Link
                     key={postId}
                     to={`/dashboard/${postId}`}
-                    className="w-[290px] tablet:w-[330px] flex-shrink-0 bg-[#1A1E36] dark:bg-night-card hover:bg-[#202542] dark:hover:bg-night-border rounded-xl overflow-hidden border border-white/10 dark:border-night-border hover:border-white/25 transition-all duration-200 group flex rtl:flex-row-reverse ltr:flex-row shadow-md"
+                    className="w-[290px] tablet:w-[330px] flex-shrink-0 bg-[#1A1E36] dark:bg-[#1E273A] hover:bg-[#202542] dark:hover:bg-[#253046] rounded-xl overflow-hidden border border-white/10 dark:border-white/15 hover:border-white/25 transition-all duration-200 group flex rtl:flex-row-reverse ltr:flex-row shadow-md"
                   >
                     {/* Image Column */}
-                    <div className="relative w-[115px] tablet:w-[130px] flex-shrink-0 bg-[#0F1222] dark:bg-night-surface overflow-hidden">
+                    <div className="relative w-[115px] tablet:w-[130px] flex-shrink-0 bg-[#0F1222] dark:bg-[#141A28] overflow-hidden">
                       <img
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         src={

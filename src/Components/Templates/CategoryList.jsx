@@ -41,9 +41,9 @@ function CategoryList() {
               to={`/category/${category.slug || category.id || category._id}`}
               className="group flex flex-col items-center gap-2 cursor-pointer"
             >
-              <div className="w-14 h-14 laptop:w-16 laptop:h-16 rounded-full bg-light-2 dark:bg-night-card border border-transparent dark:border-night-border flex items-center justify-center group-hover:bg-light-special dark:group-hover:bg-night-surface group-hover:ring-2 group-hover:ring-main/20 dark:group-hover:ring-white/20 transition-all duration-200">
+              <div className="w-14 h-14 laptop:w-16 laptop:h-16 rounded-full bg-light-2 dark:bg-white/10 border border-transparent dark:border-white/15 flex items-center justify-center group-hover:bg-light-special dark:group-hover:bg-white/20 group-hover:ring-2 group-hover:ring-main/20 dark:group-hover:ring-white/30 group-hover:scale-105 transition-all duration-200 shadow-sm">
                 <img
-                  className="w-8 h-8 laptop:w-9 laptop:h-9 object-contain dark:brightness-110"
+                  className="w-8 h-8 laptop:w-9 laptop:h-9 object-contain dark:brightness-0 dark:invert transition-all"
                   src={`/${category.icon}.svg`}
                   alt={catName}
                   onError={(e) => {
@@ -52,7 +52,7 @@ function CategoryList() {
                   }}
                 />
               </div>
-              <span className="text-body-4 laptop:text-body-3 text-dark-0 dark:text-gray-200 font-medium text-center leading-tight group-hover:text-main dark:group-hover:text-white transition-colors line-clamp-2">
+              <span className="text-body-4 laptop:text-body-3 text-dark-0 dark:text-gray-100 font-medium text-center leading-tight group-hover:text-main dark:group-hover:text-white transition-colors line-clamp-2">
                 {catName}
               </span>
             </Link>

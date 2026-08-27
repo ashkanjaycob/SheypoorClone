@@ -108,7 +108,7 @@ function Header() {
             {/* Logo */}
             <Link to="/" className="flex-shrink-0 flex items-center gap-2">
               <img
-                className="w-[100px] laptop:w-[120px] cursor-pointer dark:brightness-110"
+                className="w-[100px] laptop:w-[120px] cursor-pointer dark:brightness-0 dark:invert transition-all"
                 src={navLogo}
                 alt={t("appName", {}, currentLang)}
               />

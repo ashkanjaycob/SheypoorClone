@@ -16,8 +16,8 @@
 }
 
 html.dark {
-  color: #F5F5FA;
-  background-color: #0A0A0E;
+  color: #F8FAFC;
+  background-color: #0F131C;
 }
 
 html[dir="ltr"] {
@@ -37,8 +37,8 @@ body {
 }
 
 .dark body {
-  background-color: #0A0A0E;
-  color: #F5F5FA;
+  background-color: #0F131C;
+  color: #F8FAFC;
 }
 
 /* ===== Scrollbar Hide Utility ===== */
@@ -59,7 +59,7 @@ body {
 }
 
 .dark .skeleton {
-  background: linear-gradient(90deg, #161622 25%, #242436 50%, #161622 75%);
+  background: linear-gradient(90deg, #171D2A 25%, #2A3449 50%, #171D2A 75%);
   background-size: 200% 100%;
 }
 
@@ -75,7 +75,7 @@ body {
   }
 
   .dark .btn-primary {
-    @apply bg-white hover:bg-gray-200 text-black shadow-md;
+    @apply bg-white hover:bg-slate-100 text-dark-0 font-bold shadow-md;
   }
   
   .btn-outline {
@@ -83,7 +83,7 @@ body {
   }
 
   .dark .btn-outline {
-    @apply border-2 border-white/60 text-white hover:bg-white/10;
+    @apply border-2 border-white/70 text-white hover:bg-white/10;
   }
 
   .btn-danger {
@@ -108,7 +108,7 @@ body {
   }
 
   .dark .card-sheypoor {
-    @apply bg-night-card border-night-border shadow-card-dark hover:shadow-card-hover-dark text-night-text;
+    @apply bg-night-card border-night-border/80 shadow-card-dark hover:shadow-card-hover-dark text-night-text;
   }
 
   /* ===== Input Component ===== */
@@ -117,7 +117,7 @@ body {
   }
 
   .dark .input-sheypoor {
-    @apply bg-night-surface border-night-border text-white placeholder-gray-500 focus:ring-white/20 focus:border-white;
+    @apply bg-night-surface border-night-border text-white placeholder-gray-400 focus:ring-white/20 focus:border-white;
   }
 
   /* ===== Textarea Component ===== */

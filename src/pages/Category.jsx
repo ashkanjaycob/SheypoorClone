@@ -221,9 +221,9 @@ function Category() {
         {/* Title Header */}
         <div className="flex items-center justify-between mb-5 flex-wrap gap-2">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-light-2 dark:bg-night-card border border-transparent dark:border-night-border flex items-center justify-center">
+            <div className="w-9 h-9 rounded-full bg-light-2 dark:bg-white/10 border border-transparent dark:border-white/15 flex items-center justify-center shadow-sm">
               <img
-                className="w-5 h-5 object-contain dark:brightness-110"
+                className="w-5 h-5 object-contain dark:brightness-0 dark:invert transition-all"
                 src={`/${currentCategory?.icon || "sheypoorBlack"}.svg`}
                 alt=""
                 onError={(e) => {

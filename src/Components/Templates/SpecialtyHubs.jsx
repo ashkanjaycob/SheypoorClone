@@ -119,12 +119,12 @@ function SpecialtyHubs() {
             <Link
               key={i}
               to={hub.path}
-              className="bg-white dark:bg-night-card border border-light-0 dark:border-night-border rounded-sheypoor-lg p-4 flex items-center gap-3 hover:border-main/40 dark:hover:border-white/40 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-200 group"
+              className="bg-white dark:bg-night-card border border-light-0 dark:border-night-border/80 rounded-sheypoor-lg p-4 flex items-center gap-3 hover:border-main/40 dark:hover:border-white/40 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-200 group"
             >
-              <div className="w-10 h-10 bg-light-2 dark:bg-night-surface rounded-full flex items-center justify-center text-lg group-hover:bg-light-special dark:group-hover:bg-night-border group-hover:scale-110 transition-all">
+              <div className="w-10 h-10 bg-light-2 dark:bg-white/10 rounded-full flex items-center justify-center text-lg group-hover:bg-light-special dark:group-hover:bg-white/20 group-hover:scale-110 transition-all">
                 {hub.icon}
               </div>
-              <span className="text-body-2 font-medium text-dark-1 dark:text-gray-200 group-hover:text-main dark:group-hover:text-white transition-colors">
+              <span className="text-body-2 font-medium text-dark-1 dark:text-gray-100 group-hover:text-main dark:group-hover:text-white transition-colors">
                 {hub.label[currentLang] || hub.label[LANGUAGES.FA]}
               </span>
             </Link>
@@ -145,12 +145,12 @@ function SpecialtyHubs() {
             <Link
               key={i}
               to={hub.path}
-              className="bg-white dark:bg-night-card border border-light-0 dark:border-night-border rounded-sheypoor-lg p-4 flex items-center gap-3 hover:border-main/40 dark:hover:border-white/40 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-200 group"
+              className="bg-white dark:bg-night-card border border-light-0 dark:border-night-border/80 rounded-sheypoor-lg p-4 flex items-center gap-3 hover:border-main/40 dark:hover:border-white/40 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-200 group"
             >
-              <div className="w-10 h-10 bg-light-2 dark:bg-night-surface rounded-full flex items-center justify-center text-lg group-hover:bg-light-special dark:group-hover:bg-night-border group-hover:scale-110 transition-all">
+              <div className="w-10 h-10 bg-light-2 dark:bg-white/10 rounded-full flex items-center justify-center text-lg group-hover:bg-light-special dark:group-hover:bg-white/20 group-hover:scale-110 transition-all">
                 {hub.icon}
               </div>
-              <span className="text-body-2 font-medium text-dark-1 dark:text-gray-200 group-hover:text-main dark:group-hover:text-white transition-colors">
+              <span className="text-body-2 font-medium text-dark-1 dark:text-gray-100 group-hover:text-main dark:group-hover:text-white transition-colors">
                 {hub.label[currentLang] || hub.label[LANGUAGES.FA]}
               </span>
             </Link>

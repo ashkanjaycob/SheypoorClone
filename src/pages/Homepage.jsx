@@ -31,7 +31,7 @@ function Homepage() {
       <section id="all-ads-section" className="max-w-container mx-auto px-4 py-6">
         <div className="flex items-center gap-3 mb-6">
           <img
-            className="w-7 laptop:w-8 dark:invert"
+            className="w-7 laptop:w-8 dark:brightness-0 dark:invert transition-all"
             src="/sheypoorBlack.svg"
             alt="Sheypoor"
           />
