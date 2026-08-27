@@ -1,128 +1,428 @@
-import { useState, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { getAllAds } from "../Services/user";
 import { getCategory } from "../Services/Admin";
-import { ThreeDots } from "react-loader-spinner";
 import { sp } from "../Utils/Numbers";
+import { isBookmarked, toggleBookmark } from "../Utils/bookmarks";
+import { getSelectedCity, clearSelectedCity, ALL_IRAN } from "../Utils/location";
+import toast, { Toaster } from "react-hot-toast";
+
+function timeAgo(dateStr) {
+  if (!dateStr) return "";
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "لحظاتی پیش";
+  if (mins < 60) return `${mins} دقیقه پیش`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs} ساعت پیش`;
+  const days = Math.floor(hrs / 24);
+  if (days < 7) return `${days} روز پیش`;
+  return new Date(dateStr).toLocaleDateString("fa-IR");
+}
+
+function PostCardSkeleton() {
+  return (
+    <div className="card-sheypoor overflow-hidden flex flex-row-reverse laptop:flex-col h-full">
+      <div className="relative w-[120px] h-[120px] laptop:w-full laptop:h-auto laptop:aspect-square flex-shrink-0 bg-light-2 skeleton" />
+      <div className="flex-grow p-3 flex flex-col justify-between min-w-0 space-y-3">
+        <div className="space-y-1.5">
+          <div className="h-4 skeleton w-full" />
+          <div className="h-4 skeleton w-3/4" />
+        </div>
+        <div className="mt-auto space-y-2 pt-2">
+          <div className="h-4 skeleton w-1/2" />
+          <div className="h-3 skeleton w-1/3" />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function Category() {
-  const [currentUrl, setCurrentUrl] = useState("");
-  const [categoryTitle, setCategoryTitle] = useState("");
   const { id } = useParams();
-  const categorySlug = id;
+  const [activeFilter, setActiveFilter] = useState("all");
+  const [displayCount, setDisplayCount] = useState(12);
+  const [autoScrollCount, setAutoScrollCount] = useState(0);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [savedIds, setSavedIds] = useState({});
+  const [selectedCity, setSelectedCityState] = useState(getSelectedCity());
 
+  const sentinelRef = useRef(null);
+  const MAX_AUTO_SCROLL = 3;
+
+  // Listen to city changes
   useEffect(() => {
-    setCurrentUrl(categorySlug);
-  }, [categorySlug]);
+    const handleCityChange = (e) => {
+      setSelectedCityState(e.detail || getSelectedCity());
+      setDisplayCount(12);
+      setAutoScrollCount(0);
+    };
+    window.addEventListener("sheypoor_city_changed", handleCityChange);
+    return () => window.removeEventListener("sheypoor_city_changed", handleCityChange);
+  }, []);
 
-  const { data, isLoading } = useQuery(["get-all-ads", currentUrl], () =>
-    getAllAds(currentUrl)
+  // 1. Fetch categories
+  const { data: categoriesList, isLoading: isCategoriesLoading } = useQuery(
+    ["get-categories"],
+    getCategory
   );
 
-  const { data: CategoriesList } = useQuery(["get-categories"], getCategory);
+  // 2. Resolve target category slug and name
+  const currentCategory = useMemo(() => {
+    if (!categoriesList || !Array.isArray(categoriesList)) return null;
+    return categoriesList.find(
+      (c) =>
+        c.slug === id ||
+        String(c.id) === String(id) ||
+        String(c._id) === String(id)
+    );
+  }, [categoriesList, id]);
 
-  const [displayCount, setDisplayCount] = useState(6);
+  const resolvedSlug = currentCategory?.slug || id;
+  const categoryTitle = currentCategory?.name?.trim() || "دسته‌بندی";
 
-  const handleLoadMore = () => {
-    setDisplayCount(displayCount + 6);
+  // 3. Fetch ads by resolved category slug
+  const { data, isLoading: isAdsLoading } = useQuery(
+    ["get-all-ads-category", resolvedSlug],
+    () => getAllAds(resolvedSlug),
+    {
+      enabled: !!resolvedSlug,
+    }
+  );
+
+  const posts = data?.posts || [];
+
+  // 4. Client-side city filtering & sorting
+  const displayedPosts = useMemo(() => {
+    let result = [...posts];
+
+    // Filter by selected city
+    if (selectedCity && selectedCity !== ALL_IRAN) {
+      result = result.filter((p) => {
+        const city = p.options?.city || p.city || "";
+        return city.includes(selectedCity);
+      });
+    }
+
+    // Filter by type
+    if (activeFilter === "photo") {
+      result = result.filter((p) => p.images && p.images.length > 0);
+    } else if (activeFilter === "cheap") {
+      result.sort((a, b) => (Number(a.amount) || 0) - (Number(b.amount) || 0));
+    } else if (activeFilter === "expensive") {
+      result.sort((a, b) => (Number(b.amount) || 0) - (Number(a.amount) || 0));
+    }
+    return result;
+  }, [posts, selectedCity, activeFilter]);
+
+  const hasMore = displayedPosts.length > displayCount;
+  const isLoading = isCategoriesLoading || isAdsLoading;
+  const isFilteredByCity = selectedCity && selectedCity !== ALL_IRAN;
+
+  // Hybrid Infinite Scroll: Auto-load for 3 cycles, then button
+  useEffect(() => {
+    if (autoScrollCount >= MAX_AUTO_SCROLL || !hasMore || isLoadingMore || isLoading) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !isLoadingMore) {
+          setIsLoadingMore(true);
+          setTimeout(() => {
+            setDisplayCount((prev) => prev + 12);
+            setAutoScrollCount((prev) => prev + 1);
+            setIsLoadingMore(false);
+          }, 450);
+        }
+      },
+      { rootMargin: "300px" }
+    );
+
+    const currentSentinel = sentinelRef.current;
+    if (currentSentinel) {
+      observer.observe(currentSentinel);
+    }
+
+    return () => {
+      if (currentSentinel) observer.unobserve(currentSentinel);
+    };
+  }, [autoScrollCount, hasMore, isLoadingMore, isLoading]);
+
+  const handleManualLoadMore = () => {
+    setIsLoadingMore(true);
+    setTimeout(() => {
+      setDisplayCount((prev) => prev + 12);
+      setIsLoadingMore(false);
+    }, 450);
   };
 
-  useEffect(() => {
-    if (CategoriesList && Array.isArray(CategoriesList)) {
-      const foundCategory = CategoriesList.find(
-        (category) => category._id === currentUrl
-      );
+  const handleBookmarkToggle = (e, post) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const isNowSaved = toggleBookmark(post);
+    setSavedIds((prev) => ({ ...prev, [post._id || post.id]: isNowSaved }));
+    toast.success(isNowSaved ? "آگهی به ذخیره‌ها افزوده شد" : "آگهی از ذخیره‌ها حذف شد");
+  };
 
-      if (foundCategory) {
-        setCategoryTitle(foundCategory?.name);
-      } else {
-        setCategoryTitle("دسته‌بندی پیدا نشد");
-      }
-    }
-  }, [currentUrl, CategoriesList]);
+  const filters = [
+    { id: "all", label: "همه" },
+    { id: "photo", label: "عکس‌دار" },
+    { id: "cheap", label: "ارزان‌ترین" },
+    { id: "expensive", label: "گران‌ترین" },
+  ];
 
   return (
-    <div className="container mx-auto">
-      <div className="flex mb-4 items-center border-b-2 pb-8 px-2">
-        <img className="w-6 h-6 ml-2" src="/sheypoorBlack.svg" alt="" />
-        <h2 className="font-bold text-md">
-          همه ی آگهی های{" "}
-          <span className="text-2xl text-blue-500">{categoryTitle}</span>{" "}
-        </h2>
-      </div>
-      {isLoading ? (
-        <div className="w-full h-full flex items-center justify-center mt-20">
-          <ThreeDots
-            visible={true}
-            height="60"
-            width="60"
-            color="#1a90ff"
-            ariaLabel="three-circles-loading"
-          />
+    <div className="min-h-screen bg-light-3">
+      <div className="max-w-container mx-auto px-4 py-4">
+        {/* Breadcrumb */}
+        <nav className="flex items-center gap-1.5 text-body-3 text-dark-3 mb-4 overflow-x-auto scrollbar-hide">
+          <Link to="/" className="hover:text-main transition-colors whitespace-nowrap">
+            خانه
+          </Link>
+          <svg className="w-4 h-4 text-dark-4 flex-shrink-0 rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+          <span className="text-dark-3 whitespace-nowrap">دسته‌بندی‌ها</span>
+          <svg className="w-4 h-4 text-dark-4 flex-shrink-0 rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+          <span className="text-dark-0 font-medium whitespace-nowrap">{categoryTitle}</span>
+        </nav>
+
+        {/* City Filter Active Banner */}
+        {isFilteredByCity && (
+          <div className="mb-4 p-3.5 bg-light-special border border-main/30 rounded-sheypoor-lg flex items-center justify-between animate-fade-in">
+            <div className="flex items-center gap-2 text-body-2 text-dark-1">
+              <svg className="w-5 h-5 text-main flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              </svg>
+              <span>
+                در حال نمایش آگهی‌های {categoryTitle} در شهر: <strong className="text-main">{selectedCity}</strong> ({displayedPosts.length} آگهی)
+              </span>
+            </div>
+            <button
+              onClick={clearSelectedCity}
+              className="text-body-3 text-accent-red hover:text-red-700 font-medium flex items-center gap-1"
+            >
+              <span>حذف فیلتر شهر</span>
+              <span>✕</span>
+            </button>
+          </div>
+        )}
+
+        {/* Title Header */}
+        <div className="flex items-center justify-between mb-5 flex-wrap gap-2">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-full bg-light-2 flex items-center justify-center">
+              <img
+                className="w-5 h-5 object-contain"
+                src={`/${currentCategory?.icon || "sheypoorBlack"}.svg`}
+                alt=""
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "/sheypoorBlack.svg";
+                }}
+              />
+            </div>
+            <h1 className="text-heading-4 text-dark-0">
+              آگهی‌های <span className="text-main">{categoryTitle}</span>
+              {isFilteredByCity && <span className="text-dark-2 text-heading-5"> در {selectedCity}</span>}
+            </h1>
+          </div>
+          {!isLoading && (
+            <span className="text-body-3 text-dark-3">
+              {displayedPosts.length} آگهی
+            </span>
+          )}
         </div>
-      ) : (
-        <>
-          <div className="container mx-auto flex justify-start flex-wrap gap-2">
-            {data?.posts &&
-              data.posts
-                .filter((post) => post.category === categorySlug || post.category?._id === categorySlug)
-                .slice(0, displayCount)
-                .map((post) => (
+
+        {/* Filter Chips */}
+        <div className="flex items-center gap-2 mb-6 overflow-x-auto scrollbar-hide pb-1">
+          {filters.map((f) => (
+            <button
+              key={f.id}
+              onClick={() => setActiveFilter(f.id)}
+              className={`flex-shrink-0 ${
+                activeFilter === f.id ? "chip-active" : "chip"
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+
+          {/* Quick link to Saved */}
+          <Link to="/saved" className="chip flex-shrink-0 !gap-1 mr-auto hover:text-main">
+            <svg className="w-4 h-4 text-main" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+            </svg>
+            <span>مشاهده ذخیره‌ها</span>
+          </Link>
+        </div>
+
+        {/* SKELETON LOADING ON INITIAL LOAD */}
+        {isLoading ? (
+          <div className="grid grid-cols-1 tablet:grid-cols-2 laptop:grid-cols-3 desktop:grid-cols-4 sdesktop:grid-cols-6 gap-4">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <PostCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : displayedPosts.length === 0 ? (
+          <div className="py-20 flex flex-col items-center justify-center text-center bg-white rounded-sheypoor-xl border border-light-0">
+            <svg className="h-16 w-16 text-dark-4 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+            <h3 className="text-heading-4 text-dark-2 mb-2">
+              {isFilteredByCity
+                ? `در دسته‌بندی ${categoryTitle} برای شهر «${selectedCity}» آگهی‌ای یافت نشد.`
+                : `هنوز آگهی‌ای در این دسته‌بندی ثبت نشده است.`}
+            </h3>
+            <p className="text-body-2 text-dark-3 mb-6">
+              {isFilteredByCity
+                ? "می‌توانید آگهی‌های این دسته در کل ایران را مشاهده فرمایید."
+                : "اولین نفری باشید که در این دسته آگهی ثبت می‌کند!"}
+            </p>
+            {isFilteredByCity ? (
+              <button onClick={clearSelectedCity} className="btn-primary">
+                نمایش آگهی‌های این دسته در کل ایران
+              </button>
+            ) : (
+              <Link to="/dashboard" className="btn-primary">
+                + ثبت آگهی رایگان
+              </Link>
+            )}
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 tablet:grid-cols-2 laptop:grid-cols-3 desktop:grid-cols-4 sdesktop:grid-cols-6 gap-4">
+              {displayedPosts.slice(0, displayCount).map((post) => {
+                const postId = post._id || post.id;
+                const bookmarked = savedIds[postId] !== undefined ? savedIds[postId] : isBookmarked(postId);
+
+                return (
                   <Link
-                    key={post._id}
-                    to={`/dashboard/${post._id}`}
-                    className="w-[16%] max-desktop:w-[96%] max-desktop:border-b-2 max-desktop:pb-4"
+                    key={postId}
+                    to={`/dashboard/${postId}`}
+                    className="block group"
                   >
-                    <div className="flex max-desktop:flex-row-reverse flex-col max-desktop:items-start items-center justify-between rounded-lg bg-white cursor-pointer">
-                      <div className="relative overflow-hidden bg-cover bg-no-repeat">
+                    <div className="card-sheypoor overflow-hidden flex flex-row-reverse laptop:flex-col h-full relative">
+                      {/* Bookmark Icon Button */}
+                      <button
+                        onClick={(e) => handleBookmarkToggle(e, post)}
+                        className={`absolute top-2 left-2 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-all ${
+                          bookmarked
+                            ? "bg-main text-white shadow-md"
+                            : "bg-white/80 backdrop-blur-sm text-dark-3 hover:text-main hover:bg-white"
+                        }`}
+                        title={bookmarked ? "حذف از ذخیره‌ها" : "ذخیره آگهی"}
+                      >
+                        <svg className="w-4 h-4" fill={bookmarked ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                        </svg>
+                      </button>
+
+                      {/* Image */}
+                      <div className="relative w-[120px] h-[120px] laptop:w-full laptop:h-auto laptop:aspect-square flex-shrink-0 bg-light-2 overflow-hidden">
                         <img
-                          className="rounded-xl object-cover w-[180px] h-[180px] max-desktop:w-[120px] max-desktop:h-[120px]"
-                          src={post.images && post.images[0] ? (post.images[0].startsWith("http") ? post.images[0] : `${import.meta.env.VITE_BASE_URL}${post.images[0]}`) : "/default-image.jpg"}
-                          alt={post.options?.title || "عکس آگهی"}
-                          onError={(e) => { e.target.onerror = null; e.target.src = "/sheypoorBlack.svg" }}
-                        />
-                      </div>
-                      <div className="max-desktop:p-2 p-6 text-start">
-                        <div
-                          style={{
-                            maxWidth: "200px",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          src={
+                            post.images?.[0]?.startsWith("http")
+                              ? post.images[0]
+                              : `${import.meta.env.VITE_BASE_URL}${post.images?.[0] || ""}`
+                          }
+                          alt={post.options?.title || post.title || "عکس آگهی"}
+                          loading="lazy"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = "https://placehold.co/400x400/F2F2F5/8F90A6?text=بدون+عکس";
                           }}
-                          className="mb-2 font-medium leading-tight text-neutral-800 md:max-w-[200px]"
-                        >
-                          <h5 className="text-base max-desktop:text-lg">
-                            {post.options.title}
-                          </h5>
+                        />
+                        {post.images?.length > 1 && (
+                          <div className="absolute bottom-2 left-2 bg-dark-1/70 backdrop-blur-sm text-white text-body-4 px-2 py-0.5 rounded-full flex items-center gap-1">
+                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <span>{post.images.length}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Content */}
+                      <div className="flex-grow p-3 flex flex-col justify-between min-w-0">
+                        <h5 className="text-body-2 font-medium text-dark-0 line-clamp-2 mb-2 leading-relaxed">
+                          {post.options?.title || post.title}
+                        </h5>
+                        <div className="mt-auto space-y-1.5">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-body-2 font-bold text-dark-0">
+                              {post.amount > 0 ? sp(post.amount) : "توافقی"}
+                            </span>
+                            {post.amount > 0 && (
+                              <img className="w-4 h-4" src="/Toman.svg" alt="تومان" />
+                            )}
+                          </div>
+                          <div className="flex items-center gap-1 text-body-4 text-dark-3">
+                            <span className={isFilteredByCity && (post.options?.city || post.city || "").includes(selectedCity) ? "text-main font-semibold" : ""}>
+                              {post.options?.city || post.city || "ایران"}
+                            </span>
+                            <span className="text-dark-4">·</span>
+                            <span>{timeAgo(post.createdAt)}</span>
+                          </div>
                         </div>
-                        <p className="flex text-base max-desktop:mt-8 ">
-                          {sp(post.amount)}{" "}
-                          <img
-                            className="w-[22px] mr-2"
-                            src="../Toman.svg"
-                            alt="آیکون_تومان"
-                          />
-                        </p>
-                        <small>در {post.options.city}</small>
                       </div>
                     </div>
                   </Link>
-                ))}
-          </div>
-          {data?.posts && data.posts.length > displayCount && (
-            <div className="flex justify-center mt-4">
-              <button
-                onClick={handleLoadMore}
-                className="text-blue-500 border-2 border-blue-500 font-bold py-2 px-6 rounded-full"
-              >
-                مشاهده آگهی های بیشتر
-              </button>
+                );
+              })}
             </div>
-          )}
-        </>
-      )}
+
+            {/* Skeletons while auto-scrolling */}
+            {isLoadingMore && autoScrollCount < MAX_AUTO_SCROLL && (
+              <div className="grid grid-cols-1 tablet:grid-cols-2 laptop:grid-cols-3 desktop:grid-cols-4 sdesktop:grid-cols-6 gap-4 mt-4 animate-fade-in">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <PostCardSkeleton key={`cat-skel-${i}`} />
+                ))}
+              </div>
+            )}
+
+            {/* Sentinel for auto-scroll */}
+            {autoScrollCount < MAX_AUTO_SCROLL && hasMore && (
+              <div ref={sentinelRef} className="h-10 w-full flex items-center justify-center my-4" />
+            )}
+
+            {/* Manual button on cycle 4+ */}
+            {autoScrollCount >= MAX_AUTO_SCROLL && hasMore && (
+              <div className="flex justify-center mt-8">
+                <button
+                  onClick={handleManualLoadMore}
+                  disabled={isLoadingMore}
+                  className="btn-outline text-body-2 min-w-[200px] flex items-center justify-center gap-2"
+                >
+                  {isLoadingMore ? (
+                    <>
+                      <svg className="animate-spin w-5 h-5 text-main" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                      <span>در حال بارگذاری...</span>
+                    </>
+                  ) : (
+                    <span>مشاهده آگهی‌های بیشتر ({displayedPosts.length - displayCount} آگهی دیگر)</span>
+                  )}
+                </button>
+              </div>
+            )}
+
+            {/* End of list */}
+            {!hasMore && displayedPosts.length > 12 && (
+              <div className="text-center mt-10 py-4 text-body-3 text-dark-3 border-t border-light-0">
+                ✨ تمامی {displayedPosts.length} آگهی نمایش داده شد
+              </div>
+            )}
+          </>
+        )}
+      </div>
+      <Toaster />
     </div>
   );
 }

@@ -1,15 +1,148 @@
-/* styles.css */
+/* ===== Sheypoor Design System - Global Styles ===== */
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
-/* @tailwind base;
-@tailwind components;
-@tailwind utilities; */
-
+/* ===== Base Styles ===== */
 :root {
-  font-family: "Vazir", Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: "Vazir", "Vazirmatn", system-ui, -apple-system, sans-serif;
   font-weight: 300;
-  line-height: 1.5;
+  line-height: 1.6;
+  direction: rtl;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #1C1C28;
+  background-color: #FAFAFC;
 }
 
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+/* ===== Scrollbar Hide Utility ===== */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* ===== Skeleton Loading Animation ===== */
+.skeleton {
+  background: linear-gradient(90deg, #EBEBF0 25%, #F2F2F5 50%, #EBEBF0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+
+@keyframes skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ===== Sheypoor Button Component Styles ===== */
+@layer components {
+  .btn-primary {
+    @apply bg-main hover:bg-main-lighter active:bg-main-darker text-white font-semibold rounded-full h-12 px-6 inline-flex items-center justify-center transition-all duration-200 ease-out disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  
+  .btn-outline {
+    @apply border-2 border-main text-main hover:bg-light-special font-semibold rounded-full h-12 px-6 inline-flex items-center justify-center transition-all duration-200 ease-out disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-danger {
+    @apply bg-accent-red-bg text-accent-red hover:bg-red-100 font-semibold rounded-full h-12 px-6 inline-flex items-center justify-center transition-all duration-200 ease-out disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  
+  .btn-ghost {
+    @apply text-dark-2 hover:bg-light-2 rounded-full px-4 py-2 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* ===== Card Component ===== */
+  .card-sheypoor {
+    @apply bg-white rounded-sheypoor-lg border border-light-0 shadow-card hover:shadow-card-hover transition-shadow duration-200;
+  }
+
+  /* ===== Input Component ===== */
+  .input-sheypoor {
+    @apply w-full h-12 py-3 px-4 bg-light-3 border border-light-0 rounded-sheypoor text-dark-0 placeholder-dark-3 focus:outline-none focus:ring-2 focus:ring-main/30 focus:border-main transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed;
+  }
+
+  /* ===== Textarea Component ===== */
+  textarea.input-sheypoor {
+    @apply h-auto;
+  }
+
+  /* ===== Select Component ===== */
+  select.input-sheypoor {
+    @apply appearance-none bg-no-repeat;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238F90A6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-position: left 12px center;
+  }
+
+  /* ===== Chip Component ===== */
+  .chip {
+    @apply inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-light-0 bg-white text-dark-2 text-body-3 font-medium hover:border-main hover:text-main cursor-pointer transition-all duration-150;
+  }
+  .chip-active {
+    @apply chip border-main bg-light-special text-main;
+  }
+
+  /* ===== Badge Component ===== */
+  .badge-urgent {
+    @apply inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-accent-red-bg text-accent-red;
+  }
+  .badge-promoted {
+    @apply inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-accent-teal-bg text-accent-teal;
+  }
+  .badge-verified {
+    @apply inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-accent-green-bg text-accent-green;
+  }
+}
+
+/* ===== Fade In Animation ===== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fadeIn 0.25s ease-out;
+}
+
+/* ===== Smooth Page Transitions ===== */
+.page-enter {
+  opacity: 0;
+  transform: translateY(8px);
+}
+.page-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+}
+
+/* ===== Line Clamp Utilities ===== */
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

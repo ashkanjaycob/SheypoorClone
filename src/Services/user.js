@@ -3,11 +3,10 @@ import api from "../configs/Api";
 import { PostApi, getAds } from "../configs/PostApi";
 import { getNewTokens } from "./Token";
 
-
 const getProfile = async () => {
   let token = getCookie("accessToken");
   if (!token) {
-    token = await getNewTokens(); // Get new access token if current one is missing
+    token = await getNewTokens();
   }
   
   try {
@@ -17,7 +16,7 @@ const getProfile = async () => {
     
     const userData = response.data;
     
-    // Check if the user's mobile number is the specific number
+    // Check if the user's mobile number is the admin number
     if (userData.mobile === "09189990099") {
       userData.role = "ADMIN";
     }
@@ -29,13 +28,12 @@ const getProfile = async () => {
   }
 };
 
-
 const getmyAds = async () => {
   try {
     const response = await getAds.get("post/my");
     return response.data;
   } catch (error) {
-    console.error("Error while fetching profile:", error);
+    console.error("Error while fetching my ads:", error);
     throw error;
   }
 };
@@ -45,29 +43,38 @@ const getmySpecificAd = async (id) => {
     const response = await getAds.get(`post/${id}`);
     return response.data;
   } catch (error) {
-    console.error("Error while fetching profile:", error);
+    console.error("Error while fetching specific ad:", error);
     throw error;
   }
 };
-
 
 const delmySpecificAd = async (id) => {
   try {
-    const response = await getAds.delete(`post/delete/${id}`);
+    const response = await PostApi.delete(`post/delete/${id}`);
     return response.data;
   } catch (error) {
-    console.error("Error while fetching profile:", error);
+    console.error("Error while deleting ad:", error);
     throw error;
   }
 };
 
-
-const getAllAds = async () => {
+/**
+ * Fetches all ads across all categories or for a specific category.
+ * If categorySlug is empty, calls root "/" or "post?limit=50" to fetch all items.
+ */
+const getAllAds = async (categorySlug = "") => {
   try {
-    const response = await getAds.get("");
+    let endpoint = "";
+    if (categorySlug) {
+      endpoint = `post?category=${encodeURIComponent(categorySlug)}&limit=50`;
+    } else {
+      // Root endpoint returns all ads across all categories
+      endpoint = "";
+    }
+    const response = await getAds.get(endpoint);
     return response.data;
   } catch (error) {
-    console.error("Error while fetching profile:", error);
+    console.error("Error while fetching ads:", error);
     throw error;
   }
 };
@@ -82,5 +89,4 @@ const updateMyAd = async (id, formData) => {
   }
 };
 
-
-export { getProfile , getmyAds , getmySpecificAd , delmySpecificAd , getAllAds, updateMyAd};
+export { getProfile, getmyAds, getmySpecificAd, delmySpecificAd, getAllAds, updateMyAd };
