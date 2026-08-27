@@ -1,10 +1,11 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { getAllAds } from "../Services/user";
 import { getCategory } from "../Services/Admin";
 import { sp } from "../Utils/Numbers";
 import { isBookmarked, toggleBookmark } from "../Utils/bookmarks";
+import { getSelectedCity, clearSelectedCity, ALL_IRAN } from "../Utils/location";
 import toast, { Toaster } from "react-hot-toast";
 
 function timeAgo(dateStr) {
@@ -26,6 +27,17 @@ function Category() {
   const [displayCount, setDisplayCount] = useState(20);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [savedIds, setSavedIds] = useState({});
+  const [selectedCity, setSelectedCityState] = useState(getSelectedCity());
+
+  // Listen to city changes
+  useEffect(() => {
+    const handleCityChange = (e) => {
+      setSelectedCityState(e.detail || getSelectedCity());
+      setDisplayCount(20);
+    };
+    window.addEventListener("sheypoor_city_changed", handleCityChange);
+    return () => window.removeEventListener("sheypoor_city_changed", handleCityChange);
+  }, []);
 
   // 1. Fetch categories
   const { data: categoriesList, isLoading: isCategoriesLoading } = useQuery(
@@ -58,9 +70,19 @@ function Category() {
 
   const posts = data?.posts || [];
 
-  // 4. Client-side sorting/filtering
+  // 4. Client-side city filtering & sorting
   const displayedPosts = useMemo(() => {
     let result = [...posts];
+
+    // Filter by selected city
+    if (selectedCity && selectedCity !== ALL_IRAN) {
+      result = result.filter((p) => {
+        const city = p.options?.city || p.city || "";
+        return city.includes(selectedCity);
+      });
+    }
+
+    // Filter by type
     if (activeFilter === "photo") {
       result = result.filter((p) => p.images && p.images.length > 0);
     } else if (activeFilter === "cheap") {
@@ -69,7 +91,7 @@ function Category() {
       result.sort((a, b) => (Number(b.amount) || 0) - (Number(a.amount) || 0));
     }
     return result;
-  }, [posts, activeFilter]);
+  }, [posts, selectedCity, activeFilter]);
 
   const handleBookmarkToggle = (e, post) => {
     e.preventDefault();
@@ -87,6 +109,7 @@ function Category() {
   ];
 
   const isLoading = isCategoriesLoading || isAdsLoading;
+  const isFilteredByCity = selectedCity && selectedCity !== ALL_IRAN;
 
   return (
     <div className="min-h-screen bg-light-3">
@@ -106,6 +129,27 @@ function Category() {
           <span className="text-dark-0 font-medium whitespace-nowrap">{categoryTitle}</span>
         </nav>
 
+        {/* City Filter Active Banner */}
+        {isFilteredByCity && (
+          <div className="mb-4 p-3.5 bg-light-special border border-main/30 rounded-sheypoor-lg flex items-center justify-between animate-fade-in">
+            <div className="flex items-center gap-2 text-body-2 text-dark-1">
+              <svg className="w-5 h-5 text-main flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              </svg>
+              <span>
+                در حال نمایش آگهی‌های {categoryTitle} در شهر: <strong className="text-main">{selectedCity}</strong> ({displayedPosts.length} آگهی)
+              </span>
+            </div>
+            <button
+              onClick={clearSelectedCity}
+              className="text-body-3 text-accent-red hover:text-red-700 font-medium flex items-center gap-1"
+            >
+              <span>حذف فیلتر شهر</span>
+              <span>✕</span>
+            </button>
+          </div>
+        )}
+
         {/* Title Header */}
         <div className="flex items-center justify-between mb-5 flex-wrap gap-2">
           <div className="flex items-center gap-3">
@@ -122,6 +166,7 @@ function Category() {
             </div>
             <h1 className="text-heading-4 text-dark-0">
               آگهی‌های <span className="text-main">{categoryTitle}</span>
+              {isFilteredByCity && <span className="text-dark-2 text-heading-5"> در {selectedCity}</span>}
             </h1>
           </div>
           {!isLoading && (
@@ -172,11 +217,25 @@ function Category() {
             <svg className="h-16 w-16 text-dark-4 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
             </svg>
-            <h3 className="text-heading-4 text-dark-2 mb-2">هنوز آگهی‌ای در این دسته‌بندی ثبت نشده است</h3>
-            <p className="text-body-2 text-dark-3 mb-6">اولین نفری باشید که در این دسته آگهی ثبت می‌کند!</p>
-            <Link to="/dashboard" className="btn-primary">
-              + ثبت آگهی رایگان
-            </Link>
+            <h3 className="text-heading-4 text-dark-2 mb-2">
+              {isFilteredByCity
+                ? `در دسته‌بندی ${categoryTitle} برای شهر «${selectedCity}» آگهی‌ای یافت نشد.`
+                : `هنوز آگهی‌ای در این دسته‌بندی ثبت نشده است.`}
+            </h3>
+            <p className="text-body-2 text-dark-3 mb-6">
+              {isFilteredByCity
+                ? "می‌توانید آگهی‌های این دسته در کل ایران را مشاهده فرمایید."
+                : "اولین نفری باشید که در این دسته آگهی ثبت می‌کند!"}
+            </p>
+            {isFilteredByCity ? (
+              <button onClick={clearSelectedCity} className="btn-primary">
+                نمایش آگهی‌های این دسته در کل ایران
+              </button>
+            ) : (
+              <Link to="/dashboard" className="btn-primary">
+                + ثبت آگهی رایگان
+              </Link>
+            )}
           </div>
         ) : (
           <>
@@ -249,7 +308,9 @@ function Category() {
                             )}
                           </div>
                           <div className="flex items-center gap-1 text-body-4 text-dark-3">
-                            <span>{post.options?.city || post.city || "ایران"}</span>
+                            <span className={isFilteredByCity && (post.options?.city || post.city || "").includes(selectedCity) ? "text-main font-semibold" : ""}>
+                              {post.options?.city || post.city || "ایران"}
+                            </span>
                             <span className="text-dark-4">·</span>
                             <span>{timeAgo(post.createdAt)}</span>
                           </div>

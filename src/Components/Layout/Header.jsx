@@ -3,9 +3,11 @@ import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { getAllAds, getProfile } from "../../Services/user";
 import { delCookie } from "../../Utils/cookie";
+import { getSelectedCity, getCityDisplayLabel, ALL_IRAN } from "../../Utils/location";
 import navLogo from "../../assets/LogosSheypoor/sheypoor-Logo.png";
 import MobileBottomNav from "./MobileBottomNav";
 import ComingSoonModal, { useComingSoon } from "./ComingSoonModal";
+import LocationModal from "./LocationModal";
 
 function Header() {
   const [isMobile, setIsMobile] = useState(false);
@@ -13,6 +15,9 @@ function Header() {
   const [searchResults, setSearchResults] = useState([]);
   const [showSearch, setShowSearch] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showLocationModal, setShowLocationModal] = useState(false);
+  const [selectedCity, setSelectedCityState] = useState(getSelectedCity());
+
   const comingSoon = useComingSoon();
 
   const { data: profileData } = useQuery(["profile"], getProfile);
@@ -25,15 +30,28 @@ function Header() {
     return () => window.removeEventListener("resize", check);
   }, []);
 
+  // Listen to city change events
+  useEffect(() => {
+    const handleCityChange = (e) => {
+      setSelectedCityState(e.detail || getSelectedCity());
+    };
+    window.addEventListener("sheypoor_city_changed", handleCityChange);
+    return () => window.removeEventListener("sheypoor_city_changed", handleCityChange);
+  }, []);
+
   const handleSearch = (query) => {
     setSearchQuery(query);
     if (!query.trim() || !adsData?.posts) {
       setSearchResults([]);
       return;
     }
-    const filtered = adsData.posts.filter((p) =>
-      (p.options?.title || p.title || "").toLowerCase().includes(query.toLowerCase())
-    );
+    const filtered = adsData.posts.filter((p) => {
+      const matchText = (p.options?.title || p.title || "").toLowerCase().includes(query.toLowerCase());
+      const matchCity =
+        selectedCity === ALL_IRAN ||
+        (p.options?.city || p.city || "").includes(selectedCity);
+      return matchText && matchCity;
+    });
     setSearchResults(filtered.slice(0, 8));
   };
 
@@ -56,6 +74,8 @@ function Header() {
     return () => document.removeEventListener("click", handler);
   }, [isMobile]);
 
+  const isFilteredByCity = selectedCity && selectedCity !== ALL_IRAN;
+
   return (
     <>
       {/* ===== DESKTOP / MAIN HEADER ===== */}
@@ -77,22 +97,36 @@ function Header() {
               <div className="relative w-full">
                 <input
                   type="text"
-                  placeholder="جست‌وجو در همه آگهی‌ها"
+                  placeholder={
+                    isFilteredByCity
+                      ? `جست‌وجو در آگهی‌های ${selectedCity}`
+                      : "جست‌وجو در همه آگهی‌ها"
+                  }
                   value={searchQuery}
                   onChange={(e) => handleSearch(e.target.value)}
-                  className="input-sheypoor pr-12 pl-28 !rounded-full"
+                  className="input-sheypoor pr-12 pl-36 !rounded-full"
                 />
                 {/* Search Icon */}
                 <svg className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-dark-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
-                {/* Location Trigger */}
-                <button className="absolute left-1.5 top-1/2 -translate-y-1/2 flex items-center gap-1 px-3 py-1.5 text-body-3 text-dark-2 bg-light-2 rounded-full hover:bg-light-1 transition-colors">
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+
+                {/* Location Trigger Pill Button */}
+                <button
+                  type="button"
+                  onClick={() => setShowLocationModal(true)}
+                  className={`absolute left-1.5 top-1/2 -translate-y-1/2 flex items-center gap-1 px-3 py-1.5 text-body-3 rounded-full transition-all ${
+                    isFilteredByCity
+                      ? "bg-light-special text-main font-semibold border border-main/30 hover:bg-blue-100"
+                      : "bg-light-2 text-dark-2 hover:bg-light-1"
+                  }`}
+                  title="تغییر شهر"
+                >
+                  <svg className={`w-4 h-4 ${isFilteredByCity ? "text-main" : "text-dark-3"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
-                  <span>همه‌ی ایران</span>
+                  <span className="line-clamp-1 max-w-[90px]">{getCityDisplayLabel(selectedCity)}</span>
                 </button>
               </div>
 
@@ -104,29 +138,48 @@ function Header() {
                       key={result._id || result.id}
                       to={`/dashboard/${result._id || result.id}`}
                       onClick={() => { setSearchQuery(""); setSearchResults([]); }}
-                      className="flex items-center gap-3 px-4 py-3 hover:bg-light-3 transition-colors border-b border-light-1 last:border-0"
+                      className="flex items-center justify-between px-4 py-3 hover:bg-light-3 transition-colors border-b border-light-1 last:border-0"
                     >
-                      <svg className="w-4 h-4 text-dark-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                      </svg>
-                      <span className="text-body-2 text-dark-1 line-clamp-1">{result.options?.title || result.title}</span>
+                      <div className="flex items-center gap-3 min-w-0">
+                        <svg className="w-4 h-4 text-dark-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        <span className="text-body-2 text-dark-1 line-clamp-1">{result.options?.title || result.title}</span>
+                      </div>
+                      <span className="text-body-4 text-dark-3 flex-shrink-0 mr-2">{result.options?.city || result.city || "ایران"}</span>
                     </Link>
                   ))}
                 </div>
               )}
             </div>
 
-            {/* Mobile Search Icon */}
+            {/* Mobile Location & Search Icons */}
             {isMobile && (
-              <button
-                onClick={(e) => { e.stopPropagation(); setShowSearch(!showSearch); }}
-                className="p-2 rounded-full hover:bg-light-2 transition-colors"
-                aria-label="جستجو"
-              >
-                <svg className="w-6 h-6 text-dark-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </button>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setShowLocationModal(true)}
+                  className={`flex items-center gap-1 px-2.5 py-1 text-xs rounded-full transition-colors ${
+                    isFilteredByCity
+                      ? "bg-light-special text-main font-semibold border border-main/30"
+                      : "bg-light-2 text-dark-2"
+                  }`}
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  </svg>
+                  <span className="line-clamp-1 max-w-[70px]">{getCityDisplayLabel(selectedCity)}</span>
+                </button>
+
+                <button
+                  onClick={(e) => { e.stopPropagation(); setShowSearch(!showSearch); }}
+                  className="p-2 rounded-full hover:bg-light-2 transition-colors"
+                  aria-label="جستجو"
+                >
+                  <svg className="w-6 h-6 text-dark-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </button>
+              </div>
             )}
 
             {/* Desktop Nav Actions */}
@@ -223,16 +276,34 @@ function Header() {
             <div className="relative">
               <input
                 type="text"
-                placeholder="جست‌وجو در همه آگهی‌ها"
+                placeholder={
+                  isFilteredByCity
+                    ? `جست‌وجو در آگهی‌های ${selectedCity}`
+                    : "جست‌وجو در همه آگهی‌ها"
+                }
                 value={searchQuery}
                 onChange={(e) => handleSearch(e.target.value)}
-                className="input-sheypoor pr-10 !rounded-full text-body-2"
+                className="input-sheypoor pr-10 pl-28 !rounded-full text-body-2"
                 autoFocus
               />
               <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-dark-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
+
+              {/* Mobile Location trigger inside expanded search */}
+              <button
+                type="button"
+                onClick={() => setShowLocationModal(true)}
+                className={`absolute left-1 top-1/2 -translate-y-1/2 flex items-center gap-1 px-2.5 py-1 text-xs rounded-full ${
+                  isFilteredByCity
+                    ? "bg-light-special text-main font-semibold border border-main/30"
+                    : "bg-light-2 text-dark-2"
+                }`}
+              >
+                <span>{getCityDisplayLabel(selectedCity)}</span>
+              </button>
             </div>
+
             {searchResults.length > 0 && (
               <div className="mt-2 bg-white rounded-sheypoor shadow-modal border border-light-0 overflow-hidden animate-fade-in max-h-60 overflow-y-auto">
                 {searchResults.map((result) => (
@@ -240,9 +311,10 @@ function Header() {
                     key={result._id || result.id}
                     to={`/dashboard/${result._id || result.id}`}
                     onClick={() => { setSearchQuery(""); setSearchResults([]); setShowSearch(false); }}
-                    className="flex items-center gap-3 px-4 py-3 hover:bg-light-3 transition-colors border-b border-light-1 last:border-0"
+                    className="flex items-center justify-between px-4 py-3 hover:bg-light-3 transition-colors border-b border-light-1 last:border-0"
                   >
                     <span className="text-body-2 text-dark-1 line-clamp-1">{result.options?.title || result.title}</span>
+                    <span className="text-body-4 text-dark-3 flex-shrink-0 mr-2">{result.options?.city || result.city || "ایران"}</span>
                   </Link>
                 ))}
               </div>
@@ -256,6 +328,9 @@ function Header() {
 
       {/* Coming Soon Dialog */}
       <ComingSoonModal isOpen={comingSoon.isOpen} onClose={comingSoon.close} />
+
+      {/* Location Modal */}
+      <LocationModal isOpen={showLocationModal} onClose={() => setShowLocationModal(false)} />
     </>
   );
 }
