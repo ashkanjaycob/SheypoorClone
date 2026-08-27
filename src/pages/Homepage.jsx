@@ -1,6 +1,7 @@
 import { Toaster } from "react-hot-toast";
 import CategoryList from "../Components/Templates/CategoryList";
 import SpecialtyHubs from "../Components/Templates/SpecialtyHubs";
+import ShowcaseSection from "../Components/Templates/ShowcaseSection";
 import AllAds from "../Components/Templates/AllAds";
 
 function Homepage() {
@@ -9,21 +10,19 @@ function Homepage() {
       {/* Categories Section */}
       <CategoryList />
 
-      {/* Divider */}
-      <div className="max-w-container mx-auto px-4">
-        <div className="border-b border-light-0" />
-      </div>
-
-      {/* Specialty Hubs */}
+      {/* Specialty Hubs (Cars & Real Estate) */}
       <SpecialtyHubs />
 
+      {/* ویترین سراسری (Nationwide Showcase) */}
+      <ShowcaseSection />
+
       {/* Divider */}
       <div className="max-w-container mx-auto px-4">
-        <div className="border-b border-light-0" />
+        <div className="border-b border-light-0 my-2" />
       </div>
 
       {/* All Ads Feed */}
-      <section className="max-w-container mx-auto px-4 py-6">
+      <section id="all-ads-section" className="max-w-container mx-auto px-4 py-6">
         <div className="flex items-center gap-3 mb-6">
           <img
             className="w-7 laptop:w-8"
