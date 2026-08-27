@@ -24,6 +24,7 @@ function Category() {
   const { id } = useParams();
   const [activeFilter, setActiveFilter] = useState("all");
   const [displayCount, setDisplayCount] = useState(20);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [savedIds, setSavedIds] = useState({});
 
   // 1. Fetch categories
@@ -263,10 +264,27 @@ function Category() {
             {displayedPosts.length > displayCount && (
               <div className="flex justify-center mt-8">
                 <button
-                  onClick={() => setDisplayCount((c) => c + 12)}
-                  className="btn-outline text-body-2"
+                  onClick={() => {
+                    setIsLoadingMore(true);
+                    setTimeout(() => {
+                      setDisplayCount((c) => c + 12);
+                      setIsLoadingMore(false);
+                    }, 400);
+                  }}
+                  disabled={isLoadingMore}
+                  className="btn-outline text-body-2 min-w-[200px] flex items-center justify-center gap-2"
                 >
-                  مشاهده آگهی‌های بیشتر
+                  {isLoadingMore ? (
+                    <>
+                      <svg className="animate-spin w-5 h-5 text-main" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                      <span>در حال بارگذاری...</span>
+                    </>
+                  ) : (
+                    <span>مشاهده آگهی‌های بیشتر ({displayedPosts.length - displayCount} آگهی دیگر)</span>
+                  )}
                 </button>
               </div>
             )}

@@ -58,9 +58,19 @@ const delmySpecificAd = async (id) => {
   }
 };
 
-const getAllAds = async (categorySlug) => {
+/**
+ * Fetches all ads across all categories or for a specific category.
+ * If categorySlug is empty, calls root "/" or "post?limit=50" to fetch all items.
+ */
+const getAllAds = async (categorySlug = "") => {
   try {
-    const endpoint = categorySlug ? `post?category=${encodeURIComponent(categorySlug)}` : "post";
+    let endpoint = "";
+    if (categorySlug) {
+      endpoint = `post?category=${encodeURIComponent(categorySlug)}&limit=50`;
+    } else {
+      // Root endpoint returns all ads across all categories
+      endpoint = "";
+    }
     const response = await getAds.get(endpoint);
     return response.data;
   } catch (error) {

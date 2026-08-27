@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { getAllAds, delmySpecificAd } from "../../Services/user";
@@ -21,10 +21,24 @@ function timeAgo(dateStr) {
   return new Date(dateStr).toLocaleDateString("fa-IR");
 }
 
+/**
+ * Fisher-Yates array shuffle for randomizing posts across categories
+ */
+function shuffleArray(array) {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
 function AllAds({ isAdmin = false }) {
   const { data, isLoading, refetch } = useQuery(["get-all-ads"], () => getAllAds());
-  const [displayCount, setDisplayCount] = useState(24);
+  const [displayCount, setDisplayCount] = useState(12);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [savedIds, setSavedIds] = useState({});
+  const [shuffleSeed, setShuffleSeed] = useState(0);
 
   // Delete modal state
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -47,7 +61,25 @@ function AllAds({ isAdmin = false }) {
     refetch();
   }, [refetch]);
 
-  const handleLoadMore = () => setDisplayCount((c) => c + 12);
+  // Randomized posts list (shuffled whenever data or seed changes)
+  const randomizedPosts = useMemo(() => {
+    if (!data?.posts || !Array.isArray(data.posts)) return [];
+    return shuffleArray(data.posts);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data?.posts, shuffleSeed]);
+
+  const handleLoadMore = () => {
+    setIsLoadingMore(true);
+    setTimeout(() => {
+      setDisplayCount((prev) => prev + 12);
+      setIsLoadingMore(false);
+    }, 450);
+  };
+
+  const handleReshuffle = () => {
+    setShuffleSeed((prev) => prev + 1);
+    toast.success("آگهی‌ها با چیدمان رندوم جدید مرتب شدند");
+  };
 
   const handleOpenDeleteModal = (e, post) => {
     e.preventDefault();
@@ -87,7 +119,7 @@ function AllAds({ isAdmin = false }) {
     );
   }
 
-  if (!data?.posts || data.posts.length === 0) {
+  if (!randomizedPosts || randomizedPosts.length === 0) {
     return (
       <div className="w-full py-20 flex flex-col items-center justify-center bg-white rounded-sheypoor-xl border-2 border-dashed border-light-0">
         <svg className="h-16 w-16 text-dark-4 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -99,13 +131,32 @@ function AllAds({ isAdmin = false }) {
     );
   }
 
+  const currentVisible = randomizedPosts.slice(0, displayCount);
+  const hasMore = randomizedPosts.length > displayCount;
+
   return (
     <>
+      {/* Top Bar with Total Count and Shuffle button */}
+      <div className="flex items-center justify-between mb-4 text-body-3 text-dark-3">
+        <span>نمایش {Math.min(displayCount, randomizedPosts.length)} از {randomizedPosts.length} آگهی (ترکیبی از همه دسته‌ها)</span>
+        <button
+          onClick={handleReshuffle}
+          className="chip !py-1 !px-3 text-body-4 hover:border-main hover:text-main flex items-center gap-1"
+          title="ترتیب رندوم مجدد"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          <span>چیدمان تصادفی جدید</span>
+        </button>
+      </div>
+
       {/* Desktop Grid / Mobile List */}
       <div className="grid grid-cols-1 tablet:grid-cols-2 laptop:grid-cols-3 desktop:grid-cols-4 sdesktop:grid-cols-6 gap-4">
-        {data.posts.slice(0, displayCount).map((post) => {
+        {currentVisible.map((post) => {
           const postId = post._id || post.id;
           const bookmarked = savedIds[postId] !== undefined ? savedIds[postId] : isBookmarked(postId);
+          const categoryBadge = post.categoryName?.trim();
 
           return (
             <Link
@@ -145,6 +196,7 @@ function AllAds({ isAdmin = false }) {
                       e.target.src = "https://placehold.co/400x400/F2F2F5/8F90A6?text=بدون+عکس";
                     }}
                   />
+
                   {/* Photo count badge */}
                   {post.images && post.images.length > 1 && (
                     <div className="absolute bottom-2 left-2 bg-dark-0/70 backdrop-blur-sm text-white text-body-4 px-2 py-0.5 rounded-full flex items-center gap-1 font-mono">
@@ -153,6 +205,13 @@ function AllAds({ isAdmin = false }) {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                       </svg>
                       <span>{post.images.length}</span>
+                    </div>
+                  )}
+
+                  {/* Category tag badge */}
+                  {categoryBadge && (
+                    <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm text-dark-1 text-[11px] font-medium px-2 py-0.5 rounded-full shadow-xs">
+                      {categoryBadge}
                     </div>
                   )}
                 </div>
@@ -199,14 +258,32 @@ function AllAds({ isAdmin = false }) {
         })}
       </div>
 
-      {/* Load More */}
-      {data.posts.length > displayCount && (
-        <div className="flex justify-center mt-8">
-          <button onClick={handleLoadMore} className="btn-outline text-body-2">
-            مشاهده آگهی‌های بیشتر
+      {/* Load More Button with Loading State */}
+      {hasMore ? (
+        <div className="flex justify-center mt-10">
+          <button
+            onClick={handleLoadMore}
+            disabled={isLoadingMore}
+            className="btn-outline text-body-2 min-w-[200px] flex items-center justify-center gap-2 hover:shadow-card-hover"
+          >
+            {isLoadingMore ? (
+              <>
+                <svg className="animate-spin w-5 h-5 text-main" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                <span>در حال بارگذاری آگهی‌های بیشتر...</span>
+              </>
+            ) : (
+              <span>مشاهده آگهی‌های بیشتر ({randomizedPosts.length - displayCount} آگهی دیگر)</span>
+            )}
           </button>
         </div>
-      )}
+      ) : randomizedPosts.length > 12 ? (
+        <div className="text-center mt-10 py-4 text-body-3 text-dark-3 border-t border-light-0">
+          ✨ تمامی {randomizedPosts.length} آگهی نمایش داده شد
+        </div>
+      ) : null}
 
       {/* Delete Ad Custom Modal for Admin */}
       <DeleteAdModal
