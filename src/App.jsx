@@ -5,6 +5,7 @@ import defaultOptions from "./configs/reactQueryConfigs";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import Layout from "./Components/Layout/Layout";
 import ScrollToTop from "./Components/Layout/ScrollToTop";
+import SheypoorAiCopilot from "./Components/AI/SheypoorAiCopilot";
 import '../src/styles/index.css';
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
         <Layout>
           <Router />
         </Layout>
+        <SheypoorAiCopilot />
       </BrowserRouter>
       <ReactQueryDevtools />
     </QueryClientProvider>
