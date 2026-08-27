@@ -70,20 +70,21 @@ body {
 
 /* ===== Sheypoor Component Styles ===== */
 @layer components {
+  /* Vibrant Sheypoor Blue Buttons */
   .btn-primary {
-    @apply bg-main hover:bg-main-lighter active:bg-main-darker text-white font-semibold rounded-full h-12 px-6 inline-flex items-center justify-center transition-all duration-200 ease-out disabled:opacity-50 disabled:cursor-not-allowed shadow-sm;
+    @apply bg-main hover:bg-main-lighter active:bg-main-darker text-white font-semibold rounded-full h-12 px-6 inline-flex items-center justify-center transition-all duration-200 ease-out disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg;
   }
 
   .dark .btn-primary {
-    @apply bg-white hover:bg-slate-100 text-dark-0 font-bold shadow-md;
+    @apply bg-main hover:bg-main-lighter active:bg-main-darker text-white font-semibold shadow-md hover:shadow-main/30;
   }
   
   .btn-outline {
-    @apply border-2 border-main text-main hover:bg-light-special font-semibold rounded-full h-12 px-6 inline-flex items-center justify-center transition-all duration-200 ease-out disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply border-2 border-main text-main hover:bg-main/10 font-semibold rounded-full h-12 px-6 inline-flex items-center justify-center transition-all duration-200 ease-out disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .dark .btn-outline {
-    @apply border-2 border-white/70 text-white hover:bg-white/10;
+    @apply border-2 border-main text-main-lighter hover:bg-main/20;
   }
 
   .btn-danger {
@@ -95,11 +96,11 @@ body {
   }
   
   .btn-ghost {
-    @apply text-dark-2 hover:bg-light-2 rounded-full px-4 py-2 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply text-dark-2 hover:bg-light-2 hover:text-main rounded-full px-4 py-2 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .dark .btn-ghost {
-    @apply text-gray-300 hover:bg-night-card hover:text-white;
+    @apply text-gray-300 hover:bg-night-surface hover:text-main-lighter;
   }
 
   /* ===== Card Component ===== */
@@ -117,7 +118,7 @@ body {
   }
 
   .dark .input-sheypoor {
-    @apply bg-night-surface border-night-border text-white placeholder-gray-400 focus:ring-white/20 focus:border-white;
+    @apply bg-night-surface border-night-border text-white placeholder-gray-400 focus:ring-main/30 focus:border-main;
   }
 
   /* ===== Textarea Component ===== */
@@ -141,15 +142,15 @@ body {
     @apply inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-light-0 bg-white text-dark-2 text-body-3 font-medium hover:border-main hover:text-main cursor-pointer transition-all duration-150;
   }
   .chip-active {
-    @apply chip border-main bg-light-special text-main;
+    @apply chip border-main bg-main text-white hover:text-white;
   }
 
   .dark .chip {
-    @apply bg-night-surface border-night-border text-gray-300 hover:border-white hover:text-white;
+    @apply bg-night-surface border-night-border text-gray-300 hover:border-main hover:text-main-lighter;
   }
 
   .dark .chip-active {
-    @apply bg-white text-black border-white;
+    @apply bg-main text-white border-main;
   }
 
   /* ===== Badge Component ===== */

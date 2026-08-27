@@ -1,10 +1,10 @@
 /**
  * Sheypoor Dynamic Ad Content Translation Engine
- * Translates ad titles, descriptions, categories, cities, pricing, and specs into English (en) and German (de).
+ * Translates ad titles, descriptions, categories, cities, pricing, and specs into Persian (fa), English (en), and German (de).
  */
 
-import { getSavedLanguage, LANGUAGES } from "./i18n";
-import { sp } from "./Numbers";
+import { getSavedLanguage, LANGUAGES } from "./i18n.js";
+import { sp } from "./Numbers.js";
 
 // Dictionary of Persian terms to EN & DE
 const TERM_DICTIONARY = {
@@ -159,28 +159,67 @@ const CITY_DICTIONARY = {
   "همه‌ی ایران": { en: "All Regions", de: "Ganzes Land" },
 };
 
-// Categories dictionary
-const CATEGORY_DICTIONARY = {
-  "vehicles": { en: "Vehicles & Cars", de: "Fahrzeuge & Autos" },
-  "وسایل نقلیه و خودرو": { en: "Vehicles & Cars", de: "Fahrzeuge & Autos" },
-  "وسایل نقلیه": { en: "Vehicles", de: "Fahrzeuge" },
-  "خودرو": { en: "Cars", de: "Autos" },
-  "real-estate": { en: "Real Estate & Housing", de: "Immobilien & Wohnen" },
-  "املاک و مسکن": { en: "Real Estate & Housing", de: "Immobilien & Wohnen" },
-  "املاک": { en: "Real Estate", de: "Immobilien" },
-  "electronic": { en: "Electronics & Gadgets", de: "Elektronik & Geräte" },
-  "لوازم الکترونیکی": { en: "Electronics & Gadgets", de: "Elektronik & Geräte" },
-  "work": { en: "Jobs & Employment", de: "Jobs & Stellenangebote" },
-  "jobs": { en: "Jobs & Employment", de: "Jobs & Stellenangebote" },
-  "استخدام و کاریابی": { en: "Jobs & Employment", de: "Jobs & Stellenangebote" },
-  "استخدام": { en: "Jobs", de: "Jobs" },
-  "home-kitchen": { en: "Home & Kitchen", de: "Haus & Küche" },
-  "لوازم خانگی و آشپزخانه": { en: "Home & Kitchen", de: "Haus & Küche" },
-  "services": { en: "Services & Business", de: "Dienstleistungen" },
-  "خدمات و کسب‌وکار": { en: "Services & Business", de: "Dienstleistungen" },
-  "personal": { en: "Personal Goods", de: "Persönliche Artikel" },
-  "industrial": { en: "Industrial & Office", de: "Gewerbe & Industrie" },
-  "entertainment": { en: "Hobbies & Leisure", de: "Freizeit & Hobbys" },
+// Comprehensive 3-language category dictionary
+export const CATEGORY_MAP = {
+  // 1. Vehicles
+  vehicles: { fa: "وسایل نقلیه", en: "Vehicles", de: "Fahrzeuge" },
+  "vehicles & cars": { fa: "وسایل نقلیه و خودرو", en: "Vehicles & Cars", de: "Fahrzeuge & Autos" },
+  "وسایل نقلیه": { fa: "وسایل نقلیه", en: "Vehicles", de: "Fahrzeuge" },
+  "وسایل نقلیه و خودرو": { fa: "وسایل نقلیه و خودرو", en: "Vehicles & Cars", de: "Fahrzeuge & Autos" },
+  "خودرو": { fa: "خودرو", en: "Cars", de: "Autos" },
+
+  // 2. Real Estate
+  realstate: { fa: "املاک", en: "Real Estate", de: "Immobilien" },
+  "real-state": { fa: "املاک", en: "Real Estate", de: "Immobilien" },
+  "real-estate": { fa: "املاک", en: "Real Estate", de: "Immobilien" },
+  "real estate": { fa: "املاک", en: "Real Estate", de: "Immobilien" },
+  "املاک": { fa: "املاک", en: "Real Estate", de: "Immobilien" },
+  "املاک و مسکن": { fa: "املاک و مسکن", en: "Real Estate & Housing", de: "Immobilien & Wohnen" },
+
+  // 3. Digital & Electronics
+  digital: { fa: "لوازم الکترونیکی", en: "Digital & Tech", de: "Digitale Elektronik" },
+  "لوازم الکترونیکی": { fa: "لوازم الکترونیکی", en: "Electronics & Tech", de: "Elektronik & Technik" },
+  "موبایل و تبلت": { fa: "موبایل و تبلت", en: "Mobiles & Tablets", de: "Handys & Tablets" },
+
+  // 4. Electronics & Home Appliances
+  electronic: { fa: "لوازم برقی و خانگی", en: "Appliances & Electronics", de: "Haushaltsgeräte" },
+  electronics: { fa: "لوازم برقی و خانگی", en: "Appliances & Electronics", de: "Haushaltsgeräte" },
+
+  // 5. Furniture & Home Goods
+  furniture: { fa: "لوازم خانگی", en: "Home & Furniture", de: "Möbel & Wohnen" },
+  "home-kitchen": { fa: "لوازم خانه و آشپزخانه", en: "Home & Kitchen", de: "Haus & Küche" },
+  "لوازم خانگی": { fa: "لوازم خانگی", en: "Home & Furniture", de: "Möbel & Wohnen" },
+  "لوازم خانه و آشپزخانه": { fa: "لوازم خانه و آشپزخانه", en: "Home & Kitchen", de: "Haus & Küche" },
+
+  // 6. Sports, Games, Hobbies
+  game: { fa: "ورزش، بازی و فراغت", en: "Sports & Hobbies", de: "Sport & Freizeit" },
+  games: { fa: "ورزش، بازی و فراغت", en: "Sports & Hobbies", de: "Sport & Freizeit" },
+  entertainment: { fa: "سرگرمی و فراغت", en: "Entertainment", de: "Unterhaltung" },
+  "ورزش، بازی و فراغت": { fa: "ورزش، بازی و فراغت", en: "Sports & Hobbies", de: "Sport & Freizeit" },
+  "ورزش و فراغت": { fa: "ورزش و فراغت", en: "Sports & Hobbies", de: "Sport & Freizeit" },
+
+  // 7. Personal Goods
+  personal: { fa: "وسایل شخصی", en: "Personal Goods", de: "Persönliche Artikel" },
+  "وسایل شخصی": { fa: "وسایل شخصی", en: "Personal Goods", de: "Persönliche Artikel" },
+
+  // 8. Services & Business
+  service: { fa: "خدمات و کسب‌وکار", en: "Services & Business", de: "Dienstleistungen" },
+  services: { fa: "خدمات و کسب‌وکار", en: "Services & Business", de: "Dienstleistungen" },
+  "خدمات": { fa: "خدمات و کسب‌وکار", en: "Services & Business", de: "Dienstleistungen" },
+  "خدمات و کسب‌وکار": { fa: "خدمات و کسب‌وکار", en: "Services & Business", de: "Dienstleistungen" },
+
+  // 9. Jobs & Careers
+  work: { fa: "استخدام و کاریابی", en: "Jobs & Careers", de: "Jobs & Karriere" },
+  jobs: { fa: "استخدام و کاریابی", en: "Jobs & Careers", de: "Jobs & Karriere" },
+  hire: { fa: "استخدام و کاریابی", en: "Jobs & Careers", de: "Jobs & Karriere" },
+  "استخدام": { fa: "استخدام و کاریابی", en: "Jobs & Careers", de: "Jobs & Karriere" },
+  "استخدام و کاریابی": { fa: "استخدام و کاریابی", en: "Jobs & Careers", de: "Jobs & Karriere" },
+
+  // 10. Industry, Business & Buildings
+  buildings: { fa: "صنعت و تجارت", en: "Business & Industrial", de: "Gewerbe & Industrie" },
+  building: { fa: "صنعت و تجارت", en: "Business & Industrial", de: "Gewerbe & Industrie" },
+  industrial: { fa: "صنعت و تجارت", en: "Business & Industrial", de: "Gewerbe & Industrie" },
+  "صنعت و تجارت": { fa: "صنعت و تجارت", en: "Business & Industrial", de: "Gewerbe & Industrie" },
 };
 
 /**
@@ -199,8 +238,8 @@ export function translateText(text, targetLang = getSavedLanguage()) {
   if (CITY_DICTIONARY[trimmed]?.[targetLang]) {
     return CITY_DICTIONARY[trimmed][targetLang];
   }
-  if (CATEGORY_DICTIONARY[trimmed]?.[targetLang]) {
-    return CATEGORY_DICTIONARY[trimmed][targetLang];
+  if (CATEGORY_MAP[trimmed.toLowerCase()]?.[targetLang]) {
+    return CATEGORY_MAP[trimmed.toLowerCase()][targetLang];
   }
 
   // 2. Partial term replacements for titles and phrases
@@ -277,17 +316,32 @@ export function translateCity(city, targetLang = getSavedLanguage()) {
 }
 
 /**
- * Translates category name
+ * Translates category slug or name to the requested language (FA, EN, or DE)
  */
 export function translateCategory(catName, targetLang = getSavedLanguage()) {
   if (!catName) return "";
-  if (targetLang === LANGUAGES.FA) return catName;
+  const key = String(catName).trim().toLowerCase();
 
-  if (CATEGORY_DICTIONARY[catName]?.[targetLang]) {
-    return CATEGORY_DICTIONARY[catName][targetLang];
+  // 1. Direct dictionary match by lowercase slug or raw name
+  if (CATEGORY_MAP[key]?.[targetLang]) {
+    return CATEGORY_MAP[key][targetLang];
+  }
+  if (CATEGORY_MAP[catName]?.[targetLang]) {
+    return CATEGORY_MAP[catName][targetLang];
   }
 
-  return translateText(catName, targetLang);
+  // 2. If Persian is target and string contains Persian chars, return as is
+  if (targetLang === LANGUAGES.FA && /[\u0600-\u06FF]/.test(catName)) {
+    return catName;
+  }
+
+  // 3. If English/German is target, try general translation
+  if (targetLang !== LANGUAGES.FA) {
+    const res = translateText(catName, targetLang);
+    if (res && res !== catName) return res;
+  }
+
+  return catName;
 }
 
 /**
@@ -296,9 +350,9 @@ export function translateCategory(catName, targetLang = getSavedLanguage()) {
 export function formatAdPrice(amount, targetLang = getSavedLanguage()) {
   const num = Number(amount);
   if (!num || num <= 0) {
-    if (targetLang === LANGUAGES.DE) return "Verhandelbar";
-    if (targetLang === LANGUAGES.EN) return "Negotiable";
-    return "توافقی";
+    if (targetLang === LANGUAGES.DE) return "Preis auf Anfrage";
+    if (targetLang === LANGUAGES.EN) return "Negotiable Price";
+    return "قیمت توافقی";
   }
 
   if (targetLang === LANGUAGES.FA) {

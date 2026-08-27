@@ -34,7 +34,8 @@ function CategoryList() {
     <section id="categories" className="max-w-container mx-auto px-4 py-6">
       <div className="grid grid-cols-5 laptop:grid-cols-10 gap-y-5 gap-x-2 justify-items-center">
         {data?.map((category) => {
-          const catName = translateCategory(category.slug || category.name, currentLang) || category.name;
+          const rawKey = category.slug || category.name || category.icon || "";
+          const catName = translateCategory(rawKey, currentLang) || category.name || category.slug;
           return (
             <Link
               key={category.slug || category._id || category.id}

@@ -92,33 +92,26 @@ function SavedAds() {
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 tablet:grid-cols-2 laptop:grid-cols-3 desktop:grid-cols-4 sdesktop:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 tablet:grid-cols-3 laptop:grid-cols-4 desktop:grid-cols-5 sdesktop:grid-cols-6 gap-4">
             {saved.map((post) => {
-              const title = translateText(post.options?.title || post.title, currentLang);
-              const city = translateCity(post.options?.city || post.city, currentLang);
-              const priceInfo = formatAdPrice(post.amount, currentLang);
-              const timeLabel = formatTimeAgo(post.createdAt, currentLang);
+              const postId = post._id || post.id;
+              const rawTitle = post.options?.title || post.title || "";
+              const title = translateText(rawTitle, currentLang) || rawTitle;
+              const rawCity = post.options?.city || post.city || "";
+              const city = translateCity(rawCity, currentLang) || rawCity || (currentLang === "fa" ? "ایران" : "Iran");
+              const priceInfo = formatAdPrice(post.amount || post.options?.price || post.options?.amount, currentLang);
+              const timeLabel = formatTimeAgo(post.createdAt || post.options?.createdAt, currentLang);
+              const imagesCount = post.images?.length || 0;
 
               return (
                 <Link
-                  key={post._id || post.id}
-                  to={`/dashboard/${post._id || post.id}`}
-                  className="block group"
+                  key={postId}
+                  to={`/dashboard/${postId}`}
+                  className="block group select-none"
                 >
-                  <div className="card-sheypoor overflow-hidden flex rtl:flex-row-reverse ltr:flex-row laptop:flex-col h-full relative">
-                    {/* Remove Button */}
-                    <button
-                      onClick={(e) => handleRemove(e, post._id || post.id)}
-                      className="absolute top-2 rtl:right-2 ltr:left-2 z-10 w-8 h-8 bg-white/90 dark:bg-night-card/90 dark:border dark:border-night-border backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm hover:bg-accent-red-bg hover:text-accent-red text-dark-3 dark:text-gray-300 transition-all"
-                      title="Remove"
-                    >
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-
-                    {/* Image */}
-                    <div className="relative w-[120px] h-[120px] laptop:w-full laptop:h-auto laptop:aspect-square flex-shrink-0 bg-light-2 dark:bg-night-surface overflow-hidden">
+                  <div className="flex flex-col h-full">
+                    {/* 1. Thumbnail Image */}
+                    <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-light-2 dark:bg-night-surface border border-light-0/60 dark:border-night-border/80 group-hover:border-main/40 dark:group-hover:border-white/30 transition-all duration-200 shadow-xs">
                       <img
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         src={
@@ -130,32 +123,57 @@ function SavedAds() {
                         loading="lazy"
                         onError={(e) => {
                           e.target.onerror = null;
-                          e.target.src = "https://placehold.co/400x400/F2F2F5/8F90A6?text=No+Photo";
+                          e.target.src = "https://placehold.co/400x400/171D2A/94A3B8?text=Photo";
                         }}
                       />
+
+                      {/* Remove Button */}
+                      <button
+                        type="button"
+                        onClick={(e) => handleRemove(e, postId)}
+                        className="absolute top-2.5 rtl:left-2.5 ltr:right-2.5 z-10 w-8 h-8 bg-dark-0/70 hover:bg-accent-red text-white backdrop-blur-sm rounded-lg flex items-center justify-center transition-all shadow-sm"
+                        title="Remove"
+                      >
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+
+                      {/* Photo Count */}
+                      {imagesCount > 0 && (
+                        <div className="absolute bottom-2.5 rtl:left-2.5 ltr:right-2.5 bg-dark-0/70 backdrop-blur-sm text-white text-xs px-2 py-0.5 rounded-md flex items-center gap-1 font-mono">
+                          <span>{imagesCount}</span>
+                          <svg className="w-3.5 h-3.5 opacity-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                        </div>
+                      )}
                     </div>
 
-                    {/* Content */}
-                    <div className="flex-grow p-3 flex flex-col justify-between min-w-0 rtl:text-right ltr:text-left">
-                      <h5 className="text-body-2 font-medium text-dark-0 dark:text-gray-100 line-clamp-2 mb-2">
+                    {/* 2. Text Info Directly Below Image */}
+                    <div className="pt-2 px-0.5 flex flex-col flex-grow rtl:text-right ltr:text-left">
+                      <h4 className="text-[14px] font-semibold text-dark-0 dark:text-white line-clamp-1 leading-snug group-hover:text-main dark:group-hover:text-main-lighter transition-colors">
                         {title}
-                      </h5>
-                      <div className="mt-auto space-y-1.5">
-                        <div className="flex items-center gap-1.5">
-                          {typeof priceInfo === "string" ? (
-                            <span className="text-body-2 font-bold text-dark-0 dark:text-white">{priceInfo}</span>
-                          ) : (
-                            <>
-                              <span className="text-body-2 font-bold text-dark-0 dark:text-white">{priceInfo.price}</span>
-                              <span className="text-body-4 text-dark-3 dark:text-gray-400">{priceInfo.currency}</span>
-                            </>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-1 text-body-4 text-dark-3 dark:text-gray-400">
-                          <span>{city}</span>
-                          <span className="text-dark-4 dark:text-gray-600">·</span>
-                          <span>{timeLabel}</span>
-                        </div>
+                      </h4>
+                      <div className="text-[14px] font-bold text-dark-0 dark:text-white mt-1">
+                        {typeof priceInfo === "string" ? (
+                          <span>{priceInfo}</span>
+                        ) : (
+                          <span>
+                            {priceInfo.price}{" "}
+                            <span className="text-[12px] font-normal text-dark-3 dark:text-gray-400">
+                              {priceInfo.currency}
+                            </span>
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-[12px] text-dark-3 dark:text-gray-400 mt-1 flex items-center justify-between gap-1">
+                        <span className="truncate">{city}</span>
+                        {timeLabel && (
+                          <span className="flex-shrink-0 text-dark-3 dark:text-gray-400 text-[11px]">
+                            {timeLabel}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>

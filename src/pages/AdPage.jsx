@@ -44,6 +44,10 @@ const AdPage = ({ userdata }) => {
   }, []);
 
   useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, [id]);
+
+  useEffect(() => {
     if (post) {
       setBookmarked(isBookmarked(post._id || post.id));
     }
@@ -137,7 +141,7 @@ const AdPage = ({ userdata }) => {
   const postCity = translateCity(rawCity, currentLang);
   const rawContent = post.options?.content || post.content || "";
   const postContent = translateText(rawContent, currentLang);
-  const rawCategoryName = post.categoryName?.trim() || "";
+  const rawCategoryName = post.categoryName?.trim() || (typeof post.category === "string" ? post.category : post.category?.name || post.category?.slug) || "";
   const postCategory = translateCategory(rawCategoryName, currentLang) || rawCategoryName;
   const priceInfo = formatAdPrice(post.amount, currentLang);
   const timeLabel = formatTimeAgo(post.createdAt, currentLang);
