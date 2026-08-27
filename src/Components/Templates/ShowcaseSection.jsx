@@ -1,4 +1,5 @@
-import { useRef, useState, useEffect } from "react";
+/* eslint-disable react/prop-types */
+import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { getAllAds } from "../../Services/user";
@@ -6,7 +7,7 @@ import { sp } from "../../Utils/Numbers";
 import { isBookmarked, toggleBookmark } from "../../Utils/bookmarks";
 import toast from "react-hot-toast";
 
-function ShowcaseSection() {
+function ShowcaseSection({ className = "" }) {
   const scrollRef = useRef(null);
   const { data, isLoading } = useQuery(["get-all-ads"], () => getAllAds());
   const [savedIds, setSavedIds] = useState({});
@@ -16,7 +17,7 @@ function ShowcaseSection() {
     .filter((p) => p.images && p.images.length > 0)
     .slice(0, 10);
 
-  // If not enough with images, take first 10
+  // If not enough with images, take first items
   const finalAds = showcaseAds.length >= 3 ? showcaseAds : (data?.posts || []).slice(0, 8);
 
   const scroll = (direction) => {
@@ -37,7 +38,7 @@ function ShowcaseSection() {
   if (!isLoading && finalAds.length === 0) return null;
 
   return (
-    <section className="max-w-container mx-auto px-4 my-6">
+    <div className={`my-8 ${className}`}>
       <div className="bg-gradient-to-l from-[#2563EB] via-[#1D4ED8] to-[#1E40AF] rounded-2xl laptop:rounded-3xl p-5 laptop:p-7 text-white shadow-xl relative overflow-hidden">
         {/* Top Header */}
         <div className="flex items-center justify-between mb-5">
@@ -54,7 +55,7 @@ function ShowcaseSection() {
           </div>
 
           <a
-            href="#all-ads-section"
+            href="#more-ads-section"
             className="px-4 py-1.5 rounded-full border border-white/40 text-white hover:bg-white hover:text-main text-body-3 font-medium transition-all"
           >
             مشاهده همه
@@ -200,7 +201,7 @@ function ShowcaseSection() {
           </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 }
 

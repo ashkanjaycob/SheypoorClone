@@ -1,27 +1,23 @@
 import { Toaster } from "react-hot-toast";
 import CategoryList from "../Components/Templates/CategoryList";
 import SpecialtyHubs from "../Components/Templates/SpecialtyHubs";
-import ShowcaseSection from "../Components/Templates/ShowcaseSection";
 import AllAds from "../Components/Templates/AllAds";
 
 function Homepage() {
   return (
     <div className="min-h-screen bg-light-3">
-      {/* Categories Section */}
+      {/* 1. Categories Section */}
       <CategoryList />
 
-      {/* Specialty Hubs (Cars & Real Estate) */}
+      {/* 2. Specialty Hubs (Cars & Real Estate) */}
       <SpecialtyHubs />
-
-      {/* ویترین سراسری (Nationwide Showcase) */}
-      <ShowcaseSection />
 
       {/* Divider */}
       <div className="max-w-container mx-auto px-4">
         <div className="border-b border-light-0 my-2" />
       </div>
 
-      {/* All Ads Feed */}
+      {/* 3. Main Feed Section: 2 rows of ads -> Showcase Section -> All remaining ads with Load More */}
       <section id="all-ads-section" className="max-w-container mx-auto px-4 py-6">
         <div className="flex items-center gap-3 mb-6">
           <img
@@ -31,14 +27,16 @@ function Homepage() {
           />
           <div>
             <h2 className="text-heading-4 laptop:text-heading-3 text-dark-0">
-              آگهی‌های جدید سراسر ایران
+              جدیدترین آگهی‌های سراسر ایران
             </h2>
             <p className="text-body-3 text-dark-3 mt-0.5">
               شیپور، سایت نیازمندی‌های رایگان
             </p>
           </div>
         </div>
-        <AllAds />
+
+        {/* All Ads with Showcase in between 2 rows and remaining ads */}
+        <AllAds withShowcase={true} />
       </section>
 
       <Toaster />
