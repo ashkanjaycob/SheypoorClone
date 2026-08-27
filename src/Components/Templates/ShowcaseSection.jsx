@@ -95,8 +95,20 @@ function ShowcaseSection({ className = "" }) {
               Array.from({ length: 4 }).map((_, idx) => (
                 <div
                   key={idx}
-                  className="w-[280px] tablet:w-[320px] h-32 bg-[#1C2038]/70 rounded-xl animate-pulse flex-shrink-0"
-                />
+                  className="w-[290px] tablet:w-[330px] h-[120px] bg-[#1A1E36] rounded-xl flex flex-row-reverse border border-white/10 overflow-hidden flex-shrink-0 animate-pulse"
+                >
+                  <div className="w-[115px] tablet:w-[130px] h-full bg-[#131628]" />
+                  <div className="flex-grow p-3 flex flex-col justify-between space-y-2">
+                    <div className="space-y-1.5">
+                      <div className="h-3.5 bg-white/20 rounded w-full" />
+                      <div className="h-3 bg-white/10 rounded w-2/3" />
+                    </div>
+                    <div className="space-y-1 mt-auto">
+                      <div className="h-3.5 bg-white/25 rounded w-1/2" />
+                      <div className="h-2.5 bg-white/10 rounded w-1/3" />
+                    </div>
+                  </div>
+                </div>
               ))
             ) : (
               finalAds.map((post) => {

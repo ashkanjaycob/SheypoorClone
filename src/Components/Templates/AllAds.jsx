@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { getAllAds, delmySpecificAd } from "../../Services/user";
@@ -35,6 +35,9 @@ function shuffleArray(array) {
   return arr;
 }
 
+/**
+ * Standard PostCard Component
+ */
 function PostCard({ post, bookmarked, onBookmarkToggle, isAdmin, onOpenDeleteModal, isFilteredByCity, selectedCity }) {
   const postId = post._id || post.id;
   const categoryBadge = post.categoryName?.trim();
@@ -136,13 +139,38 @@ function PostCard({ post, bookmarked, onBookmarkToggle, isAdmin, onOpenDeleteMod
   );
 }
 
+/**
+ * Standard PostCard Skeleton Placeholder
+ */
+function PostCardSkeleton() {
+  return (
+    <div className="card-sheypoor overflow-hidden flex flex-row-reverse laptop:flex-col h-full">
+      <div className="relative w-[120px] h-[120px] laptop:w-full laptop:h-auto laptop:aspect-square flex-shrink-0 bg-light-2 skeleton" />
+      <div className="flex-grow p-3 flex flex-col justify-between min-w-0 space-y-3">
+        <div className="space-y-1.5">
+          <div className="h-4 skeleton w-full" />
+          <div className="h-4 skeleton w-3/4" />
+        </div>
+        <div className="mt-auto space-y-2 pt-2">
+          <div className="h-4 skeleton w-1/2" />
+          <div className="h-3 skeleton w-1/3" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function AllAds({ isAdmin = false, withShowcase = false }) {
   const { data, isLoading, refetch } = useQuery(["get-all-ads"], () => getAllAds());
-  const [displayCount, setDisplayCount] = useState(24);
+  const [displayCount, setDisplayCount] = useState(12);
+  const [autoScrollCount, setAutoScrollCount] = useState(0);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [savedIds, setSavedIds] = useState({});
   const [shuffleSeed, setShuffleSeed] = useState(0);
   const [selectedCity, setSelectedCityState] = useState(getSelectedCity());
+
+  const sentinelRef = useRef(null);
+  const MAX_AUTO_SCROLL = 3;
 
   // Delete modal state
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -169,7 +197,8 @@ function AllAds({ isAdmin = false, withShowcase = false }) {
   useEffect(() => {
     const handleCityChange = (e) => {
       setSelectedCityState(e.detail || getSelectedCity());
-      setDisplayCount(24);
+      setDisplayCount(12);
+      setAutoScrollCount(0);
     };
     window.addEventListener("sheypoor_city_changed", handleCityChange);
     return () => window.removeEventListener("sheypoor_city_changed", handleCityChange);
@@ -194,8 +223,37 @@ function AllAds({ isAdmin = false, withShowcase = false }) {
   }, [randomizedPosts, selectedCity]);
 
   const isFilteredByCity = selectedCity && selectedCity !== ALL_IRAN;
+  const hasMore = filteredPosts.length > displayCount;
 
-  const handleLoadMore = () => {
+  // Hybrid Infinite Scroll: Auto-load for 3 cycles, then require button click
+  useEffect(() => {
+    if (autoScrollCount >= MAX_AUTO_SCROLL || !hasMore || isLoadingMore || isLoading) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !isLoadingMore) {
+          setIsLoadingMore(true);
+          setTimeout(() => {
+            setDisplayCount((prev) => prev + 12);
+            setAutoScrollCount((prev) => prev + 1);
+            setIsLoadingMore(false);
+          }, 450);
+        }
+      },
+      { rootMargin: "300px" }
+    );
+
+    const currentSentinel = sentinelRef.current;
+    if (currentSentinel) {
+      observer.observe(currentSentinel);
+    }
+
+    return () => {
+      if (currentSentinel) observer.unobserve(currentSentinel);
+    };
+  }, [autoScrollCount, hasMore, isLoadingMore, isLoading]);
+
+  const handleManualLoadMore = () => {
     setIsLoadingMore(true);
     setTimeout(() => {
       setDisplayCount((prev) => prev + 12);
@@ -205,6 +263,8 @@ function AllAds({ isAdmin = false, withShowcase = false }) {
 
   const handleReshuffle = () => {
     setShuffleSeed((prev) => prev + 1);
+    setDisplayCount(12);
+    setAutoScrollCount(0);
     toast.success("آگهی‌ها با چیدمان رندوم جدید مرتب شدند");
   };
 
@@ -228,20 +288,15 @@ function AllAds({ isAdmin = false, withShowcase = false }) {
     toast.success(isNowSaved ? "آگهی به ذخیره‌ها افزوده شد" : "آگهی از ذخیره‌ها حذف شد");
   };
 
-  // Skeleton loading
+  // SKELETON LOADING ON INITIAL LOAD
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 tablet:grid-cols-2 laptop:grid-cols-3 desktop:grid-cols-4 sdesktop:grid-cols-6 gap-4">
-        {Array.from({ length: 12 }).map((_, i) => (
-          <div key={i} className="card-sheypoor overflow-hidden">
-            <div className="aspect-square skeleton" />
-            <div className="p-3 space-y-2">
-              <div className="h-4 skeleton w-3/4" />
-              <div className="h-3 skeleton w-1/2" />
-              <div className="h-3 skeleton w-1/3" />
-            </div>
-          </div>
-        ))}
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 tablet:grid-cols-2 laptop:grid-cols-3 desktop:grid-cols-4 sdesktop:grid-cols-6 gap-4">
+          {Array.from({ length: 12 }).map((_, i) => (
+            <PostCardSkeleton key={i} />
+          ))}
+        </div>
       </div>
     );
   }
@@ -263,7 +318,6 @@ function AllAds({ isAdmin = false, withShowcase = false }) {
   // First 12 ads (2 rows of 6) -> Showcase Section -> Remaining ads with Load More
   const firstBatch = withShowcase ? filteredPosts.slice(0, 12) : filteredPosts.slice(0, displayCount);
   const remainingBatch = withShowcase ? filteredPosts.slice(12, displayCount) : [];
-  const hasMore = filteredPosts.length > displayCount;
 
   return (
     <>
@@ -373,35 +427,52 @@ function AllAds({ isAdmin = false, withShowcase = false }) {
               </div>
             </div>
           )}
+
+          {/* Skeleton placeholders while auto-scrolling is fetching */}
+          {isLoadingMore && autoScrollCount < MAX_AUTO_SCROLL && (
+            <div className="grid grid-cols-1 tablet:grid-cols-2 laptop:grid-cols-3 desktop:grid-cols-4 sdesktop:grid-cols-6 gap-4 mt-4 animate-fade-in">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <PostCardSkeleton key={`skeleton-more-${i}`} />
+              ))}
+            </div>
+          )}
+
+          {/* Infinite Scroll Sentinel (Invisible target observed for auto-scrolling) */}
+          {autoScrollCount < MAX_AUTO_SCROLL && hasMore && (
+            <div ref={sentinelRef} className="h-10 w-full flex items-center justify-center my-4" />
+          )}
+
+          {/* 4th cycle & beyond: MANUAL LOAD MORE BUTTON */}
+          {autoScrollCount >= MAX_AUTO_SCROLL && hasMore && (
+            <div className="flex justify-center mt-10">
+              <button
+                onClick={handleManualLoadMore}
+                disabled={isLoadingMore}
+                className="btn-outline text-body-2 min-w-[220px] flex items-center justify-center gap-2 hover:shadow-card-hover"
+              >
+                {isLoadingMore ? (
+                  <>
+                    <svg className="animate-spin w-5 h-5 text-main" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                    <span>در حال بارگذاری...</span>
+                  </>
+                ) : (
+                  <span>مشاهده آگهی‌های بیشتر ({filteredPosts.length - displayCount} آگهی دیگر)</span>
+                )}
+              </button>
+            </div>
+          )}
+
+          {/* End of list banner */}
+          {!hasMore && filteredPosts.length > 12 && (
+            <div className="text-center mt-10 py-4 text-body-3 text-dark-3 border-t border-light-0">
+              ✨ تمامی {filteredPosts.length} آگهی نمایش داده شد
+            </div>
+          )}
         </>
       )}
-
-      {/* Load More Button with Loading State */}
-      {hasMore ? (
-        <div className="flex justify-center mt-10">
-          <button
-            onClick={handleLoadMore}
-            disabled={isLoadingMore}
-            className="btn-outline text-body-2 min-w-[200px] flex items-center justify-center gap-2 hover:shadow-card-hover"
-          >
-            {isLoadingMore ? (
-              <>
-                <svg className="animate-spin w-5 h-5 text-main" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                </svg>
-                <span>در حال بارگذاری آگهی‌های بیشتر...</span>
-              </>
-            ) : (
-              <span>مشاهده آگهی‌های بیشتر ({filteredPosts.length - displayCount} آگهی دیگر)</span>
-            )}
-          </button>
-        </div>
-      ) : filteredPosts.length > 12 ? (
-        <div className="text-center mt-10 py-4 text-body-3 text-dark-3 border-t border-light-0">
-          ✨ تمامی {filteredPosts.length} آگهی نمایش داده شد
-        </div>
-      ) : null}
 
       {/* Delete Ad Custom Modal for Admin */}
       <DeleteAdModal

@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { getAllAds } from "../Services/user";
@@ -21,19 +21,42 @@ function timeAgo(dateStr) {
   return new Date(dateStr).toLocaleDateString("fa-IR");
 }
 
+function PostCardSkeleton() {
+  return (
+    <div className="card-sheypoor overflow-hidden flex flex-row-reverse laptop:flex-col h-full">
+      <div className="relative w-[120px] h-[120px] laptop:w-full laptop:h-auto laptop:aspect-square flex-shrink-0 bg-light-2 skeleton" />
+      <div className="flex-grow p-3 flex flex-col justify-between min-w-0 space-y-3">
+        <div className="space-y-1.5">
+          <div className="h-4 skeleton w-full" />
+          <div className="h-4 skeleton w-3/4" />
+        </div>
+        <div className="mt-auto space-y-2 pt-2">
+          <div className="h-4 skeleton w-1/2" />
+          <div className="h-3 skeleton w-1/3" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Category() {
   const { id } = useParams();
   const [activeFilter, setActiveFilter] = useState("all");
-  const [displayCount, setDisplayCount] = useState(20);
+  const [displayCount, setDisplayCount] = useState(12);
+  const [autoScrollCount, setAutoScrollCount] = useState(0);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [savedIds, setSavedIds] = useState({});
   const [selectedCity, setSelectedCityState] = useState(getSelectedCity());
+
+  const sentinelRef = useRef(null);
+  const MAX_AUTO_SCROLL = 3;
 
   // Listen to city changes
   useEffect(() => {
     const handleCityChange = (e) => {
       setSelectedCityState(e.detail || getSelectedCity());
-      setDisplayCount(20);
+      setDisplayCount(12);
+      setAutoScrollCount(0);
     };
     window.addEventListener("sheypoor_city_changed", handleCityChange);
     return () => window.removeEventListener("sheypoor_city_changed", handleCityChange);
@@ -93,6 +116,46 @@ function Category() {
     return result;
   }, [posts, selectedCity, activeFilter]);
 
+  const hasMore = displayedPosts.length > displayCount;
+  const isLoading = isCategoriesLoading || isAdsLoading;
+  const isFilteredByCity = selectedCity && selectedCity !== ALL_IRAN;
+
+  // Hybrid Infinite Scroll: Auto-load for 3 cycles, then button
+  useEffect(() => {
+    if (autoScrollCount >= MAX_AUTO_SCROLL || !hasMore || isLoadingMore || isLoading) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !isLoadingMore) {
+          setIsLoadingMore(true);
+          setTimeout(() => {
+            setDisplayCount((prev) => prev + 12);
+            setAutoScrollCount((prev) => prev + 1);
+            setIsLoadingMore(false);
+          }, 450);
+        }
+      },
+      { rootMargin: "300px" }
+    );
+
+    const currentSentinel = sentinelRef.current;
+    if (currentSentinel) {
+      observer.observe(currentSentinel);
+    }
+
+    return () => {
+      if (currentSentinel) observer.unobserve(currentSentinel);
+    };
+  }, [autoScrollCount, hasMore, isLoadingMore, isLoading]);
+
+  const handleManualLoadMore = () => {
+    setIsLoadingMore(true);
+    setTimeout(() => {
+      setDisplayCount((prev) => prev + 12);
+      setIsLoadingMore(false);
+    }, 450);
+  };
+
   const handleBookmarkToggle = (e, post) => {
     e.preventDefault();
     e.stopPropagation();
@@ -107,9 +170,6 @@ function Category() {
     { id: "cheap", label: "ارزان‌ترین" },
     { id: "expensive", label: "گران‌ترین" },
   ];
-
-  const isLoading = isCategoriesLoading || isAdsLoading;
-  const isFilteredByCity = selectedCity && selectedCity !== ALL_IRAN;
 
   return (
     <div className="min-h-screen bg-light-3">
@@ -199,17 +259,11 @@ function Category() {
           </Link>
         </div>
 
-        {/* Results */}
+        {/* SKELETON LOADING ON INITIAL LOAD */}
         {isLoading ? (
           <div className="grid grid-cols-1 tablet:grid-cols-2 laptop:grid-cols-3 desktop:grid-cols-4 sdesktop:grid-cols-6 gap-4">
             {Array.from({ length: 12 }).map((_, i) => (
-              <div key={i} className="card-sheypoor overflow-hidden">
-                <div className="aspect-square skeleton" />
-                <div className="p-3 space-y-2">
-                  <div className="h-4 skeleton w-3/4" />
-                  <div className="h-3 skeleton w-1/2" />
-                </div>
-              </div>
+              <PostCardSkeleton key={i} />
             ))}
           </div>
         ) : displayedPosts.length === 0 ? (
@@ -322,16 +376,25 @@ function Category() {
               })}
             </div>
 
-            {displayedPosts.length > displayCount && (
+            {/* Skeletons while auto-scrolling */}
+            {isLoadingMore && autoScrollCount < MAX_AUTO_SCROLL && (
+              <div className="grid grid-cols-1 tablet:grid-cols-2 laptop:grid-cols-3 desktop:grid-cols-4 sdesktop:grid-cols-6 gap-4 mt-4 animate-fade-in">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <PostCardSkeleton key={`cat-skel-${i}`} />
+                ))}
+              </div>
+            )}
+
+            {/* Sentinel for auto-scroll */}
+            {autoScrollCount < MAX_AUTO_SCROLL && hasMore && (
+              <div ref={sentinelRef} className="h-10 w-full flex items-center justify-center my-4" />
+            )}
+
+            {/* Manual button on cycle 4+ */}
+            {autoScrollCount >= MAX_AUTO_SCROLL && hasMore && (
               <div className="flex justify-center mt-8">
                 <button
-                  onClick={() => {
-                    setIsLoadingMore(true);
-                    setTimeout(() => {
-                      setDisplayCount((c) => c + 12);
-                      setIsLoadingMore(false);
-                    }, 400);
-                  }}
+                  onClick={handleManualLoadMore}
                   disabled={isLoadingMore}
                   className="btn-outline text-body-2 min-w-[200px] flex items-center justify-center gap-2"
                 >
@@ -347,6 +410,13 @@ function Category() {
                     <span>مشاهده آگهی‌های بیشتر ({displayedPosts.length - displayCount} آگهی دیگر)</span>
                   )}
                 </button>
+              </div>
+            )}
+
+            {/* End of list */}
+            {!hasMore && displayedPosts.length > 12 && (
+              <div className="text-center mt-10 py-4 text-body-3 text-dark-3 border-t border-light-0">
+                ✨ تمامی {displayedPosts.length} آگهی نمایش داده شد
               </div>
             )}
           </>
