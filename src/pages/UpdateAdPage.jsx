@@ -5,6 +5,8 @@ import toast, { Toaster } from "react-hot-toast";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { getmySpecificAd, updateMyAd } from "../Services/user";
 import { p2e, sp } from "../Utils/Numbers";
+import { t, getSavedLanguage } from "../Utils/i18n";
+import { translateCategory } from "../Utils/adTranslator";
 
 function UpdateAdPage() {
   const { id } = useParams();
@@ -22,6 +24,13 @@ function UpdateAdPage() {
   const [imagePreview, setImagePreview] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
+  const [currentLang, setCurrentLang] = useState(getSavedLanguage());
+
+  useEffect(() => {
+    const handleLangChange = (e) => setCurrentLang(e.detail || getSavedLanguage());
+    window.addEventListener("sheypoor_lang_changed", handleLangChange);
+    return () => window.removeEventListener("sheypoor_lang_changed", handleLangChange);
+  }, []);
 
   const [adform, setAdform] = useState({
     title: "",
@@ -57,7 +66,7 @@ function UpdateAdPage() {
       const file = event.target.files[0];
       if (file) {
         if (file.size > 2 * 1024 * 1024) {
-          toast.error("فایل باید کمتر از ۲ مگابایت باشد");
+          toast.error(currentLang === "fa" ? "فایل باید کمتر از ۲ مگابایت باشد" : "File must be under 2MB");
           event.target.value = null;
           setSelectedImageName("");
           setImagePreview(null);
@@ -81,13 +90,13 @@ function UpdateAdPage() {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!adform.title.trim()) newErrors.title = "لطفاً عنوان آگهی را وارد کنید";
-    if (!adform.content.trim()) newErrors.content = "لطفاً توضیحات آگهی را وارد کنید";
+    if (!adform.title.trim()) newErrors.title = currentLang === "fa" ? "لطفاً عنوان آگهی را وارد کنید" : "Please enter title";
+    if (!adform.content.trim()) newErrors.content = currentLang === "fa" ? "لطفاً توضیحات آگهی را وارد کنید" : "Please enter description";
     if (!adform.amount.toString().trim()) {
-      newErrors.amount = "لطفاً مبلغ را وارد کنید (یا ۰ برای توافقی)";
+      newErrors.amount = currentLang === "fa" ? "لطفاً مبلغ را وارد کنید (یا ۰ برای توافقی)" : "Please enter price (or 0 for negotiable)";
     }
-    if (!adform.city.trim()) newErrors.city = "لطفاً شهر را وارد کنید";
-    if (!adform.category) newErrors.category = "لطفاً دسته‌بندی را انتخاب کنید";
+    if (!adform.city.trim()) newErrors.city = currentLang === "fa" ? "لطفاً شهر را وارد کنید" : "Please enter city";
+    if (!adform.category) newErrors.category = currentLang === "fa" ? "لطفاً دسته‌بندی را انتخاب کنید" : "Please select category";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -113,13 +122,14 @@ function UpdateAdPage() {
 
     try {
       const res = await updateMyAd(id, formData);
-      toast.success(res?.message || "آگهی با موفقیت ویرایش شد");
+      toast.success(res?.message || (currentLang === "fa" ? "آگهی با موفقیت ویرایش شد" : "Listing updated successfully"));
       queryClient.invalidateQueries(["get-all-ads"]);
       queryClient.invalidateQueries(["get-my-ads"]);
       queryClient.invalidateQueries(["get-ad-id", id]);
       setTimeout(() => navigate(`/dashboard/${id}`), 1200);
     } catch (err) {
-      toast.error(err.response?.data?.message || "خطا در بروزرسانی آگهی");
+      const msg = err.response?.data?.message || (currentLang === "fa" ? "خطا در ویرایش آگهی" : "Error updating listing");
+      toast.error(msg);
     } finally {
       setIsSubmitting(false);
     }
@@ -127,185 +137,169 @@ function UpdateAdPage() {
 
   if (adLoading) {
     return (
-      <div className="min-h-screen bg-light-3 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-3">
-          <svg className="animate-spin w-8 h-8 text-main" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-          </svg>
-          <span className="text-body-2 text-dark-3">در حال بارگذاری اطلاعات آگهی...</span>
-        </div>
+      <div className="min-h-screen bg-light-3 dark:bg-night-bg flex items-center justify-center py-20">
+        <div className="w-8 h-8 border-3 border-main dark:border-white border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
-
-  if (!adData?.post) {
-    return (
-      <div className="min-h-[70vh] bg-light-3 flex flex-col items-center justify-center text-center px-4">
-        <h2 className="text-heading-4 text-dark-1 mb-3">آگهی یافت نشد</h2>
-        <Link to="/dashboard" className="btn-primary">بازگشت به داشبورد</Link>
-      </div>
-    );
-  }
-
-  const existingImage = adData.post.images?.[0];
 
   return (
-    <div className="min-h-screen bg-light-3 py-8">
+    <div className="min-h-screen bg-light-3 dark:bg-night-bg text-dark-0 dark:text-white py-8 transition-colors">
       <div className="max-w-2xl mx-auto px-4">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-heading-3 text-dark-0">ویرایش آگهی</h1>
-          <Link to={`/dashboard/${id}`} className="text-body-2 text-main hover:text-main-darker font-medium transition-colors">
-            ← بازگشت به آگهی
-          </Link>
-        </div>
+        {/* Breadcrumb */}
+        <nav className="flex items-center gap-1.5 text-body-3 text-dark-3 dark:text-gray-400 mb-6">
+          <Link to="/" className="hover:text-main dark:hover:text-white transition-colors">{t("home", {}, currentLang)}</Link>
+          <svg className="w-4 h-4 text-dark-4 dark:text-gray-600 rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+          <Link to="/dashboard" className="hover:text-main dark:hover:text-white transition-colors">{t("myAds", {}, currentLang)}</Link>
+          <svg className="w-4 h-4 text-dark-4 dark:text-gray-600 rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+          <span className="text-dark-0 dark:text-white font-medium">{currentLang === "fa" ? "ویرایش آگهی" : "Edit Listing"}</span>
+        </nav>
 
-        <form
-          onSubmit={submitAdformHandler}
-          className="bg-white rounded-sheypoor-xl p-6 laptop:p-8 border border-light-0 shadow-card space-y-5"
-        >
-          <div>
-            <label className="block mb-2 text-body-2 font-medium text-dark-1">عنوان آگهی *</label>
-            <input
-              className={`input-sheypoor ${errors.title ? "!border-accent-red !ring-accent-red/20" : ""}`}
-              type="text"
-              name="title"
-              disabled={isSubmitting}
-              value={adform.title}
-              onChange={changeHandler}
-              placeholder="عنوان آگهی"
-            />
-            {errors.title && <span className="text-accent-red text-body-4 mt-1 block">{errors.title}</span>}
-          </div>
+        {/* Card Form */}
+        <div className="bg-white dark:bg-night-card rounded-sheypoor-xl p-6 laptop:p-8 border border-light-0 dark:border-night-border shadow-card dark:shadow-card-dark">
+          <h1 className="text-heading-3 text-dark-0 dark:text-white font-bold mb-6">
+            {currentLang === "fa" ? "ویرایش مشخصات آگهی" : "Edit Listing Specifications"}
+          </h1>
 
-          <div>
-            <label className="block mb-2 text-body-2 font-medium text-dark-1">توضیحات آگهی *</label>
-            <textarea
-              className={`input-sheypoor min-h-[120px] ${errors.content ? "!border-accent-red !ring-accent-red/20" : ""}`}
-              name="content"
-              disabled={isSubmitting}
-              value={adform.content}
-              onChange={changeHandler}
-              rows="4"
-              placeholder="توضیحات آگهی..."
-            />
-            {errors.content && <span className="text-accent-red text-body-4 mt-1 block">{errors.content}</span>}
-          </div>
-
-          <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4">
+          <form onSubmit={submitAdformHandler} className="space-y-5">
+            {/* Category */}
             <div>
-              <label className="block mb-2 text-body-2 font-medium text-dark-1">مبلغ (تومان) *</label>
-              <input
-                className={`input-sheypoor text-left font-mono ${errors.amount ? "!border-accent-red !ring-accent-red/20" : ""}`}
-                value={adform.amount ? sp(adform.amount) : ""}
+              <label className="block text-body-2 font-medium text-dark-1 dark:text-gray-200 mb-2">
+                {t("categories", {}, currentLang)}
+              </label>
+              <select
+                name="category"
+                value={adform.category}
                 onChange={changeHandler}
-                disabled={isSubmitting}
-                type="text"
-                name="amount"
-                placeholder="مبلغ به تومان"
-                dir="ltr"
-              />
-              {errors.amount && <span className="text-accent-red text-body-4 mt-1 block">{errors.amount}</span>}
+                className={`input-sheypoor ${errors.category ? "!border-accent-red" : ""}`}
+              >
+                <option value="">{currentLang === "fa" ? "انتخاب دسته‌بندی..." : "Select Category..."}</option>
+                {categoryData?.map((cat) => (
+                  <option key={cat.slug || cat._id || cat.id} value={cat.slug || cat._id || cat.id}>
+                    {translateCategory(cat.slug || cat.name, currentLang) || cat.name}
+                  </option>
+                ))}
+              </select>
+              {errors.category && <span className="text-accent-red text-body-4 mt-1 block">{errors.category}</span>}
             </div>
 
+            {/* Title */}
             <div>
-              <label className="block mb-2 text-body-2 font-medium text-dark-1">شهر *</label>
+              <label className="block text-body-2 font-medium text-dark-1 dark:text-gray-200 mb-2">
+                {currentLang === "fa" ? "عنوان آگهی" : "Listing Title"}
+              </label>
               <input
-                className={`input-sheypoor ${errors.city ? "!border-accent-red !ring-accent-red/20" : ""}`}
+                type="text"
+                name="title"
+                value={adform.title}
+                onChange={changeHandler}
+                className={`input-sheypoor ${errors.title ? "!border-accent-red" : ""}`}
+              />
+              {errors.title && <span className="text-accent-red text-body-4 mt-1 block">{errors.title}</span>}
+            </div>
+
+            {/* City */}
+            <div>
+              <label className="block text-body-2 font-medium text-dark-1 dark:text-gray-200 mb-2">
+                {currentLang === "fa" ? "شهر و محدوده" : "City / Location"}
+              </label>
+              <input
                 type="text"
                 name="city"
-                disabled={isSubmitting}
                 value={adform.city}
                 onChange={changeHandler}
-                placeholder="شهر / محدوده"
+                className={`input-sheypoor ${errors.city ? "!border-accent-red" : ""}`}
               />
               {errors.city && <span className="text-accent-red text-body-4 mt-1 block">{errors.city}</span>}
             </div>
-          </div>
 
-          <div>
-            <label className="block mb-2 text-body-2 font-medium text-dark-1">دسته‌بندی *</label>
-            <select
-              className={`input-sheypoor ${errors.category ? "!border-accent-red !ring-accent-red/20" : ""}`}
-              name="category"
-              disabled={isSubmitting}
-              value={adform.category}
-              onChange={changeHandler}
-            >
-              <option value="">انتخاب دسته‌بندی...</option>
-              {categoryData?.map((item) => (
-                <option key={item.id || item._id} value={item.id || item._id}>
-                  {item.name}
-                </option>
-              ))}
-            </select>
-            {errors.category && <span className="text-accent-red text-body-4 mt-1 block">{errors.category}</span>}
-          </div>
-
-          {/* Image Replacement */}
-          <div>
-            <label className="block mb-2 text-body-2 font-medium text-dark-1">تصویر آگهی</label>
-            <input
-              type="file"
-              name="images"
-              accept="image/jpeg,image/png,image/webp"
-              ref={fileInputRef}
-              style={{ display: "none" }}
-              onChange={changeHandler}
-              disabled={isSubmitting}
-            />
-
-            <button
-              type="button"
-              onClick={handleClickChooseFile}
-              disabled={isSubmitting}
-              className="w-full py-6 border-2 border-dashed border-light-0 rounded-sheypoor-lg bg-light-3 hover:bg-light-2 hover:border-main/40 transition-all flex flex-col items-center justify-center gap-2 text-dark-3"
-            >
-              {imagePreview ? (
-                <div className="flex flex-col items-center">
-                  <img src={imagePreview} alt="new-preview" className="w-28 h-28 object-cover rounded-sheypoor border" />
-                  <span className="text-body-3 text-main font-medium mt-2">{selectedImageName}</span>
-                </div>
-              ) : existingImage ? (
-                <div className="flex flex-col items-center">
-                  <img
-                    src={existingImage.startsWith("http") ? existingImage : `${import.meta.env.VITE_BASE_URL}${existingImage}`}
-                    alt="current"
-                    className="w-28 h-28 object-cover rounded-sheypoor border"
-                  />
-                  <span className="text-body-4 text-dark-3 mt-2">برای تغییر عکس کلیک کنید</span>
-                </div>
-              ) : (
-                <>
-                  <svg className="h-8 w-8 text-dark-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  <span className="text-body-2">انتخاب عکس جدید</span>
-                </>
-              )}
-            </button>
-          </div>
-
-          <div className="pt-2">
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="btn-primary w-full"
-            >
-              {isSubmitting ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
-                  در حال ذخیره تغییرات...
+            {/* Amount */}
+            <div>
+              <label className="block text-body-2 font-medium text-dark-1 dark:text-gray-200 mb-2">
+                {currentLang === "fa" ? "قیمت (تومان)" : "Price (Tomans)"}
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  name="amount"
+                  dir="ltr"
+                  value={adform.amount ? sp(adform.amount) : ""}
+                  onChange={changeHandler}
+                  className={`input-sheypoor rtl:pl-16 ltr:pr-16 text-left font-mono font-bold ${
+                    errors.amount ? "!border-accent-red" : ""
+                  }`}
+                />
+                <span className="absolute rtl:left-4 ltr:right-4 top-1/2 -translate-y-1/2 text-body-3 text-dark-3 dark:text-gray-400">
+                  {t("currencyToman", {}, currentLang)}
                 </span>
-              ) : (
-                "ذخیره تغییرات"
-              )}
-            </button>
-          </div>
-        </form>
+              </div>
+              {errors.amount && <span className="text-accent-red text-body-4 mt-1 block">{errors.amount}</span>}
+            </div>
+
+            {/* Content */}
+            <div>
+              <label className="block text-body-2 font-medium text-dark-1 dark:text-gray-200 mb-2">
+                {t("description", {}, currentLang)}
+              </label>
+              <textarea
+                name="content"
+                rows="4"
+                value={adform.content}
+                onChange={changeHandler}
+                className={`input-sheypoor !h-auto ${errors.content ? "!border-accent-red" : ""}`}
+              />
+              {errors.content && <span className="text-accent-red text-body-4 mt-1 block">{errors.content}</span>}
+            </div>
+
+            {/* Image Replacement */}
+            <div>
+              <label className="block text-body-2 font-medium text-dark-1 dark:text-gray-200 mb-2">
+                {currentLang === "fa" ? "تغییر تصویر آگهی (اختیاری)" : "Replace Image (Optional)"}
+              </label>
+              <input
+                ref={fileInputRef}
+                type="file"
+                name="images"
+                accept="image/png, image/jpeg, image/webp"
+                onChange={changeHandler}
+                className="hidden"
+              />
+              <div
+                onClick={handleClickChooseFile}
+                className="border-2 border-dashed border-light-0 dark:border-night-border hover:border-main dark:hover:border-white rounded-sheypoor-xl p-5 text-center cursor-pointer bg-light-3 dark:bg-night-surface"
+              >
+                {imagePreview ? (
+                  <div className="flex flex-col items-center gap-2">
+                    <img src={imagePreview} alt="Preview" className="w-28 h-28 object-cover rounded-sheypoor shadow" />
+                    <span className="text-body-3 text-main dark:text-white font-medium">{selectedImageName}</span>
+                  </div>
+                ) : (
+                  <span className="text-body-3 text-dark-3 dark:text-gray-400">
+                    {currentLang === "fa" ? "برای انتخاب تصویر جدید کلیک کنید" : "Click to select a new image"}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3 pt-4">
+              <Link to={`/dashboard/${id}`} className="btn-outline flex-1 text-center">
+                {t("cancel", {}, currentLang)}
+              </Link>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="btn-primary flex-1"
+              >
+                {isSubmitting ? (currentLang === "fa" ? "در حال ذخیره..." : "Saving...") : (currentLang === "fa" ? "ذخیره تغییرات" : "Save Changes")}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
       <Toaster />
     </div>

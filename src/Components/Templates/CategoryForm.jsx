@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { addCategory } from "../../Services/Admin";
@@ -49,69 +48,66 @@ function CategoryForm() {
   };
 
   return (
-    <div className="bg-white rounded-sheypoor-xl p-6 laptop:p-8 border border-light-0 shadow-card">
-      <h2 className="text-heading-4 text-dark-0 mb-6 pb-4 border-b border-light-1">
+    <div className="bg-white dark:bg-night-card rounded-sheypoor-xl p-6 laptop:p-8 border border-light-0 dark:border-night-border shadow-card dark:shadow-card-dark transition-colors">
+      <h2 className="text-heading-4 text-dark-0 dark:text-white font-bold mb-6 pb-4 border-b border-light-1 dark:border-night-border">
         ایجاد دسته‌بندی جدید
       </h2>
 
       <form onSubmit={submitHandler} className="space-y-5">
         <div>
-          <label htmlFor="name" className="block mb-2 text-body-2 font-medium text-dark-1">
-            نام دسته‌بندی (فارسی) *
+          <label htmlFor="name" className="block mb-2 text-body-2 font-medium text-dark-1 dark:text-gray-200">
+            نام دسته‌بندی *
           </label>
           <input
-            className={`input-sheypoor ${errors.name ? "!border-accent-red !ring-accent-red/20" : ""}`}
             type="text"
-            name="name"
             id="name"
-            disabled={isLoading}
+            name="name"
+            placeholder="مثال: وسایل نقلیه"
             value={form.name}
             onChange={changeHandler}
-            placeholder="مثال: املاک و مستغلات"
+            className={`input-sheypoor ${errors.name ? "!border-accent-red" : ""}`}
           />
           {errors.name && <span className="text-accent-red text-body-4 mt-1 block">{errors.name}</span>}
         </div>
 
         <div>
-          <label htmlFor="slug" className="block mb-2 text-body-2 font-medium text-dark-1">
+          <label htmlFor="slug" className="block mb-2 text-body-2 font-medium text-dark-1 dark:text-gray-200">
             اسلاگ انگلیسی (Slug) *
           </label>
           <input
-            className={`input-sheypoor text-left font-mono ${errors.slug ? "!border-accent-red !ring-accent-red/20" : ""}`}
             type="text"
-            name="slug"
             id="slug"
-            disabled={isLoading}
+            name="slug"
+            dir="ltr"
+            placeholder="example: vehicles"
             value={form.slug}
             onChange={changeHandler}
-            placeholder="e.g. real-estate"
-            dir="ltr"
+            className={`input-sheypoor font-mono ${errors.slug ? "!border-accent-red" : ""}`}
           />
           {errors.slug && <span className="text-accent-red text-body-4 mt-1 block">{errors.slug}</span>}
         </div>
 
         <div>
-          <label htmlFor="icon" className="block mb-2 text-body-2 font-medium text-dark-1">
-            نام فایل آیکون (SVG) *
+          <label htmlFor="icon" className="block mb-2 text-body-2 font-medium text-dark-1 dark:text-gray-200">
+            نام آیکون SVG *
           </label>
           <input
-            className={`input-sheypoor text-left font-mono ${errors.icon ? "!border-accent-red !ring-accent-red/20" : ""}`}
             type="text"
-            name="icon"
             id="icon"
-            disabled={isLoading}
+            name="icon"
+            dir="ltr"
+            placeholder="example: car, home, sheypoorBlack"
             value={form.icon}
             onChange={changeHandler}
-            placeholder="e.g. home"
-            dir="ltr"
+            className={`input-sheypoor font-mono ${errors.icon ? "!border-accent-red" : ""}`}
           />
           {errors.icon && <span className="text-accent-red text-body-4 mt-1 block">{errors.icon}</span>}
         </div>
 
         <button
-          className="btn-primary w-full mt-2"
           type="submit"
           disabled={isLoading}
+          className="btn-primary w-full mt-2"
         >
           {isLoading ? (
             <span className="flex items-center justify-center gap-2">
@@ -119,10 +115,10 @@ function CategoryForm() {
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
               </svg>
-              در حال ایجاد...
+              در حال ذخیره...
             </span>
           ) : (
-            "ایجاد دسته‌بندی"
+            "افزودن دسته‌بندی"
           )}
         </button>
       </form>

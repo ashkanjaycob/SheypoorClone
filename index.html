@@ -2,11 +2,33 @@
 <html lang="fa" dir="rtl">
   <head>
     <meta charset="UTF-8" />
-    <link rel="shortcut icon" href="../src/assets/LogosSheypoor/Favicon.png" type="image/x-icon">
+    <link rel="icon" type="image/svg+xml" href="/sheypoorBlack.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>کپی شیپور - نیازمندیهای رایگان خرید و فروش، استخدام و خدمات</title>
+    <title>شیپور | خرید و فروش آنلاین، املاک، خودرو و استخدام</title>
+    <!-- Google Fonts for Latin LTR Mode -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Immediate Theme & Direction Initializer (Avoids FOUC) -->
+    <script>
+      (function() {
+        try {
+          var lang = localStorage.getItem('sheypoor_lang') || 'fa';
+          document.documentElement.lang = lang;
+          document.documentElement.dir = (lang === 'fa') ? 'rtl' : 'ltr';
+
+          var theme = localStorage.getItem('sheypoor_theme') || 'system';
+          var isDark = theme === 'dark' || (theme === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          if (isDark) {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
-  <body>
+  <body class="bg-light-3 dark:bg-night-bg text-dark-0 dark:text-white transition-colors duration-200">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

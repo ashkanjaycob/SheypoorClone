@@ -15,6 +15,16 @@
   background-color: #FAFAFC;
 }
 
+html.dark {
+  color: #F8FAFC;
+  background-color: #0F131C;
+}
+
+html[dir="ltr"] {
+  direction: ltr;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
 }
@@ -23,6 +33,12 @@ body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.dark body {
+  background-color: #0F131C;
+  color: #F8FAFC;
 }
 
 /* ===== Scrollbar Hide Utility ===== */
@@ -42,37 +58,67 @@ body {
   border-radius: 8px;
 }
 
+.dark .skeleton {
+  background: linear-gradient(90deg, #171D2A 25%, #2A3449 50%, #171D2A 75%);
+  background-size: 200% 100%;
+}
+
 @keyframes skeleton-shimmer {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
 
-/* ===== Sheypoor Button Component Styles ===== */
+/* ===== Sheypoor Component Styles ===== */
 @layer components {
+  /* Vibrant Sheypoor Blue Buttons */
   .btn-primary {
-    @apply bg-main hover:bg-main-lighter active:bg-main-darker text-white font-semibold rounded-full h-12 px-6 inline-flex items-center justify-center transition-all duration-200 ease-out disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply bg-main hover:bg-main-lighter active:bg-main-darker text-white font-semibold rounded-full h-12 px-6 inline-flex items-center justify-center transition-all duration-200 ease-out disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg;
+  }
+
+  .dark .btn-primary {
+    @apply bg-main hover:bg-main-lighter active:bg-main-darker text-white font-semibold shadow-md hover:shadow-main/30;
   }
   
   .btn-outline {
-    @apply border-2 border-main text-main hover:bg-light-special font-semibold rounded-full h-12 px-6 inline-flex items-center justify-center transition-all duration-200 ease-out disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply border-2 border-main text-main hover:bg-main/10 font-semibold rounded-full h-12 px-6 inline-flex items-center justify-center transition-all duration-200 ease-out disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .dark .btn-outline {
+    @apply border-2 border-main text-main-lighter hover:bg-main/20;
   }
 
   .btn-danger {
     @apply bg-accent-red-bg text-accent-red hover:bg-red-100 font-semibold rounded-full h-12 px-6 inline-flex items-center justify-center transition-all duration-200 ease-out disabled:opacity-50 disabled:cursor-not-allowed;
   }
+
+  .dark .btn-danger {
+    @apply bg-red-950/60 text-red-400 border border-red-800/40 hover:bg-red-900/40;
+  }
   
   .btn-ghost {
-    @apply text-dark-2 hover:bg-light-2 rounded-full px-4 py-2 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply text-dark-2 hover:bg-light-2 hover:text-main rounded-full px-4 py-2 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .dark .btn-ghost {
+    @apply text-gray-300 hover:bg-night-surface hover:text-main-lighter;
   }
 
   /* ===== Card Component ===== */
   .card-sheypoor {
-    @apply bg-white rounded-sheypoor-lg border border-light-0 shadow-card hover:shadow-card-hover transition-shadow duration-200;
+    @apply bg-white rounded-sheypoor-lg border border-light-0 shadow-card hover:shadow-card-hover transition-all duration-200;
+  }
+
+  .dark .card-sheypoor {
+    @apply bg-night-card border-night-border/80 shadow-card-dark hover:shadow-card-hover-dark text-night-text;
   }
 
   /* ===== Input Component ===== */
   .input-sheypoor {
     @apply w-full h-12 py-3 px-4 bg-light-3 border border-light-0 rounded-sheypoor text-dark-0 placeholder-dark-3 focus:outline-none focus:ring-2 focus:ring-main/30 focus:border-main transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed;
+  }
+
+  .dark .input-sheypoor {
+    @apply bg-night-surface border-night-border text-white placeholder-gray-400 focus:ring-main/30 focus:border-main;
   }
 
   /* ===== Textarea Component ===== */
@@ -87,12 +133,24 @@ body {
     background-position: left 12px center;
   }
 
+  html[dir="ltr"] select.input-sheypoor {
+    background-position: right 12px center;
+  }
+
   /* ===== Chip Component ===== */
   .chip {
     @apply inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-light-0 bg-white text-dark-2 text-body-3 font-medium hover:border-main hover:text-main cursor-pointer transition-all duration-150;
   }
   .chip-active {
-    @apply chip border-main bg-light-special text-main;
+    @apply chip border-main bg-main text-white hover:text-white;
+  }
+
+  .dark .chip {
+    @apply bg-night-surface border-night-border text-gray-300 hover:border-main hover:text-main-lighter;
+  }
+
+  .dark .chip-active {
+    @apply bg-main text-white border-main;
   }
 
   /* ===== Badge Component ===== */
@@ -105,6 +163,16 @@ body {
   .badge-verified {
     @apply inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-accent-green-bg text-accent-green;
   }
+
+  .dark .badge-urgent {
+    @apply bg-red-950 text-red-300 border border-red-800/50;
+  }
+  .dark .badge-promoted {
+    @apply bg-cyan-950 text-cyan-300 border border-cyan-800/50;
+  }
+  .dark .badge-verified {
+    @apply bg-emerald-950 text-emerald-300 border border-emerald-800/50;
+  }
 }
 
 /* ===== Fade In Animation ===== */
@@ -114,17 +182,6 @@ body {
 }
 .animate-fade-in {
   animation: fadeIn 0.25s ease-out;
-}
-
-/* ===== Smooth Page Transitions ===== */
-.page-enter {
-  opacity: 0;
-  transform: translateY(8px);
-}
-.page-enter-active {
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity 0.25s ease-out, transform 0.25s ease-out;
 }
 
 /* ===== Line Clamp Utilities ===== */

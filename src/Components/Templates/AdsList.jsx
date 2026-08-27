@@ -1,44 +1,44 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getmyAds, delmySpecificAd } from "../../Services/user";
-import { sp } from "../../Utils/Numbers";
 import { isBookmarked, toggleBookmark } from "../../Utils/bookmarks";
+import { t, getSavedLanguage } from "../../Utils/i18n";
+import {
+  translateText,
+  translateCity,
+  formatAdPrice,
+  formatTimeAgo,
+} from "../../Utils/adTranslator";
 import DeleteAdModal from "./DeleteAdModal";
 import { Link } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
-
-function timeAgo(dateStr) {
-  if (!dateStr) return "";
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return "لحظاتی پیش";
-  if (mins < 60) return `${mins} دقیقه پیش`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs} ساعت پیش`;
-  const days = Math.floor(hrs / 24);
-  if (days < 7) return `${days} روز پیش`;
-  return new Date(dateStr).toLocaleDateString("fa-IR");
-}
 
 function AdsList() {
   const queryClient = useQueryClient();
   const { data, isLoading } = useQuery(["get-my-ads"], getmyAds);
   const [displayCount, setDisplayCount] = useState(12);
   const [savedIds, setSavedIds] = useState({});
+  const [currentLang, setCurrentLang] = useState(getSavedLanguage());
 
   // Delete modal state
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleteError, setDeleteError] = useState("");
 
+  useEffect(() => {
+    const handleLangChange = (e) => setCurrentLang(e.detail || getSavedLanguage());
+    window.addEventListener("sheypoor_lang_changed", handleLangChange);
+    return () => window.removeEventListener("sheypoor_lang_changed", handleLangChange);
+  }, []);
+
   const deleteMutation = useMutation(delmySpecificAd, {
     onSuccess: () => {
-      toast.success("آگهی با موفقیت حذف شد");
+      toast.success(currentLang === "fa" ? "آگهی با موفقیت حذف شد" : "Listing deleted successfully");
       queryClient.invalidateQueries(["get-my-ads"]);
       queryClient.invalidateQueries(["get-all-ads"]);
       setDeleteTarget(null);
     },
     onError: (err) => {
-      const msg = err.response?.data?.message || "خطا در حذف آگهی";
+      const msg = err.response?.data?.message || (currentLang === "fa" ? "خطا در حذف آگهی" : "Error deleting ad");
       setDeleteError(msg);
       toast.error(msg);
     },
@@ -63,13 +63,15 @@ function AdsList() {
     e.stopPropagation();
     const isNowSaved = toggleBookmark(post);
     setSavedIds((prev) => ({ ...prev, [post._id || post.id]: isNowSaved }));
-    toast.success(isNowSaved ? "آگهی به ذخیره‌ها افزوده شد" : "آگهی از ذخیره‌ها حذف شد");
+    toast.success(
+      isNowSaved ? t("adSaved", {}, currentLang) : t("adUnsaved", {}, currentLang)
+    );
   };
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 tablet:grid-cols-2 laptop:grid-cols-3 desktop:grid-cols-4 gap-4">
-        {Array.from({ length: 8 }).map((_, i) => (
+      <div className="grid grid-cols-1 tablet:grid-cols-2 laptop:grid-cols-3 desktop:grid-cols-4 sdesktop:grid-cols-6 gap-4">
+        {Array.from({ length: 6 }).map((_, i) => (
           <div key={i} className="card-sheypoor overflow-hidden">
             <div className="aspect-square skeleton" />
             <div className="p-3 space-y-2">
@@ -84,100 +86,112 @@ function AdsList() {
 
   if (!data?.posts || data.posts.length === 0) {
     return (
-      <div className="w-full py-16 flex flex-col items-center justify-center bg-white rounded-sheypoor-xl border-2 border-dashed border-light-0">
-        <svg className="h-14 w-14 text-dark-4 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div className="w-full py-16 flex flex-col items-center justify-center bg-white dark:bg-night-card rounded-sheypoor-xl border-2 border-dashed border-light-0 dark:border-night-border text-center p-4">
+        <svg className="h-16 w-16 text-dark-4 dark:text-gray-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
         </svg>
-        <h3 className="text-heading-5 text-dark-2 mb-1">شما هنوز هیچ آگهی ثبت نکرده‌اید!</h3>
-        <p className="text-body-3 text-dark-3">اولین آگهی خود را از فرم بالا ثبت کنید.</p>
+        <h3 className="text-heading-4 text-dark-2 dark:text-gray-200 mb-1">
+          {currentLang === "fa" ? "هنوز آگهی ثبت نکرده‌اید!" : "You have not published any listings yet!"}
+        </h3>
+        <p className="text-body-2 text-dark-3 dark:text-gray-400">
+          {currentLang === "fa" ? "از فرم بالا می‌توانید آگهی جدید خود را ثبت کنید." : "Use the form above to publish your first free listing."}
+        </p>
       </div>
     );
   }
 
+  const posts = data.posts;
+  const hasMore = posts.length > displayCount;
+
   return (
     <>
-      <div className="grid grid-cols-1 tablet:grid-cols-2 laptop:grid-cols-3 desktop:grid-cols-4 gap-4">
-        {data.posts.slice(0, displayCount).map((post) => {
+      <div className="grid grid-cols-1 tablet:grid-cols-2 laptop:grid-cols-3 desktop:grid-cols-4 sdesktop:grid-cols-6 gap-4">
+        {posts.slice(0, displayCount).map((post) => {
           const postId = post._id || post.id;
           const bookmarked = savedIds[postId] !== undefined ? savedIds[postId] : isBookmarked(postId);
+          const title = translateText(post.options?.title || post.title, currentLang);
+          const city = translateCity(post.options?.city || post.city, currentLang);
+          const priceInfo = formatAdPrice(post.amount, currentLang);
+          const timeLabel = formatTimeAgo(post.createdAt, currentLang);
 
           return (
-            <div
-              key={postId}
-              className="card-sheypoor overflow-hidden flex flex-col justify-between"
-            >
-              <Link
-                to={`/dashboard/${postId}`}
-                className="block group flex-grow"
+            <div key={postId} className="card-sheypoor overflow-hidden flex flex-col justify-between group relative">
+              {/* Top Bookmark */}
+              <button
+                onClick={(e) => handleBookmarkToggle(e, post)}
+                className={`absolute top-2 rtl:left-2 ltr:right-2 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-all ${
+                  bookmarked
+                    ? "bg-main text-white shadow-md"
+                    : "bg-white/80 dark:bg-night-card/80 backdrop-blur-sm text-dark-3 dark:text-gray-300 hover:text-main dark:hover:text-white hover:bg-white"
+                }`}
+                title="Bookmark"
               >
-                <div className="flex flex-row-reverse laptop:flex-col relative">
-                  {/* Bookmark Button */}
-                  <button
-                    onClick={(e) => handleBookmarkToggle(e, post)}
-                    className={`absolute top-2 left-2 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-all ${
-                      bookmarked
-                        ? "bg-main text-white shadow-md"
-                        : "bg-white/80 backdrop-blur-sm text-dark-3 hover:text-main hover:bg-white"
-                    }`}
-                    title={bookmarked ? "حذف از ذخیره‌ها" : "ذخیره آگهی"}
-                  >
-                    <svg className="w-4 h-4" fill={bookmarked ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                    </svg>
-                  </button>
+                <svg className="w-4 h-4" fill={bookmarked ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                </svg>
+              </button>
 
-                  <div className="relative w-[120px] h-[120px] laptop:w-full laptop:h-auto laptop:aspect-square flex-shrink-0 bg-light-2 overflow-hidden">
-                    <img
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      src={
-                        post.images?.[0]?.startsWith("http")
-                          ? post.images[0]
-                          : `${import.meta.env.VITE_BASE_URL}${post.images?.[0] || ""}`
-                      }
-                      alt={post.options?.title || post.title || "تصویر آگهی"}
-                      loading="lazy"
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = "https://placehold.co/400x400/F2F2F5/8F90A6?text=بدون+عکس";
-                      }}
-                    />
-                  </div>
-                  <div className="flex-grow p-3 flex flex-col justify-between min-w-0">
-                    <h5 className="text-body-2 font-medium text-dark-0 line-clamp-2 mb-2 leading-relaxed">
-                      {post.options?.title || post.title}
-                    </h5>
-                    <div className="mt-auto space-y-1.5">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-body-2 font-bold text-dark-0">
-                          {post.amount > 0 ? sp(post.amount) : "توافقی"}
-                        </span>
-                        {post.amount > 0 && (
-                          <img className="w-4 h-4" src="/Toman.svg" alt="تومان" />
-                        )}
-                      </div>
-                      <div className="flex items-center gap-1 text-body-4 text-dark-3">
-                        <span>{post.options?.city || post.city || "ایران"}</span>
-                        <span className="text-dark-4">·</span>
-                        <span>{timeAgo(post.createdAt)}</span>
-                      </div>
+              <Link to={`/dashboard/${postId}`} className="block">
+                {/* Image */}
+                <div className="relative aspect-square bg-light-2 dark:bg-night-surface overflow-hidden">
+                  <img
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    src={
+                      post.images?.[0]?.startsWith("http")
+                        ? post.images[0]
+                        : `${import.meta.env.VITE_BASE_URL}${post.images?.[0] || ""}`
+                    }
+                    alt={title}
+                    loading="lazy"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "https://placehold.co/400x400/F2F2F5/8F90A6?text=No+Photo";
+                    }}
+                  />
+                  {post.images && post.images.length > 1 && (
+                    <div className="absolute bottom-2 rtl:left-2 ltr:right-2 bg-dark-0/70 dark:bg-night-bg/80 backdrop-blur-sm text-white text-body-4 px-2 py-0.5 rounded-full flex items-center gap-1 font-mono">
+                      <span>{post.images.length}</span>
                     </div>
+                  )}
+                </div>
+
+                {/* Content */}
+                <div className="p-3">
+                  <h5 className="text-body-2 font-medium text-dark-0 dark:text-gray-100 line-clamp-2 mb-2">
+                    {title}
+                  </h5>
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    {typeof priceInfo === "string" ? (
+                      <span className="text-body-2 font-bold text-dark-0 dark:text-white">{priceInfo}</span>
+                    ) : (
+                      <>
+                        <span className="text-body-2 font-bold text-dark-0 dark:text-white">{priceInfo.price}</span>
+                        <span className="text-body-4 text-dark-3 dark:text-gray-400">{priceInfo.currency}</span>
+                      </>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1 text-body-4 text-dark-3 dark:text-gray-400">
+                    <span>{city}</span>
+                    <span>·</span>
+                    <span>{timeLabel}</span>
                   </div>
                 </div>
               </Link>
 
-              {/* Actions row: Edit + Delete */}
-              <div className="p-3 pt-0 flex gap-2 border-t border-light-1 mt-2">
+              {/* Action Buttons: Edit + Delete */}
+              <div className="p-2 border-t border-light-1 dark:border-night-border flex items-center gap-1.5 bg-light-3 dark:bg-night-surface">
                 <Link
                   to={`/dashboard/update/${postId}`}
-                  className="flex-1 py-2 text-center rounded-full border border-light-0 text-dark-2 text-body-4 hover:border-main hover:text-main font-medium transition-colors"
+                  className="flex-1 text-center py-1.5 text-xs font-semibold text-main dark:text-white hover:bg-light-special dark:hover:bg-night-card rounded-md transition-colors"
                 >
-                  ویرایش
+                  {currentLang === "fa" ? "ویرایش" : "Edit"}
                 </Link>
                 <button
+                  type="button"
                   onClick={(e) => handleOpenDelete(e, post)}
-                  className="flex-1 py-2 text-center rounded-full bg-accent-red-bg text-accent-red text-body-4 hover:bg-red-100 font-medium transition-colors"
+                  className="flex-1 py-1.5 text-xs font-semibold text-accent-red hover:bg-accent-red-bg dark:hover:bg-red-950/60 rounded-md transition-colors"
                 >
-                  حذف
+                  {t("deleteAd", {}, currentLang)}
                 </button>
               </div>
             </div>
@@ -185,20 +199,20 @@ function AdsList() {
         })}
       </div>
 
-      {data.posts.length > displayCount && (
+      {hasMore && (
         <div className="flex justify-center mt-8">
-          <button onClick={handleLoadMore} className="btn-outline text-body-2">
-            مشاهده آگهی‌های بیشتر
+          <button onClick={handleLoadMore} className="btn-outline text-body-2 min-w-[160px]">
+            {t("loadMore", {}, currentLang)}
           </button>
         </div>
       )}
 
-      {/* Delete Modal */}
+      {/* Custom Delete Modal */}
       <DeleteAdModal
         isOpen={Boolean(deleteTarget)}
         onClose={() => setDeleteTarget(null)}
         onConfirm={handleConfirmDelete}
-        adTitle={deleteTarget?.options?.title || deleteTarget?.title}
+        adTitle={translateText(deleteTarget?.options?.title || deleteTarget?.title, currentLang)}
         isLoading={deleteMutation.isLoading}
         error={deleteError}
       />

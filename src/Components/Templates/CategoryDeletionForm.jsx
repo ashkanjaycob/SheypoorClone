@@ -38,14 +38,14 @@ function CategoryDeletionForm() {
   };
 
   return (
-    <div className="bg-white rounded-sheypoor-xl p-6 laptop:p-8 border border-light-0 shadow-card">
-      <h2 className="text-heading-4 text-accent-red mb-6 pb-4 border-b border-light-1">
+    <div className="bg-white dark:bg-night-card rounded-sheypoor-xl p-6 laptop:p-8 border border-light-0 dark:border-night-border shadow-card dark:shadow-card-dark transition-colors">
+      <h2 className="text-heading-4 text-accent-red mb-6 pb-4 border-b border-light-1 dark:border-night-border">
         حذف دسته‌بندی
       </h2>
 
       <form onSubmit={handleDelete} className="space-y-5">
         <div>
-          <label htmlFor="delete-category" className="block mb-2 text-body-2 font-medium text-dark-1">
+          <label htmlFor="delete-category" className="block mb-2 text-body-2 font-medium text-dark-1 dark:text-gray-200">
             انتخاب دسته‌بندی مورد نظر *
           </label>
           <select

@@ -5,6 +5,7 @@ import { checkOtp, sendOtp } from "../../Services/Auth";
 import { setCookie } from "../../Utils/cookie";
 import { useNavigate } from "react-router-dom";
 import { p2e } from "../../Utils/Numbers";
+import { getSavedLanguage } from "../../Utils/i18n";
 
 function CheckOtpForm({ code, setCode, mobile, setStep, otpResponse }) {
   const navigate = useNavigate();
@@ -12,6 +13,13 @@ function CheckOtpForm({ code, setCode, mobile, setStep, otpResponse }) {
   const [isResending, setIsResending] = useState(false);
   const [countdown, setCountdown] = useState(120);
   const [error, setError] = useState("");
+  const [currentLang, setCurrentLang] = useState(getSavedLanguage());
+
+  useEffect(() => {
+    const handleLangChange = (e) => setCurrentLang(e.detail || getSavedLanguage());
+    window.addEventListener("sheypoor_lang_changed", handleLangChange);
+    return () => window.removeEventListener("sheypoor_lang_changed", handleLangChange);
+  }, []);
 
   // Countdown timer for resending OTP
   useEffect(() => {
@@ -29,10 +37,10 @@ function CheckOtpForm({ code, setCode, mobile, setStep, otpResponse }) {
     setIsResending(false);
 
     if (response) {
-      toast.success("کد تایید مجدداً ارسال شد");
+      toast.success(currentLang === "fa" ? "کد تایید مجدداً ارسال شد" : "Code resent successfully");
       setCountdown(120);
     } else if (apiErr) {
-      toast.error(apiErr.response?.data?.message || "خطا در ارسال مجدد کد");
+      toast.error(apiErr.response?.data?.message || (currentLang === "fa" ? "خطا در ارسال مجدد کد" : "Error resending code"));
     }
   };
 
@@ -40,8 +48,9 @@ function CheckOtpForm({ code, setCode, mobile, setStep, otpResponse }) {
     e.preventDefault();
     const clean = p2e(code).trim();
     if (!clean || clean.length < 4) {
-      setError("لطفاً کد تایید ۵ رقمی را کامل وارد کنید");
-      toast.error("کد وارد شده صحیح نمی‌باشد");
+      const err = currentLang === "fa" ? "لطفاً کد تایید را کامل وارد کنید" : "Please enter the full verification code";
+      setError(err);
+      toast.error(err);
       return;
     }
 
@@ -52,14 +61,14 @@ function CheckOtpForm({ code, setCode, mobile, setStep, otpResponse }) {
 
     if (response) {
       setCookie(response.data);
-      toast.success("با موفقیت وارد شدید! در حال انتقال...");
+      toast.success(currentLang === "fa" ? "با موفقیت وارد شدید! در حال انتقال..." : "Logged in successfully! Redirecting...");
       setTimeout(() => {
         navigate("/");
         window.location.reload();
       }, 1000);
     }
     if (apiError) {
-      const msg = apiError.response?.data?.message || "کد وارد شده اشتباه یا منقضی شده است";
+      const msg = apiError.response?.data?.message || (currentLang === "fa" ? "کد وارد شده اشتباه یا منقضی شده است" : "Invalid or expired code");
       setError(msg);
       toast.error(msg);
     }
@@ -74,25 +83,33 @@ function CheckOtpForm({ code, setCode, mobile, setStep, otpResponse }) {
   return (
     <form onSubmit={submitHandler} className="space-y-6">
       <div>
-        <h2 className="text-heading-3 text-dark-0 mb-2">تایید شماره موبایل</h2>
-        <p className="text-body-2 text-dark-3">
-          کد پیامک‌شده به شماره <span className="font-mono text-dark-1 font-semibold" dir="ltr">{mobile}</span> را وارد کنید.
+        <h2 className="text-heading-3 text-dark-0 dark:text-white font-bold mb-2">
+          {currentLang === "fa" ? "تایید شماره موبایل" : "Verify Mobile Number"}
+        </h2>
+        <p className="text-body-2 text-dark-3 dark:text-gray-300">
+          {currentLang === "fa" ? (
+            <>کد پیامک‌شده به شماره <span className="font-mono text-dark-1 dark:text-white font-semibold" dir="ltr">{mobile}</span> را وارد کنید.</>
+          ) : (
+            <>Enter the code sent to <span className="font-mono text-dark-1 dark:text-white font-semibold" dir="ltr">{mobile}</span>.</>
+          )}
         </p>
       </div>
 
-      {/* Debug Code Simulator Banner (Only if backend returned code) */}
+      {/* Debug Code Simulator Banner */}
       {otpResponse && (
-        <div className="p-4 bg-light-special border border-main/20 rounded-sheypoor text-center">
-          <span className="text-body-3 text-dark-2 block mb-1">کد تایید تستی شما:</span>
-          <span className="text-heading-4 font-mono font-bold text-main tracking-widest" dir="ltr">
+        <div className="p-4 bg-light-special dark:bg-night-surface border border-main/20 dark:border-night-border rounded-sheypoor text-center">
+          <span className="text-body-3 text-dark-2 dark:text-gray-300 block mb-1">
+            {currentLang === "fa" ? "کد تایید تستی شما:" : "Test Verification Code:"}
+          </span>
+          <span className="text-heading-4 font-mono font-bold text-main dark:text-white tracking-widest" dir="ltr">
             {otpResponse}
           </span>
         </div>
       )}
 
       <div>
-        <label htmlFor="code" className="block text-body-2 font-medium text-dark-1 mb-2">
-          کد تایید
+        <label htmlFor="code" className="block text-body-2 font-medium text-dark-1 dark:text-gray-200 mb-2">
+          {currentLang === "fa" ? "کد تایید" : "Verification Code"}
         </label>
         <input
           type="text"
@@ -115,26 +132,28 @@ function CheckOtpForm({ code, setCode, mobile, setStep, otpResponse }) {
       </div>
 
       {/* Resend Countdown */}
-      <div className="flex items-center justify-between text-body-3 text-dark-3">
+      <div className="flex items-center justify-between text-body-3 text-dark-3 dark:text-gray-400">
         <button
           type="button"
           onClick={() => setStep(1)}
           disabled={isLoading}
-          className="text-main hover:text-main-darker transition-colors"
+          className="text-main dark:text-white hover:underline transition-colors"
         >
-          ویرایش شماره
+          {currentLang === "fa" ? "ویرایش شماره" : "Edit Number"}
         </button>
 
         {countdown > 0 ? (
-          <span className="font-mono text-dark-4">ارسال مجدد ({formatTime(countdown)})</span>
+          <span className="font-mono text-dark-4 dark:text-gray-500">
+            {currentLang === "fa" ? `ارسال مجدد (${formatTime(countdown)})` : `Resend in (${formatTime(countdown)})`}
+          </span>
         ) : (
           <button
             type="button"
             onClick={handleResend}
             disabled={isResending || isLoading}
-            className="text-main hover:text-main-darker font-medium transition-colors"
+            className="text-main dark:text-white hover:underline font-medium transition-colors"
           >
-            {isResending ? "در حال ارسال..." : "ارسال مجدد کد"}
+            {isResending ? (currentLang === "fa" ? "در حال ارسال..." : "Sending...") : (currentLang === "fa" ? "ارسال مجدد کد" : "Resend Code")}
           </button>
         )}
       </div>
@@ -150,10 +169,10 @@ function CheckOtpForm({ code, setCode, mobile, setStep, otpResponse }) {
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
             </svg>
-            در حال تایید...
+            {currentLang === "fa" ? "در حال تایید..." : "Verifying..."}
           </span>
         ) : (
-          "تایید نهایی و ورود"
+          currentLang === "fa" ? "تایید نهایی و ورود" : "Verify & Sign In"
         )}
       </button>
 

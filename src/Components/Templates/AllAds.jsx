@@ -1,27 +1,22 @@
+/* eslint-disable react/prop-types */
 import { useState, useEffect, useMemo, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { getAllAds, delmySpecificAd } from "../../Services/user";
-import { sp } from "../../Utils/Numbers";
 import { isBookmarked, toggleBookmark } from "../../Utils/bookmarks";
 import { getSelectedCity, clearSelectedCity, ALL_IRAN } from "../../Utils/location";
+import { t, getSavedLanguage } from "../../Utils/i18n";
+import {
+  translateText,
+  translateCity,
+  translateCategory,
+  formatAdPrice,
+  formatTimeAgo,
+} from "../../Utils/adTranslator";
 import DeleteAdModal from "./DeleteAdModal";
 import ShowcaseSection from "./ShowcaseSection";
 import toast, { Toaster } from "react-hot-toast";
 import PropTypes from "prop-types";
-
-function timeAgo(dateStr) {
-  if (!dateStr) return "";
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return "لحظاتی پیش";
-  if (mins < 60) return `${mins} دقیقه پیش`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs} ساعت پیش`;
-  const days = Math.floor(hrs / 24);
-  if (days < 7) return `${days} روز پیش`;
-  return new Date(dateStr).toLocaleDateString("fa-IR");
-}
 
 /**
  * Fisher-Yates array shuffle for randomizing posts across categories
@@ -36,32 +31,37 @@ function shuffleArray(array) {
 }
 
 /**
- * Standard PostCard Component
+ * Standard PostCard Component - Matches Authentic Sheypoor Card Design
  */
-function PostCard({ post, bookmarked, onBookmarkToggle, isAdmin, onOpenDeleteModal, isFilteredByCity, selectedCity }) {
+function PostCard({
+  post,
+  bookmarked,
+  onBookmarkToggle,
+  isAdmin,
+  onOpenDeleteModal,
+  isFilteredByCity,
+  selectedCity,
+  currentLang,
+}) {
   const postId = post._id || post.id;
-  const categoryBadge = post.categoryName?.trim();
+  const rawTitle = post.options?.title || post.title || "";
+  const title = translateText(rawTitle, currentLang) || rawTitle;
+  const rawCity = post.options?.city || post.city || "";
+  const city = translateCity(rawCity, currentLang) || rawCity || (currentLang === "fa" ? "ایران" : "Iran");
+  const rawCat = post.categoryName?.trim() || (typeof post.category === "string" ? post.category : post.category?.name || post.category?.slug);
+  const categoryBadge = rawCat ? translateCategory(rawCat, currentLang) : "";
+  const priceInfo = formatAdPrice(post.amount || post.options?.price || post.options?.amount, currentLang);
+  const timeLabel = formatTimeAgo(post.createdAt || post.options?.createdAt, currentLang);
+
+  const imagesCount = post.images?.length || 0;
+  const isUrgent = post.isUrgent || post.options?.urgent;
+  const isSpecial = post.isSpecial || post.options?.special;
 
   return (
-    <Link to={`/dashboard/${postId}`} className="block group">
-      <div className="card-sheypoor overflow-hidden flex flex-row-reverse laptop:flex-col h-full relative">
-        {/* Bookmark Icon Button */}
-        <button
-          onClick={(e) => onBookmarkToggle(e, post)}
-          className={`absolute top-2 left-2 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-all ${
-            bookmarked
-              ? "bg-main text-white shadow-md"
-              : "bg-white/80 backdrop-blur-sm text-dark-3 hover:text-main hover:bg-white"
-          }`}
-          title={bookmarked ? "حذف از ذخیره‌ها" : "ذخیره آگهی"}
-        >
-          <svg className="w-4 h-4" fill={bookmarked ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-          </svg>
-        </button>
-
-        {/* Image */}
-        <div className="relative w-[120px] h-[120px] laptop:w-full laptop:h-auto laptop:aspect-square flex-shrink-0 bg-light-2 overflow-hidden">
+    <Link to={`/dashboard/${postId}`} className="block group select-none">
+      <div className="flex flex-col h-full">
+        {/* 1. Thumbnail Image */}
+        <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-light-2 dark:bg-night-surface border border-light-0/60 dark:border-night-border/80 group-hover:border-main/40 dark:group-hover:border-white/30 transition-all duration-200 shadow-xs">
           <img
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             src={
@@ -69,68 +69,99 @@ function PostCard({ post, bookmarked, onBookmarkToggle, isAdmin, onOpenDeleteMod
                 ? post.images[0]
                 : `${import.meta.env.VITE_BASE_URL}${post.images?.[0] || ""}`
             }
-            alt={post.options?.title || post.title || "تصویر آگهی"}
+            alt={title}
             loading="lazy"
             onError={(e) => {
               e.target.onerror = null;
-              e.target.src = "https://placehold.co/400x400/F2F2F5/8F90A6?text=بدون+عکس";
+              e.target.src = "https://placehold.co/400x400/171D2A/94A3B8?text=Photo";
             }}
           />
 
-          {/* Photo count badge */}
-          {post.images && post.images.length > 1 && (
-            <div className="absolute bottom-2 left-2 bg-dark-0/70 backdrop-blur-sm text-white text-body-4 px-2 py-0.5 rounded-full flex items-center gap-1 font-mono">
-              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+          {/* Bookmark Button (Top Corner) */}
+          <button
+            type="button"
+            onClick={(e) => onBookmarkToggle(e, post)}
+            className={`absolute top-2.5 rtl:left-2.5 ltr:right-2.5 z-10 w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
+              bookmarked
+                ? "bg-main text-white shadow-md scale-105"
+                : "bg-dark-0/60 backdrop-blur-sm text-white/80 hover:text-white hover:bg-dark-0/80"
+            }`}
+            title={bookmarked ? t("adUnsaved", {}, currentLang) : t("adSaved", {}, currentLang)}
+          >
+            <svg className="w-4 h-4" fill={bookmarked ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+            </svg>
+          </button>
+
+          {/* Photo Count (Bottom Corner) */}
+          {imagesCount > 0 && (
+            <div className="absolute bottom-2.5 rtl:left-2.5 ltr:right-2.5 bg-dark-0/70 backdrop-blur-sm text-white text-xs px-2 py-0.5 rounded-md flex items-center gap-1 font-mono">
+              <span>{imagesCount}</span>
+              <svg className="w-3.5 h-3.5 opacity-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
-              <span>{post.images.length}</span>
             </div>
           )}
 
-          {/* Category tag badge */}
-          {categoryBadge && (
-            <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm text-dark-1 text-[11px] font-medium px-2 py-0.5 rounded-full shadow-xs">
+          {/* Special / Discount / Category Badge */}
+          {isUrgent ? (
+            <div className="absolute bottom-2.5 rtl:right-2.5 ltr:left-2.5 bg-accent-red text-white text-[11px] font-bold px-2 py-0.5 rounded-md shadow-sm">
+              {currentLang === "fa" ? "فوری" : "Urgent"}
+            </div>
+          ) : isSpecial ? (
+            <div className="absolute bottom-2.5 rtl:right-2.5 ltr:left-2.5 bg-accent-orange text-white text-[11px] font-bold px-2 py-0.5 rounded-md shadow-sm">
+              {currentLang === "fa" ? "ویژه" : "Featured"}
+            </div>
+          ) : categoryBadge ? (
+            <div className="absolute top-2.5 rtl:right-2.5 ltr:left-2.5 bg-dark-0/60 backdrop-blur-sm text-white/90 text-[11px] font-medium px-2 py-0.5 rounded-md">
               {categoryBadge}
             </div>
-          )}
+          ) : null}
         </div>
 
-        {/* Content */}
-        <div className="flex-grow p-3 flex flex-col justify-between min-w-0">
-          <h5 className="text-body-2 font-medium text-dark-0 line-clamp-2 mb-2 leading-relaxed">
-            {post.options?.title || post.title}
-          </h5>
-          <div className="mt-auto space-y-1.5">
-            {/* Price */}
-            <div className="flex items-center gap-1.5">
-              <span className="text-body-2 font-bold text-dark-0">
-                {post.amount > 0 ? sp(post.amount) : "توافقی"}
+        {/* 2. Text Info Directly Below Image */}
+        <div className="pt-2 px-0.5 flex flex-col flex-grow rtl:text-right ltr:text-left">
+          {/* Title */}
+          <h4 className="text-[14px] font-semibold text-dark-0 dark:text-white line-clamp-1 leading-snug group-hover:text-main dark:group-hover:text-main-lighter transition-colors">
+            {title}
+          </h4>
+
+          {/* Price */}
+          <div className="text-[14px] font-bold text-dark-0 dark:text-white mt-1">
+            {typeof priceInfo === "string" ? (
+              <span>{priceInfo}</span>
+            ) : (
+              <span>
+                {priceInfo.price}{" "}
+                <span className="text-[12px] font-normal text-dark-3 dark:text-gray-400">
+                  {priceInfo.currency}
+                </span>
               </span>
-              {post.amount > 0 && (
-                <img className="w-4 h-4" src="/Toman.svg" alt="تومان" />
-              )}
-            </div>
-            {/* Meta: city + time */}
-            <div className="flex items-center gap-1 text-body-4 text-dark-3">
-              <span className={isFilteredByCity && (post.options?.city || post.city || "").includes(selectedCity) ? "text-main font-semibold" : ""}>
-                {post.options?.city || post.city || "ایران"}
+            )}
+          </div>
+
+          {/* Meta (City + Time) */}
+          <div className="text-[12px] text-dark-3 dark:text-gray-400 mt-1 flex items-center justify-between gap-1">
+            <span className={`truncate ${isFilteredByCity && rawCity.includes(selectedCity) ? "text-main dark:text-main-lighter font-semibold" : ""}`}>
+              {city}
+            </span>
+            {timeLabel && (
+              <span className="flex-shrink-0 text-dark-3 dark:text-gray-400 text-[11px]">
+                {timeLabel}
               </span>
-              <span className="text-dark-4">·</span>
-              <span>{timeAgo(post.createdAt)}</span>
-            </div>
+            )}
           </div>
         </div>
 
-        {/* Admin delete button */}
+        {/* Admin Delete Button */}
         {isAdmin && (
-          <div className="px-3 pb-3 pt-1 border-t border-light-1 mt-2">
+          <div className="pt-2">
             <button
               type="button"
               onClick={(e) => onOpenDeleteModal(e, post)}
-              className="w-full py-2 bg-accent-red-bg text-accent-red font-semibold rounded-full hover:bg-red-100 transition-colors text-body-3"
+              className="w-full py-1.5 bg-accent-red-bg dark:bg-red-950/60 text-accent-red dark:text-red-400 font-semibold rounded-lg hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors text-xs"
             >
-              حذف آگهی (ادمین)
+              {t("deleteAd", {}, currentLang)} (Admin)
             </button>
           </div>
         )}
@@ -144,103 +175,137 @@ function PostCard({ post, bookmarked, onBookmarkToggle, isAdmin, onOpenDeleteMod
  */
 function PostCardSkeleton() {
   return (
-    <div className="card-sheypoor overflow-hidden flex flex-row-reverse laptop:flex-col h-full">
-      <div className="relative w-[120px] h-[120px] laptop:w-full laptop:h-auto laptop:aspect-square flex-shrink-0 bg-light-2 skeleton" />
-      <div className="flex-grow p-3 flex flex-col justify-between min-w-0 space-y-3">
-        <div className="space-y-1.5">
-          <div className="h-4 skeleton w-full" />
-          <div className="h-4 skeleton w-3/4" />
-        </div>
-        <div className="mt-auto space-y-2 pt-2">
-          <div className="h-4 skeleton w-1/2" />
-          <div className="h-3 skeleton w-1/3" />
+    <div className="flex flex-col h-full">
+      <div className="aspect-square w-full rounded-2xl bg-light-2 dark:bg-night-surface skeleton" />
+      <div className="pt-2 px-0.5 space-y-2">
+        <div className="h-4 skeleton w-full rounded" />
+        <div className="h-4 skeleton w-2/3 rounded" />
+        <div className="flex justify-between items-center pt-1">
+          <div className="h-3 skeleton w-1/3 rounded" />
+          <div className="h-3 skeleton w-1/4 rounded" />
         </div>
       </div>
     </div>
   );
 }
 
-function AllAds({ isAdmin = false, withShowcase = false }) {
-  const { data, isLoading, refetch } = useQuery(["get-all-ads"], () => getAllAds());
+function AllAds({ withShowcase = true }) {
   const [displayCount, setDisplayCount] = useState(12);
   const [autoScrollCount, setAutoScrollCount] = useState(0);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [activeFilter, setActiveFilter] = useState("all");
+  const [randomSeed, setRandomSeed] = useState(0);
   const [savedIds, setSavedIds] = useState({});
-  const [shuffleSeed, setShuffleSeed] = useState(0);
+  const [deleteModalPost, setDeleteModalPost] = useState(null);
   const [selectedCity, setSelectedCityState] = useState(getSelectedCity());
+  const [currentLang, setCurrentLang] = useState(getSavedLanguage());
 
   const sentinelRef = useRef(null);
   const MAX_AUTO_SCROLL = 3;
+  const INITIAL_BATCH_SIZE = 12;
 
-  // Delete modal state
-  const [deleteTarget, setDeleteTarget] = useState(null);
-  const [deleteError, setDeleteError] = useState("");
-
-  const deleteMutation = useMutation(delmySpecificAd, {
-    onSuccess: () => {
-      toast.success("آگهی با موفقیت حذف شد");
-      setDeleteTarget(null);
-      refetch();
-    },
-    onError: (err) => {
-      const msg = err.response?.data?.message || "خطا در حذف آگهی";
-      setDeleteError(msg);
-      toast.error(msg);
-    },
-  });
-
-  useEffect(() => {
-    refetch();
-  }, [refetch]);
-
-  // Listen to city change events
+  // Listen for city and language changes
   useEffect(() => {
     const handleCityChange = (e) => {
       setSelectedCityState(e.detail || getSelectedCity());
       setDisplayCount(12);
       setAutoScrollCount(0);
     };
+    const handleLangChange = (e) => {
+      setCurrentLang(e.detail || getSavedLanguage());
+    };
+
     window.addEventListener("sheypoor_city_changed", handleCityChange);
-    return () => window.removeEventListener("sheypoor_city_changed", handleCityChange);
+    window.addEventListener("sheypoor_lang_changed", handleLangChange);
+
+    return () => {
+      window.removeEventListener("sheypoor_city_changed", handleCityChange);
+      window.removeEventListener("sheypoor_lang_changed", handleLangChange);
+    };
   }, []);
 
-  // 1. Randomized posts list
-  const randomizedPosts = useMemo(() => {
-    if (!data?.posts || !Array.isArray(data.posts)) return [];
-    return shuffleArray(data.posts);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data?.posts, shuffleSeed]);
+  const { data, isLoading, isError, refetch } = useQuery(
+    ["get-all-ads"],
+    () => getAllAds()
+  );
 
-  // 2. Filter posts by selected city
-  const filteredPosts = useMemo(() => {
-    if (!randomizedPosts) return [];
-    if (!selectedCity || selectedCity === ALL_IRAN) return randomizedPosts;
+  const { mutate: deleteAdMutate } = useMutation(delmySpecificAd, {
+    onSuccess: (dataRes) => {
+      toast.success(dataRes?.message || t("deleteSuccess", {}, currentLang));
+      setDeleteModalPost(null);
+      refetch();
+    },
+    onError: () => {
+      toast.error(t("deleteError", {}, currentLang));
+    },
+  });
 
-    return randomizedPosts.filter((p) => {
-      const city = p.options?.city || p.city || "";
-      return city.includes(selectedCity);
-    });
-  }, [randomizedPosts, selectedCity]);
+  const rawUser = localStorage.getItem("userData");
+  const userdata = rawUser ? JSON.parse(rawUser) : null;
+  const isAdmin = userdata?.role === "ADMIN";
 
   const isFilteredByCity = selectedCity && selectedCity !== ALL_IRAN;
-  const hasMore = filteredPosts.length > displayCount;
+  const cityTranslatedName = translateCity(selectedCity, currentLang);
 
-  // Hybrid Infinite Scroll: Auto-load for 3 cycles, then require button click
+  // Filter and randomize posts
+  const processedPosts = useMemo(() => {
+    if (!data?.posts) return [];
+    let posts = [...data.posts];
+
+    // 1. Filter by city
+    if (selectedCity && selectedCity !== ALL_IRAN) {
+      posts = posts.filter((p) => {
+        const postCity = p.options?.city || p.city || "";
+        return postCity.includes(selectedCity);
+      });
+    }
+
+    // 2. Filter by type
+    if (activeFilter === "photo") {
+      posts = posts.filter((p) => p.images && p.images.length > 0);
+    } else if (activeFilter === "cheap") {
+      posts.sort((a, b) => (Number(a.amount) || 0) - (Number(b.amount) || 0));
+    } else if (activeFilter === "expensive") {
+      posts.sort((a, b) => (Number(b.amount) || 0) - (Number(a.amount) || 0));
+    } else {
+      // Default: randomized for discovery
+      posts = shuffleArray(posts);
+    }
+
+    return posts;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data?.posts, selectedCity, activeFilter, randomSeed]);
+
+  const displayedPosts = processedPosts.slice(0, displayCount);
+  const hasMore = displayCount < processedPosts.length;
+
+  const firstBatch = withShowcase
+    ? displayedPosts.slice(0, INITIAL_BATCH_SIZE)
+    : displayedPosts;
+
+  const remainingBatch = withShowcase
+    ? displayedPosts.slice(INITIAL_BATCH_SIZE)
+    : [];
+
+  // Infinite auto-scroll observer
   useEffect(() => {
-    if (autoScrollCount >= MAX_AUTO_SCROLL || !hasMore || isLoadingMore || isLoading) return;
+    if (autoScrollCount >= MAX_AUTO_SCROLL || !hasMore || isLoadingMore) {
+      return;
+    }
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && !isLoadingMore) {
+        const first = entries[0];
+        if (first.isIntersecting && !isLoadingMore && hasMore) {
           setIsLoadingMore(true);
           setTimeout(() => {
             setDisplayCount((prev) => prev + 12);
             setAutoScrollCount((prev) => prev + 1);
             setIsLoadingMore(false);
-          }, 450);
+          }, 400);
         }
       },
-      { rootMargin: "300px" }
+      { threshold: 0.1, rootMargin: "150px" }
     );
 
     const currentSentinel = sentinelRef.current;
@@ -249,35 +314,18 @@ function AllAds({ isAdmin = false, withShowcase = false }) {
     }
 
     return () => {
-      if (currentSentinel) observer.unobserve(currentSentinel);
+      if (currentSentinel) {
+        observer.unobserve(currentSentinel);
+      }
     };
-  }, [autoScrollCount, hasMore, isLoadingMore, isLoading]);
+  }, [autoScrollCount, hasMore, isLoadingMore, displayCount]);
 
   const handleManualLoadMore = () => {
     setIsLoadingMore(true);
     setTimeout(() => {
       setDisplayCount((prev) => prev + 12);
       setIsLoadingMore(false);
-    }, 450);
-  };
-
-  const handleReshuffle = () => {
-    setShuffleSeed((prev) => prev + 1);
-    setDisplayCount(12);
-    setAutoScrollCount(0);
-    toast.success("آگهی‌ها با چیدمان رندوم جدید مرتب شدند");
-  };
-
-  const handleOpenDeleteModal = (e, post) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDeleteError("");
-    setDeleteTarget(post);
-  };
-
-  const handleConfirmDelete = () => {
-    if (!deleteTarget) return;
-    deleteMutation.mutate(deleteTarget._id || deleteTarget.id);
+    }, 400);
   };
 
   const handleBookmarkToggle = (e, post) => {
@@ -285,98 +333,144 @@ function AllAds({ isAdmin = false, withShowcase = false }) {
     e.stopPropagation();
     const isNowSaved = toggleBookmark(post);
     setSavedIds((prev) => ({ ...prev, [post._id || post.id]: isNowSaved }));
-    toast.success(isNowSaved ? "آگهی به ذخیره‌ها افزوده شد" : "آگهی از ذخیره‌ها حذف شد");
+    toast.success(
+      isNowSaved ? t("adSaved", {}, currentLang) : t("adUnsaved", {}, currentLang)
+    );
   };
 
-  // SKELETON LOADING ON INITIAL LOAD
+  const handleOpenDeleteModal = (e, post) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDeleteModalPost(post);
+  };
+
+  const handleConfirmDelete = () => {
+    if (deleteModalPost) {
+      deleteAdMutate(deleteModalPost._id || deleteModalPost.id);
+    }
+  };
+
+  const handleReshuffle = () => {
+    setRandomSeed((prev) => prev + 1);
+    setDisplayCount(12);
+    setAutoScrollCount(0);
+  };
+
+  const filters = [
+    { id: "all", label: t("allAdsFilter", {}, currentLang) },
+    { id: "photo", label: t("withPhotoFilter", {}, currentLang) },
+    { id: "cheap", label: t("cheapestFilter", {}, currentLang) },
+    { id: "expensive", label: t("mostExpensiveFilter", {}, currentLang) },
+  ];
+
   if (isLoading) {
     return (
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 tablet:grid-cols-2 laptop:grid-cols-3 desktop:grid-cols-4 sdesktop:grid-cols-6 gap-4">
+      <div>
+        <div className="grid grid-cols-2 tablet:grid-cols-3 laptop:grid-cols-4 desktop:grid-cols-5 sdesktop:grid-cols-6 gap-4">
           {Array.from({ length: 12 }).map((_, i) => (
-            <PostCardSkeleton key={i} />
+            <PostCardSkeleton key={`skeleton-initial-${i}`} />
           ))}
         </div>
       </div>
     );
   }
 
-  // Empty state when database has 0 posts
-  if (!data?.posts || data.posts.length === 0) {
+  if (isError) {
     return (
-      <div className="w-full py-20 flex flex-col items-center justify-center bg-white rounded-sheypoor-xl border-2 border-dashed border-light-0">
-        <svg className="h-16 w-16 text-dark-4 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-        </svg>
-        <h3 className="text-heading-4 text-dark-2 mb-1">هیچ آگهی یافت نشد!</h3>
-        <p className="text-body-2 text-dark-3">در حال حاضر آگهی‌ای در سیستم وجود ندارد</p>
+      <div className="p-8 text-center bg-white dark:bg-night-card rounded-sheypoor-lg border border-light-0 dark:border-night-border my-6">
+        <p className="text-body-1 text-accent-red font-semibold mb-2">
+          {t("loadingError", {}, currentLang)}
+        </p>
+        <button onClick={() => refetch()} className="btn-primary mt-2">
+          {t("retry", {}, currentLang)}
+        </button>
       </div>
     );
   }
 
-  // If withShowcase is true:
-  // First 12 ads (2 rows of 6) -> Showcase Section -> Remaining ads with Load More
-  const firstBatch = withShowcase ? filteredPosts.slice(0, 12) : filteredPosts.slice(0, displayCount);
-  const remainingBatch = withShowcase ? filteredPosts.slice(12, displayCount) : [];
-
   return (
-    <>
+    <div>
       {/* City Filter Active Banner */}
       {isFilteredByCity && (
-        <div className="mb-4 p-3.5 bg-light-special border border-main/30 rounded-sheypoor-lg flex items-center justify-between animate-fade-in">
-          <div className="flex items-center gap-2 text-body-2 text-dark-1">
-            <svg className="w-5 h-5 text-main flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="mb-4 p-3.5 bg-light-special dark:bg-night-surface border border-main/30 dark:border-night-border rounded-sheypoor-lg flex items-center justify-between animate-fade-in">
+          <div className="flex items-center gap-2 text-body-2 text-dark-1 dark:text-gray-200">
+            <svg className="w-5 h-5 text-main dark:text-white flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
             </svg>
             <span>
-              در حال نمایش آگهی‌های شهر: <strong className="text-main">{selectedCity}</strong> ({filteredPosts.length} آگهی)
+              {currentLang === "fa"
+                ? `در حال نمایش آگهی‌های شهر: ${cityTranslatedName} (${processedPosts.length} آگهی)`
+                : `Showing ads for: ${cityTranslatedName} (${processedPosts.length} listings)`}
             </span>
           </div>
           <button
             onClick={clearSelectedCity}
-            className="text-body-3 text-accent-red hover:text-red-700 font-medium flex items-center gap-1"
+            className="text-body-3 text-accent-red hover:text-red-700 dark:hover:text-red-400 font-medium flex items-center gap-1"
           >
-            <span>حذف فیلتر شهر</span>
+            <span>{t("clearCityFilter", {}, currentLang)}</span>
             <span>✕</span>
           </button>
         </div>
       )}
 
-      {/* Top Bar with Total Count and Shuffle button */}
-      <div className="flex items-center justify-between mb-4 text-body-3 text-dark-3">
-        <span>
-          نمایش {Math.min(displayCount, filteredPosts.length)} از {filteredPosts.length} آگهی
-          {!isFilteredByCity && " (ترکیبی از همه دسته‌ها و شهرها)"}
-        </span>
-        <button
-          onClick={handleReshuffle}
-          className="chip !py-1 !px-3 text-body-4 hover:border-main hover:text-main flex items-center gap-1"
-          title="ترتیب رندوم مجدد"
-        >
-          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
-          <span>چیدمان تصادفی جدید</span>
-        </button>
+      {/* Filter Tabs & Reshuffle Button */}
+      <div className="flex items-center justify-between gap-3 mb-6 flex-wrap">
+        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1">
+          {filters.map((f) => (
+            <button
+              key={f.id}
+              onClick={() => {
+                setActiveFilter(f.id);
+                setDisplayCount(12);
+                setAutoScrollCount(0);
+              }}
+              className={activeFilter === f.id ? "chip-active" : "chip"}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex items-center gap-3">
+          <span className="text-body-3 text-dark-3 dark:text-gray-400">
+            {currentLang === "fa"
+              ? `نمایش ${displayedPosts.length} از ${processedPosts.length} آگهی`
+              : `Showing ${displayedPosts.length} of ${processedPosts.length} ads`}
+          </span>
+
+          <button
+            onClick={handleReshuffle}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-light-0 dark:border-night-border bg-white dark:bg-night-card hover:bg-light-2 dark:hover:bg-night-surface text-body-3 text-dark-2 dark:text-gray-300 transition-colors"
+            title={t("randomizeFeed", {}, currentLang)}
+          >
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span>{t("randomizeFeed", {}, currentLang)}</span>
+          </button>
+        </div>
       </div>
 
-      {/* If city filtered has 0 results */}
-      {filteredPosts.length === 0 ? (
-        <div className="py-16 flex flex-col items-center justify-center text-center bg-white rounded-sheypoor-xl border border-light-0">
-          <svg className="h-16 w-16 text-dark-4 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-          <h3 className="text-heading-4 text-dark-1 mb-2">در شهر «{selectedCity}» آگهی‌ای یافت نشد!</h3>
-          <p className="text-body-2 text-dark-3 mb-5">می‌توانید آگهی‌های کل ایران را مشاهده فرمایید.</p>
+      {/* Empty State */}
+      {processedPosts.length === 0 ? (
+        <div className="p-12 text-center bg-white dark:bg-night-card rounded-sheypoor-lg border border-light-0 dark:border-night-border my-6">
+          <div className="text-5xl mb-4">🔍</div>
+          <h3 className="text-heading-4 text-dark-0 dark:text-white font-bold mb-2">
+            {t("noAdsInCity", {}, currentLang)}
+          </h3>
+          <p className="text-body-2 text-dark-3 dark:text-gray-400 mb-5">
+            {currentLang === "fa"
+              ? "می‌توانید آگهی‌های کل کشور را مشاهده فرمایید."
+              : "You can view listings from all regions."}
+          </p>
           <button onClick={clearSelectedCity} className="btn-primary">
-            مشاهده آگهی‌های همه‌ی ایران
+            {t("viewAllIranAds", {}, currentLang)}
           </button>
         </div>
       ) : (
         <>
           {/* 1. FIRST BATCH (First 2 rows of ads) */}
-          <div className="grid grid-cols-1 tablet:grid-cols-2 laptop:grid-cols-3 desktop:grid-cols-4 sdesktop:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 tablet:grid-cols-3 laptop:grid-cols-4 desktop:grid-cols-5 sdesktop:grid-cols-6 gap-4">
             {firstBatch.map((post) => {
               const postId = post._id || post.id;
               const bookmarked = savedIds[postId] !== undefined ? savedIds[postId] : isBookmarked(postId);
@@ -391,6 +485,7 @@ function AllAds({ isAdmin = false, withShowcase = false }) {
                   onOpenDeleteModal={handleOpenDeleteModal}
                   isFilteredByCity={isFilteredByCity}
                   selectedCity={selectedCity}
+                  currentLang={currentLang}
                 />
               );
             })}
@@ -404,9 +499,11 @@ function AllAds({ isAdmin = false, withShowcase = false }) {
             <div id="more-ads-section" className="mt-4">
               <div className="flex items-center gap-2 mb-4">
                 <span className="text-lg">📢</span>
-                <h3 className="text-heading-5 text-dark-0">سایر آگهی‌های جدید</h3>
+                <h3 className="text-heading-5 text-dark-0 dark:text-white font-bold">
+                  {t("otherRecentAds", {}, currentLang)}
+                </h3>
               </div>
-              <div className="grid grid-cols-1 tablet:grid-cols-2 laptop:grid-cols-3 desktop:grid-cols-4 sdesktop:grid-cols-6 gap-4">
+              <div className="grid grid-cols-2 tablet:grid-cols-3 laptop:grid-cols-4 desktop:grid-cols-5 sdesktop:grid-cols-6 gap-4">
                 {remainingBatch.map((post) => {
                   const postId = post._id || post.id;
                   const bookmarked = savedIds[postId] !== undefined ? savedIds[postId] : isBookmarked(postId);
@@ -421,6 +518,7 @@ function AllAds({ isAdmin = false, withShowcase = false }) {
                       onOpenDeleteModal={handleOpenDeleteModal}
                       isFilteredByCity={isFilteredByCity}
                       selectedCity={selectedCity}
+                      currentLang={currentLang}
                     />
                   );
                 })}
@@ -430,14 +528,14 @@ function AllAds({ isAdmin = false, withShowcase = false }) {
 
           {/* Skeleton placeholders while auto-scrolling is fetching */}
           {isLoadingMore && autoScrollCount < MAX_AUTO_SCROLL && (
-            <div className="grid grid-cols-1 tablet:grid-cols-2 laptop:grid-cols-3 desktop:grid-cols-4 sdesktop:grid-cols-6 gap-4 mt-4 animate-fade-in">
+            <div className="grid grid-cols-2 tablet:grid-cols-3 laptop:grid-cols-4 desktop:grid-cols-5 sdesktop:grid-cols-6 gap-4 mt-4 animate-fade-in">
               {Array.from({ length: 6 }).map((_, i) => (
                 <PostCardSkeleton key={`skeleton-more-${i}`} />
               ))}
             </div>
           )}
 
-          {/* Infinite Scroll Sentinel (Invisible target observed for auto-scrolling) */}
+          {/* Infinite Scroll Sentinel */}
           {autoScrollCount < MAX_AUTO_SCROLL && hasMore && (
             <div ref={sentinelRef} className="h-10 w-full flex items-center justify-center my-4" />
           )}
@@ -452,45 +550,35 @@ function AllAds({ isAdmin = false, withShowcase = false }) {
               >
                 {isLoadingMore ? (
                   <>
-                    <svg className="animate-spin w-5 h-5 text-main" fill="none" viewBox="0 0 24 24">
+                    <svg className="animate-spin w-5 h-5 text-main dark:text-white" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                     </svg>
-                    <span>در حال بارگذاری...</span>
+                    <span>{t("loadingMore", {}, currentLang)}</span>
                   </>
                 ) : (
-                  <span>مشاهده آگهی‌های بیشتر ({filteredPosts.length - displayCount} آگهی دیگر)</span>
+                  <span>{t("loadMoreAds", {}, currentLang)}</span>
                 )}
               </button>
-            </div>
-          )}
-
-          {/* End of list banner */}
-          {!hasMore && filteredPosts.length > 12 && (
-            <div className="text-center mt-10 py-4 text-body-3 text-dark-3 border-t border-light-0">
-              ✨ تمامی {filteredPosts.length} آگهی نمایش داده شد
             </div>
           )}
         </>
       )}
 
-      {/* Delete Ad Custom Modal for Admin */}
+      {/* Delete Ad Confirmation Modal (Admin) */}
       <DeleteAdModal
-        isOpen={Boolean(deleteTarget)}
-        onClose={() => setDeleteTarget(null)}
+        isOpen={!!deleteModalPost}
+        onClose={() => setDeleteModalPost(null)}
         onConfirm={handleConfirmDelete}
-        adTitle={deleteTarget?.options?.title || deleteTarget?.title}
-        isLoading={deleteMutation.isLoading}
-        error={deleteError}
+        title={deleteModalPost?.options?.title || deleteModalPost?.title || ""}
       />
 
       <Toaster />
-    </>
+    </div>
   );
 }
 
 AllAds.propTypes = {
-  isAdmin: PropTypes.bool,
   withShowcase: PropTypes.bool,
 };
 

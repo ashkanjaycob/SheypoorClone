@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 const setCookie = (tokens) => {
   document.cookie = `accessToken=${tokens.accessToken}; max-age=${
     1 * 24 * 60 * 60
