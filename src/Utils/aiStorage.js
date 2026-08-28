@@ -1,82 +1,68 @@
 /**
  * AI Configuration & Storage Manager for Sheypoor AI Copilot
- * Supports Google Gemini 2.5 Flash and OpenAI-compatible endpoints
+ * Supports Google Gemini 2.5 Flash and OpenAI-compatible endpoints.
+ * Settings are managed exclusively by Admin and shared across the app.
  */
 
 const STORAGE_KEYS = {
-  GEMINI_KEY: "sheypoor_gemini_api_key",
-  MODEL: "sheypoor_ai_model",
-  BASE_URL: "sheypoor_ai_base_url",
-  PERSONA: "sheypoor_ai_persona",
-  AUTO_GREETING: "sheypoor_ai_auto_greeting",
+  ADMIN_CONFIG: "sheypoor_ai_admin_config",
   HISTORY: "sheypoor_ai_history",
 };
 
 export const DEFAULT_AI_CONFIG = {
+  apiKey: "",
   model: "gemini-2.5-flash",
   baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
-  persona: "friendly", // 'friendly' | 'professional' | 'expert'
+  persona: "friendly", // 'friendly' | 'expert' | 'cash'
   autoGreeting: true,
+  systemPrompt: "",
 };
 
 /**
- * Retrieves the stored Gemini API Key, falling back to environment variable if set.
- */
-export function getGeminiApiKey() {
-  if (typeof window === "undefined") return "";
-  const stored = localStorage.getItem(STORAGE_KEYS.GEMINI_KEY);
-  if (stored && stored.trim()) return stored.trim();
-  return (import.meta.env.VITE_GEMINI_API_KEY || "").trim();
-}
-
-/**
- * Saves Gemini API Key to localStorage.
- */
-export function setGeminiApiKey(apiKey) {
-  if (typeof window === "undefined") return;
-  if (!apiKey || !apiKey.trim()) {
-    localStorage.removeItem(STORAGE_KEYS.GEMINI_KEY);
-  } else {
-    localStorage.setItem(STORAGE_KEYS.GEMINI_KEY, apiKey.trim());
-  }
-  window.dispatchEvent(new CustomEvent("sheypoor_ai_config_changed"));
-}
-
-/**
- * Retrieves full AI configuration.
+ * Retrieves the full AI configuration set by Admin.
+ * Falls back to env variable for API key if not set by admin.
  */
 export function getAiConfig() {
-  if (typeof window === "undefined") return DEFAULT_AI_CONFIG;
-  return {
-    apiKey: getGeminiApiKey(),
-    model: localStorage.getItem(STORAGE_KEYS.MODEL) || DEFAULT_AI_CONFIG.model,
-    baseURL: localStorage.getItem(STORAGE_KEYS.BASE_URL) || DEFAULT_AI_CONFIG.baseURL,
-    persona: localStorage.getItem(STORAGE_KEYS.PERSONA) || DEFAULT_AI_CONFIG.persona,
-    autoGreeting: localStorage.getItem(STORAGE_KEYS.AUTO_GREETING) !== "false",
-  };
+  if (typeof window === "undefined") return { ...DEFAULT_AI_CONFIG };
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.ADMIN_CONFIG);
+    const stored = raw ? JSON.parse(raw) : {};
+    const config = { ...DEFAULT_AI_CONFIG, ...stored };
+    // Fallback to env variable for API key
+    if (!config.apiKey) {
+      config.apiKey = (import.meta.env.VITE_GEMINI_API_KEY || "").trim();
+    }
+    return config;
+  } catch {
+    return { ...DEFAULT_AI_CONFIG };
+  }
 }
 
 /**
- * Updates AI configuration.
+ * Saves full AI configuration (Admin-only action).
  */
-export function setAiConfig(partialConfig) {
+export function setAiConfig(config) {
   if (typeof window === "undefined") return;
-  if (partialConfig.apiKey !== undefined) {
-    setGeminiApiKey(partialConfig.apiKey);
-  }
-  if (partialConfig.model) {
-    localStorage.setItem(STORAGE_KEYS.MODEL, partialConfig.model);
-  }
-  if (partialConfig.baseURL) {
-    localStorage.setItem(STORAGE_KEYS.BASE_URL, partialConfig.baseURL);
-  }
-  if (partialConfig.persona) {
-    localStorage.setItem(STORAGE_KEYS.PERSONA, partialConfig.persona);
-  }
-  if (partialConfig.autoGreeting !== undefined) {
-    localStorage.setItem(STORAGE_KEYS.AUTO_GREETING, String(partialConfig.autoGreeting));
-  }
+  const current = getAiConfig();
+  const merged = { ...current, ...config };
+  // Trim API key
+  if (merged.apiKey) merged.apiKey = merged.apiKey.trim();
+  localStorage.setItem(STORAGE_KEYS.ADMIN_CONFIG, JSON.stringify(merged));
   window.dispatchEvent(new CustomEvent("sheypoor_ai_config_changed"));
+}
+
+/**
+ * Retrieves the stored Gemini API Key (convenience getter).
+ */
+export function getGeminiApiKey() {
+  return getAiConfig().apiKey || "";
+}
+
+/**
+ * Saves Gemini API Key (convenience setter, updates admin config).
+ */
+export function setGeminiApiKey(apiKey) {
+  setAiConfig({ apiKey });
 }
 
 /**

@@ -101,7 +101,7 @@ export default function PriceNegotiatorModal({ isOpen, onClose, post }) {
         </div>
 
         {/* Scrollable Body */}
-        <div className="p-5 space-y-4 overflow-y-auto flex-grow">
+        <div className="p-5 space-y-4 overflow-y-auto flex-grow scrollbar-themed">
           {/* Ad Summary Card */}
           <div className="p-3.5 bg-light-2 dark:bg-night-surface border border-light-0 dark:border-night-border rounded-xl flex items-center gap-3">
             {post.images?.[0] ? (

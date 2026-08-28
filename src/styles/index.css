@@ -50,6 +50,59 @@ body {
   display: none;
 }
 
+/* ===== Themed Thin Scrollbar for AI Chat & Modals ===== */
+.scrollbar-themed {
+  scrollbar-width: thin;
+  scrollbar-color: #C8C8D0 transparent;
+}
+.scrollbar-themed::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.scrollbar-themed::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-themed::-webkit-scrollbar-thumb {
+  background: #C8C8D0;
+  border-radius: 999px;
+}
+.scrollbar-themed::-webkit-scrollbar-thumb:hover {
+  background: #A0A0B0;
+}
+
+/* Dark mode scrollbars (global & themed) */
+.dark .scrollbar-themed,
+html.dark .scrollbar-themed {
+  scrollbar-color: #2A3449 transparent;
+}
+.dark .scrollbar-themed::-webkit-scrollbar-thumb,
+html.dark .scrollbar-themed::-webkit-scrollbar-thumb {
+  background: #2A3449;
+}
+.dark .scrollbar-themed::-webkit-scrollbar-thumb:hover,
+html.dark .scrollbar-themed::-webkit-scrollbar-thumb:hover {
+  background: #3B4B68;
+}
+
+/* Global dark scrollbar default fallback */
+html.dark ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+html.dark ::-webkit-scrollbar-track {
+  background: transparent;
+}
+html.dark ::-webkit-scrollbar-thumb {
+  background: #2A3449;
+  border-radius: 999px;
+}
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #3B4B68;
+}
+html.dark {
+  scrollbar-color: #2A3449 transparent;
+}
+
 /* ===== Skeleton Loading Animation ===== */
 .skeleton {
   background: linear-gradient(90deg, #EBEBF0 25%, #F2F2F5 50%, #EBEBF0 75%);
