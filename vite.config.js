@@ -8,26 +8,32 @@ export default defineConfig({
     VitePWA({
       registerType: "autoUpdate",
       manifest: {
-        name: "کپی شیپور",
-        short_name: "کپی شیپور",
-        // description: "نیازمندی های خرید ، فروش ، اجاره و خدمات",
-        theme_color: "#ffffff",
+        name: "Sheypoor",
+        short_name: "Sheypoor",
+        description: "Sheypoor - Buy, Sell, Real Estate, Vehicles & Jobs",
+        theme_color: "#3E7BFA",
         background_color: "#ffffff",
         display: "standalone",
+        orientation: "portrait",
+        start_url: "/",
         icons: [
+          {
+            src: "/apple-touch-icon.png",
+            sizes: "180x180",
+            type: "image/png",
+            purpose: "any"
+          },
           {
             src: "/Sheypoor-192.png",
             sizes: "192x192",
             type: "image/png",
-            purpose: "any",
-            form_factor: "wide"
+            purpose: "any maskable"
           },
           {
             src: "/Sheypoor-512.png",
             sizes: "512x512",
             type: "image/png",
-            purpose: "any",
-            form_factor: "wide"
+            purpose: "any maskable"
           },
         ],
       },
