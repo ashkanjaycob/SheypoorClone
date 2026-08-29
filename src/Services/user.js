@@ -1,32 +1,51 @@
-import { getCookie } from "../Utils/cookie";
+import { getCookie, delCookie } from "../Utils/cookie";
 import api from "../configs/Api";
 import { PostApi, getAds } from "../configs/PostApi";
 import { getNewTokens } from "./Token";
 
 const getProfile = async () => {
-  let token = getCookie("accessToken");
-  if (!token) {
-    token = await getNewTokens();
+  const accessToken = getCookie("accessToken");
+  const refreshToken = getCookie("refreshToken");
+
+  // If user has no tokens at all, they are a guest
+  if (!accessToken && !refreshToken) {
+    return null;
   }
-  
+
+  let token = accessToken;
+  if (!token && refreshToken) {
+    try {
+      token = await getNewTokens();
+    } catch {
+      delCookie("accessToken");
+      delCookie("refreshToken");
+      return null;
+    }
+  }
+
+  if (!token) {
+    return null;
+  }
+
   try {
     const response = await api.get("user/whoami", {
-      headers: { Authorization: `bearer ${token}` }
+      headers: { Authorization: `bearer ${token}` },
     });
-    
+
     const userData = response.data;
-    
+
     // Check if the user's mobile number is the admin number
-    if (userData.mobile === "09189990099") {
+    if (userData && userData.mobile === "09189990099") {
       userData.role = "ADMIN";
     }
-    
+
     return userData;
   } catch (error) {
-    console.error("Error while fetching profile:", error);
-    throw error;
+    // If request fails (e.g. 401 or invalid session), return null so UI handles unauthenticated state gracefully
+    return null;
   }
 };
+
 
 const getmyAds = async () => {
   try {
