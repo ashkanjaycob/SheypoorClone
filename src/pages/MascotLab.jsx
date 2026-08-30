@@ -43,13 +43,16 @@ export default function MascotLab() {
 
   // Layer Tweaks (Dimensions & Positioning)
   const [tweaks, setTweaks] = useState({
-    hatWidth: 28,
-    hatHeight: 22,
-    hatTop: 1.5,
-    hatLeft: 36,
+    hatWidth: 20,
+    hatHeight: 30,
+    hatTop: 2,
+    hatLeft: 40,
     hatScale: 1,
+    bodyScale: 1,
+    bodyTop: 0,
+    bodyLeft: 0,
     floatDuration: 2.6,
-    floatDistance: 8,
+    floatDistance: 6,
     waveSpeed: 0.9,
     glowColor: "blue", // blue | amber | purple | emerald
     glowIntensity: 0.6,
@@ -97,13 +100,16 @@ const mascotConfig = ${JSON.stringify(tweaks, null, 2)};`;
   // Reset tweaks to default
   const resetTweaks = () => {
     setTweaks({
-      hatWidth: 28,
-      hatHeight: 22,
-      hatTop: 1.5,
-      hatLeft: 36,
+      hatWidth: 20,
+      hatHeight: 30,
+      hatTop: 2,
+      hatLeft: 40,
       hatScale: 1,
+      bodyScale: 1,
+      bodyTop: 0,
+      bodyLeft: 0,
       floatDuration: 2.6,
-      floatDistance: 8,
+      floatDistance: 6,
       waveSpeed: 0.9,
       glowColor: "blue",
       glowIntensity: 0.6,
@@ -273,15 +279,18 @@ const mascotConfig = ${JSON.stringify(tweaks, null, 2)};`;
               {/* 1. Body Base Layer */}
               {visibleLayers.body && (
                 <motion.img
-                  src="/AI-MASCAT/bodyNohand.png"
+                  src="/AI-MASCAT/body.png"
                   alt="Body"
-                  className="absolute inset-0 w-full h-full object-contain pointer-events-none drop-shadow-lg"
+                  className="absolute inset-0 w-full h-full object-contain pointer-events-none drop-shadow-lg origin-[50%_65%]"
+                  style={{
+                    transform: `translate(${tweaks.bodyLeft}%, ${tweaks.bodyTop}%) scale(${tweaks.bodyScale})`,
+                  }}
                   animate={{
                     y:
                       activeVariant === "sleeping"
-                        ? [0, 4, 0]
+                        ? [0, 3, 0]
                         : activeVariant === "excited"
-                        ? [-4, 6, -4]
+                        ? [-4, 5, -4]
                         : [0, -tweaks.floatDistance, 0],
                   }}
                   transition={{
@@ -644,37 +653,20 @@ const mascotConfig = ${JSON.stringify(tweaks, null, 2)};`;
             </div>
 
             <div className="space-y-3 text-xs">
-              {/* Hat Width */}
+              {/* Hat Scale */}
               <div>
                 <div className="flex justify-between text-slate-400 mb-1 font-mono">
-                  <span>Width (%):</span>
-                  <span className="text-main font-bold">{tweaks.hatWidth}%</span>
+                  <span>Scale:</span>
+                  <span className="text-main font-bold">{tweaks.hatScale}x</span>
                 </div>
                 <input
                   type="range"
-                  min="15"
-                  max="60"
-                  value={tweaks.hatWidth}
+                  min="0.5"
+                  max="1.8"
+                  step="0.05"
+                  value={tweaks.hatScale}
                   onChange={(e) =>
-                    setTweaks((p) => ({ ...p, hatWidth: Number(e.target.value) }))
-                  }
-                  className="w-full accent-main cursor-pointer"
-                />
-              </div>
-
-              {/* Hat Height */}
-              <div>
-                <div className="flex justify-between text-slate-400 mb-1 font-mono">
-                  <span>Height (%):</span>
-                  <span className="text-main font-bold">{tweaks.hatHeight}%</span>
-                </div>
-                <input
-                  type="range"
-                  min="12"
-                  max="50"
-                  value={tweaks.hatHeight}
-                  onChange={(e) =>
-                    setTweaks((p) => ({ ...p, hatHeight: Number(e.target.value) }))
+                    setTweaks((p) => ({ ...p, hatScale: Number(e.target.value) }))
                   }
                   className="w-full accent-main cursor-pointer"
                 />
@@ -688,8 +680,8 @@ const mascotConfig = ${JSON.stringify(tweaks, null, 2)};`;
                 </div>
                 <input
                   type="range"
-                  min="-10"
-                  max="20"
+                  min="-15"
+                  max="25"
                   step="0.5"
                   value={tweaks.hatTop}
                   onChange={(e) =>
@@ -708,11 +700,78 @@ const mascotConfig = ${JSON.stringify(tweaks, null, 2)};`;
                 <input
                   type="range"
                   min="20"
-                  max="50"
+                  max="60"
                   step="0.5"
                   value={tweaks.hatLeft}
                   onChange={(e) =>
                     setTweaks((p) => ({ ...p, hatLeft: Number(e.target.value) }))
+                  }
+                  className="w-full accent-main cursor-pointer"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* 3. Body Fine-tuning Controls */}
+          <div className="p-5 bg-slate-900/90 border border-slate-800 rounded-3xl shadow-xl">
+            <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
+              <span>🦾</span>
+              <span>تنظیمات بدن و بالاتنه (Body Calibration)</span>
+            </h3>
+
+            <div className="space-y-3 text-xs">
+              {/* Body Scale */}
+              <div>
+                <div className="flex justify-between text-slate-400 mb-1 font-mono">
+                  <span>Body Scale:</span>
+                  <span className="text-main font-bold">{tweaks.bodyScale}x</span>
+                </div>
+                <input
+                  type="range"
+                  min="0.5"
+                  max="1.5"
+                  step="0.05"
+                  value={tweaks.bodyScale}
+                  onChange={(e) =>
+                    setTweaks((p) => ({ ...p, bodyScale: Number(e.target.value) }))
+                  }
+                  className="w-full accent-main cursor-pointer"
+                />
+              </div>
+
+              {/* Body Top Offset */}
+              <div>
+                <div className="flex justify-between text-slate-400 mb-1 font-mono">
+                  <span>Body Y Offset (%):</span>
+                  <span className="text-main font-bold">{tweaks.bodyTop}%</span>
+                </div>
+                <input
+                  type="range"
+                  min="-20"
+                  max="20"
+                  step="0.5"
+                  value={tweaks.bodyTop}
+                  onChange={(e) =>
+                    setTweaks((p) => ({ ...p, bodyTop: Number(e.target.value) }))
+                  }
+                  className="w-full accent-main cursor-pointer"
+                />
+              </div>
+
+              {/* Body Left Offset */}
+              <div>
+                <div className="flex justify-between text-slate-400 mb-1 font-mono">
+                  <span>Body X Offset (%):</span>
+                  <span className="text-main font-bold">{tweaks.bodyLeft}%</span>
+                </div>
+                <input
+                  type="range"
+                  min="-15"
+                  max="15"
+                  step="0.5"
+                  value={tweaks.bodyLeft}
+                  onChange={(e) =>
+                    setTweaks((p) => ({ ...p, bodyLeft: Number(e.target.value) }))
                   }
                   className="w-full accent-main cursor-pointer"
                 />
