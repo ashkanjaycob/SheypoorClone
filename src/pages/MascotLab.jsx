@@ -482,13 +482,7 @@ const mascotConfig = ${JSON.stringify(tweaks, null, 2)};`;
                 <motion.img
                   src="/AI-MASCAT/hat.png"
                   alt="Hat"
-                  className="absolute object-contain pointer-events-none drop-shadow-md origin-[50%_90%]"
-                  style={{
-                    width: `${tweaks.hatWidth}%`,
-                    height: `${tweaks.hatHeight}%`,
-                    top: `${tweaks.hatTop}%`,
-                    left: `${tweaks.hatLeft}%`,
-                  }}
+                  className="absolute inset-0 w-full h-full object-contain pointer-events-none drop-shadow-md origin-[50%_20%]"
                   animate={{
                     rotate:
                       activeVariant === "thinking"

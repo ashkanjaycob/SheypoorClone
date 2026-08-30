@@ -360,17 +360,11 @@ export default function SheypoorMascot({ onClick, isOpen, isProcessing }) {
             transition={{ type: "spring", stiffness: 160, damping: 14 }}
           />
 
-          {/* Top Antenna / Hat (Proportioned to head tip) */}
+          {/* Top Antenna / Hat (Proportioned on canvas) */}
           <motion.img
             src="/AI-MASCAT/hat.png"
             alt="Hat"
-            className="absolute object-contain pointer-events-none drop-shadow-sm origin-[50%_90%]"
-            style={{
-              width: "28%",
-              height: "22%",
-              top: "1.5%",
-              left: "36%",
-            }}
+            className="absolute inset-0 w-full h-full object-contain pointer-events-none drop-shadow-sm origin-[50%_20%]"
             animate={{
               rotate: isProcessing
                 ? [-10, 10, -10] // Wobbling antenna when thinking!
