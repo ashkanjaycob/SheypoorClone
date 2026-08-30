@@ -125,6 +125,10 @@ sheypoorClone/
 - **نشان‌کردن آگهی‌ها (Bookmarks):** ذخیره‌سازی محلی آگهی‌های موردعلاقه با اطلاع‌رسانی بلادرنگ میان کامپوننت‌ها.
 - **ثبت و مدیریت آگهی:** آپلود تصاویر، اعتبارسنجی ارقام و قیمت‌ها با ارقام فارسی.
 
+### ۴. اسکرپر خودکار داده‌ها از شیپور (Live Sheypoor Data Scraper)
+- **انتقال هوشمند و بلادرنگ آگهی‌ها:** مجهز به موتور اسکرپر اختصاصی در پنل مدیریت (`ScraperForm`) که به ادمین اجازه می‌دهد با وارد کردن لینک هر دسته‌بندی از شیپور، آگهی‌های واقعی، عکس‌ها، قیمت‌ها، شهر و جزییات را به صورت خودکار واکشی کرده و مستقیماً در دیتابیس بارگذاری کند.
+- **تغذیه دیتابیس با داده‌های واقعی:** امکان پر کردن سریع و واقعی پایگاه داده با آگهی‌های زنده بازار برای تست، فیلتر و جستجوی هوشمند.
+
 ---
 
 ## 🧪 تست‌های خودکار (Testing Suite)
@@ -258,6 +262,10 @@ src/
 - **High-Contrast Dark Mode**: Tailored black-and-white theme designed for minimal eye strain and sleek aesthetics.
 - **Tri-Language Internationalization (i18n)**: Seamless instant switching between Persian (RTL), English (LTR), and German (LTR).
 - **Mobile-First UX**: Fixed bottom navigation bar, card layouts optimized for one-handed operation, and a 1-tap logout button on the user dashboard.
+
+### 3. Live Sheypoor Data Scraper Engine
+- **Automated Listing Ingestion**: Features a built-in scraper tool in the Admin Panel (`ScraperForm`) that enables administrators to input any Sheypoor category URL and automatically fetch, parse, and ingest real listings, images, prices, locations, and descriptions directly into the database.
+- **Real Marketplace Seed Data**: Quickly populates the application with real-world classified ads from across Iran for authentic testing, search matching, and AI recommendations.
 
 ---
 
