@@ -13,6 +13,7 @@ import {
 } from "../Utils/adTranslator";
 import DeleteAdModal from "../Components/Templates/DeleteAdModal";
 import ComingSoonModal, { useComingSoon } from "../Components/Layout/ComingSoonModal";
+import PriceNegotiatorModal from "../Components/AI/PriceNegotiatorModal";
 import toast, { Toaster } from "react-hot-toast";
 import { useState, useEffect } from "react";
 
@@ -31,6 +32,7 @@ const AdPage = ({ userdata }) => {
   const [deleteError, setDeleteError] = useState("");
   const [bookmarked, setBookmarked] = useState(false);
   const [currentLang, setCurrentLang] = useState(getSavedLanguage());
+  const [isNegotiatorOpen, setIsNegotiatorOpen] = useState(false);
 
   const comingSoon = useComingSoon();
 
@@ -417,6 +419,16 @@ const AdPage = ({ userdata }) => {
                   </svg>
                   <span>{t("messages", {}, currentLang)}</span>
                 </button>
+
+                {/* Smart AI Price Negotiation CTA */}
+                <button
+                  type="button"
+                  onClick={() => setIsNegotiatorOpen(true)}
+                  className="w-full mt-3 py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-600 via-blue-600 to-main hover:from-indigo-500 hover:to-blue-500 text-white font-bold text-body-3 flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  <span className="text-lg">🤝</span>
+                  <span>{currentLang === "fa" ? "مذاکره هوشمند قیمت با هوش مصنوعی" : "AI Smart Price Negotiation"}</span>
+                </button>
               </div>
 
               {/* Management Card */}
@@ -461,6 +473,13 @@ const AdPage = ({ userdata }) => {
           </div>
         </div>
       </div>
+
+      {/* Price Negotiator AI Modal */}
+      <PriceNegotiatorModal
+        isOpen={isNegotiatorOpen}
+        onClose={() => setIsNegotiatorOpen(false)}
+        post={post}
+      />
 
       {/* Delete Ad Custom Modal */}
       <DeleteAdModal

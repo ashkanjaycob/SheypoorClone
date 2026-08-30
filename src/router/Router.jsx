@@ -9,6 +9,7 @@ import Category from "../pages/Category";
 import SavedAds from "../pages/SavedAds";
 import AdPage from "../pages/AdPage";
 import UpdateAdPage from "../pages/UpdateAdPage";
+import MascotLab from "../pages/MascotLab";
 import { getProfile } from "../Services/user";
 
 function Router() {
@@ -62,6 +63,10 @@ function Router() {
           )
         }
       />
+
+      {/* Hidden Mascot Test Lab */}
+      <Route path="/mascot-lab" element={<MascotLab />} />
+      <Route path="/ai-lab" element={<MascotLab />} />
 
       <Route path="*" element={<NotFound />} />
     </Routes>

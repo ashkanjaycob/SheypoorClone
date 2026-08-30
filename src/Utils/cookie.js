@@ -1,5 +1,5 @@
 const setCookie = (nameOrTokens, value) => {
-  if (!nameOrTokens) return;
+  if (typeof document === "undefined" || !nameOrTokens) return;
 
   // Signature 1: setCookie("accessToken", "token_value")
   if (typeof nameOrTokens === "string") {
@@ -51,4 +51,3 @@ const clearAuthCookies = () => {
 };
 
 export { setCookie, getCookie, delCookie, clearAuthCookies };
-
