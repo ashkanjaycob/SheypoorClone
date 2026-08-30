@@ -218,11 +218,11 @@ export default function SheypoorMascot({ onClick, isOpen, isProcessing }) {
 
         {/* Mascot Body Canvas Container (84px width, maintaining aspect ratio) */}
         <div className="relative w-20 h-20 tablet:w-22 tablet:h-22 select-none">
-          {/* Base Layer: Body without hands */}
+          {/* Base Layer: Body */}
           <motion.img
-            src="/AI-MASCAT/bodyNohand.png"
+            src="/AI-MASCAT/body.png"
             alt="Body"
-            className="absolute inset-0 w-full h-full object-contain pointer-events-none drop-shadow-md"
+            className="absolute inset-0 w-full h-full object-contain pointer-events-none drop-shadow-md origin-[50%_65%]"
             animate={{
               y: isProcessing ? [0, -2, 0] : [0, -3, 0],
             }}
@@ -237,7 +237,7 @@ export default function SheypoorMascot({ onClick, isOpen, isProcessing }) {
           <motion.img
             src="/AI-MASCAT/leftHand.png"
             alt="Left Hand"
-            className="absolute inset-0 w-full h-full object-contain pointer-events-none drop-shadow-sm"
+            className="absolute inset-0 w-full h-full object-contain pointer-events-none drop-shadow-sm origin-[20%_60%]"
             animate={{
               y: isProcessing ? [-2, -6, -2] : isHovered ? [-1, 2, -1] : [0, -3, 0],
               rotate: isProcessing ? [0, -10, 0] : isHovered ? [0, -6, 0] : [0, 2, 0],
@@ -253,7 +253,7 @@ export default function SheypoorMascot({ onClick, isOpen, isProcessing }) {
           <motion.img
             src="/AI-MASCAT/rightHand.png"
             alt="Right Hand"
-            className="absolute inset-0 w-full h-full object-contain pointer-events-none drop-shadow-sm origin-[75%_65%]"
+            className="absolute inset-0 w-full h-full object-contain pointer-events-none drop-shadow-sm origin-[80%_60%]"
             animate={{
               y: isProcessing
                 ? [-3, -8, -3] // Raising hand towards chin while thinking
@@ -270,23 +270,6 @@ export default function SheypoorMascot({ onClick, isOpen, isProcessing }) {
               duration: isProcessing ? 2.5 : isHovered ? 0.9 : 2.5,
               repeat: Infinity,
               ease: "easeInOut",
-            }}
-          />
-
-          {/* Face Plate (White) */}
-          <motion.img
-            src="/AI-MASCAT/face.png"
-            alt="Face"
-            className="absolute inset-0 w-full h-full object-contain pointer-events-none"
-            animate={{
-              x: mouseOffset.x * 0.5,
-              y: (isProcessing ? -4 : 0) + mouseOffset.y * 0.5 + (isHovered ? -2 : 0),
-              rotate: isProcessing ? -6 : mouseOffset.x * 0.6,
-            }}
-            transition={{
-              type: "spring",
-              stiffness: 180,
-              damping: 14,
             }}
           />
 

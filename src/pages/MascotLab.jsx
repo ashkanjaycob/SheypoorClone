@@ -31,7 +31,6 @@ export default function MascotLab() {
     body: true,
     leftHand: true,
     rightHand: true,
-    face: true,
     head: true,
     hat: true,
     leftEye: true,
@@ -366,26 +365,7 @@ const mascotConfig = ${JSON.stringify(tweaks, null, 2)};`;
                 />
               )}
 
-              {/* 4. Face Plate */}
-              {visibleLayers.face && (
-                <motion.img
-                  src="/AI-MASCAT/face.png"
-                  alt="Face"
-                  className="absolute inset-0 w-full h-full object-contain pointer-events-none"
-                  animate={{
-                    x: mouseOffset.x * 0.5,
-                    y:
-                      (activeVariant === "thinking"
-                        ? -4
-                        : activeVariant === "sleeping"
-                        ? 3
-                        : 0) +
-                      mouseOffset.y * 0.5,
-                    rotate: activeVariant === "thinking" ? -8 : mouseOffset.x * 0.6,
-                  }}
-                  transition={{ type: "spring", stiffness: 180, damping: 14 }}
-                />
-              )}
+
 
               {/* 5. Left Eye */}
               {visibleLayers.leftEye && (
