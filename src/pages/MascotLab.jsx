@@ -8,11 +8,11 @@ import toast, { Toaster } from "react-hot-toast";
  * URL: /ai-lab and /mascot-lab
  */
 const DEFAULT_PARTS = {
-  hat: { name: "کلاه / آنتن (Hat)", icon: "🎩", x: 0, y: -25, scale: 1 },
+  hat: { name: "کلاه / آنتن (Hat)", icon: "🎩", x: 0, y: -10, scale: 0.7 },
   head: { name: "سر و کلاهخود (Head)", icon: "🤖", x: 0, y: 0, scale: 1 },
-  body: { name: "بدن (Body)", icon: "🦾", x: 0, y: 25, scale: 1 },
-  leftHand: { name: "دست چپ (Left Hand)", icon: "✋", x: -8, y: 25, scale: 1 },
-  rightHand: { name: "دست راست (Right Hand)", icon: "👋", x: 8, y: 25, scale: 1 },
+  body: { name: "بدن (Body)", icon: "🦾", x: 1, y: 16, scale: 0.7 },
+  leftHand: { name: "دست چپ (Left Hand)", icon: "✋", x: 9, y: 35, scale: 0.7 },
+  rightHand: { name: "دست راست (Right Hand)", icon: "👋", x: -11, y: 30, scale: 0.7 },
   leftEye: { name: "چشم چپ (Left Eye)", icon: "👁️", x: 0, y: 0, scale: 1 },
   rightEye: { name: "چشم راست (Right Eye)", icon: "👁️", x: 0, y: 0, scale: 1 },
   lips: { name: "دهان و لبخند (Lips)", icon: "👄", x: 0, y: 0, scale: 1 },
