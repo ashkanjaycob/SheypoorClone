@@ -4,6 +4,7 @@
  * with graceful in-app toast fallback for browsers with notifications blocked.
  */
 
+import React from "react";
 import toast from "react-hot-toast";
 
 /**
@@ -101,41 +102,55 @@ export async function sendAiNotification({
     }
   }
 
-  // 3. Graceful in-app custom toast fallback (Always works 100% on any mobile/desktop browser)
+  // 3. Graceful in-app custom toast fallback using React.createElement (pure JS, no JSX syntax in .js file)
   toast.custom(
-    (t) => (
-      <div
-        onClick={() => {
-          toast.dismiss(t.id);
-          if (url && url !== "/") window.location.href = url;
-        }}
-        className={`max-w-md w-full bg-white dark:bg-night-card border border-main/30 shadow-2xl rounded-2xl p-4 flex items-start gap-3 cursor-pointer pointer-events-auto transition-all ${
-          t.visible ? "animate-enter" : "animate-leave"
-        }`}
-        dir="rtl"
-      >
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-main to-blue-500 flex items-center justify-center text-white text-lg flex-shrink-0 shadow-md">
-          🤖
-        </div>
-        <div className="flex-1">
-          <p className="text-xs font-bold text-main dark:text-main-lighter mb-0.5">
-            {title}
-          </p>
-          <p className="text-xs text-dark-1 dark:text-gray-200 leading-relaxed">
-            {body}
-          </p>
-        </div>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
+    (t) =>
+      React.createElement(
+        "div",
+        {
+          onClick: () => {
             toast.dismiss(t.id);
-          }}
-          className="text-dark-3 hover:text-dark-1 dark:hover:text-white text-xs p-1"
-        >
-          ✕
-        </button>
-      </div>
-    ),
+            if (url && url !== "/") window.location.href = url;
+          },
+          className: `max-w-md w-full bg-white dark:bg-night-card border border-main/30 shadow-2xl rounded-2xl p-4 flex items-start gap-3 cursor-pointer pointer-events-auto transition-all ${
+            t.visible ? "animate-enter" : "animate-leave"
+          }`,
+          dir: "rtl",
+        },
+        React.createElement(
+          "div",
+          {
+            className:
+              "w-10 h-10 rounded-xl bg-gradient-to-tr from-main to-blue-500 flex items-center justify-center text-white text-lg flex-shrink-0 shadow-md",
+          },
+          "🤖"
+        ),
+        React.createElement(
+          "div",
+          { className: "flex-1" },
+          React.createElement(
+            "p",
+            { className: "text-xs font-bold text-main dark:text-main-lighter mb-0.5" },
+            title
+          ),
+          React.createElement(
+            "p",
+            { className: "text-xs text-dark-1 dark:text-gray-200 leading-relaxed" },
+            body
+          )
+        ),
+        React.createElement(
+          "button",
+          {
+            onClick: (e) => {
+              e.stopPropagation();
+              toast.dismiss(t.id);
+            },
+            className: "text-dark-3 hover:text-dark-1 dark:hover:text-white text-xs p-1",
+          },
+          "✕"
+        )
+      ),
     { duration: 6000 }
   );
 
