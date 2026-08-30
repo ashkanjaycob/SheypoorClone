@@ -470,8 +470,8 @@ export default function SheypoorAiCopilot() {
                   <h4 className="text-body-2 font-bold">
                     {currentLang === "fa" ? "دستیار هوشمند شیپور" : "Sheypoor AI"}
                   </h4>
-                  <span className="text-[10px] font-mono bg-main/20 text-main dark:text-main-lighter px-1.5 py-0.2 rounded-full">
-                    Gemini
+                  <span className="text-[10px] font-medium bg-main/20 text-main dark:text-main-lighter px-2 py-0.5 rounded-full">
+                    {currentLang === "fa" ? "هوش مصنوعی" : "AI"}
                   </span>
                 </div>
                 <div className="flex items-center gap-1 text-[11px] text-green-600 dark:text-green-400">

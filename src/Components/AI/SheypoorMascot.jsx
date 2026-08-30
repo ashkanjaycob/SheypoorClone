@@ -383,9 +383,9 @@ export default function SheypoorMascot({ onClick, isOpen, isProcessing }) {
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={handleMouseLeave}
-      className="fixed bottom-[74px] tablet:bottom-6 left-0 tablet:left-6 z-50 flex flex-col items-start gap-2 select-none"
+      className="fixed bottom-[74px] tablet:bottom-6 left-0 tablet:left-6 z-50 select-none"
     >
-      {/* Speech Bubble */}
+      {/* Speech Bubble — Absolutely positioned above mascot so it never causes layout shift */}
       <AnimatePresence>
         {showBubble && !isOpen && (
           <motion.div
@@ -393,7 +393,7 @@ export default function SheypoorMascot({ onClick, isOpen, isProcessing }) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.7, y: 10 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            className="relative w-64 p-3.5 bg-white/95 dark:bg-night-card/95 backdrop-blur-xl border border-main/30 dark:border-night-border rounded-2xl shadow-2xl ml-2 tablet:ml-0"
+            className="absolute bottom-[calc(100%+8px)] left-2 tablet:left-0 w-64 p-3.5 bg-white/95 dark:bg-night-card/95 backdrop-blur-xl border border-main/30 dark:border-night-border rounded-2xl shadow-2xl z-50"
             dir={currentLang === "fa" ? "rtl" : "ltr"}
           >
             <button
@@ -423,7 +423,7 @@ export default function SheypoorMascot({ onClick, isOpen, isProcessing }) {
                 setShowBubble(false);
                 onClick?.();
               }}
-              className="mt-2.5 w-full py-1.5 bg-gradient-to-r from-main to-blue-500 hover:from-main-lighter hover:to-blue-400 text-white rounded-xl text-xs font-semibold shadow-md transition-all active:scale-95"
+              className="mt-2.5 w-full py-1.5 bg-gradient-to-r from-main to-blue-500 hover:from-main-lighter hover:to-blue-400 text-white rounded-xl text-xs font-semibold shadow-md transition-all active:scale-95 cursor-pointer"
             >
               {currentLang === "fa" ? "گفتگو و جست‌وجو 🚀" : "Start Chat 🚀"}
             </button>

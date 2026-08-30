@@ -82,8 +82,8 @@ export default function PriceNegotiatorModal({ isOpen, onClose, post }) {
                 <h3 className="text-body-1 font-bold">
                   {t("negotiatorTitle", {}, currentLang) || "دستیار مذاکره و چانه‌زنی قیمت"}
                 </h3>
-                <span className="text-[10px] bg-main/20 text-main dark:text-white font-mono px-2 py-0.5 rounded-full">
-                  Gemini 2.5 Flash
+                <span className="text-[10px] bg-main/20 text-main dark:text-main-lighter font-medium px-2 py-0.5 rounded-full">
+                  {currentLang === "fa" ? "هوش مصنوعی" : "AI"}
                 </span>
               </div>
               <p className="text-body-4 text-dark-3 dark:text-gray-400">
@@ -233,7 +233,7 @@ export default function PriceNegotiatorModal({ isOpen, onClose, post }) {
         {/* Footer */}
         <div className="p-4 border-t border-light-1 dark:border-night-border flex items-center justify-between flex-shrink-0 bg-light-2/50 dark:bg-night-surface/50">
           <span className="text-[11px] text-dark-3 dark:text-gray-400">
-            طراحی شده با مدل هوشمند Gemini 2.5 Flash
+            {currentLang === "fa" ? "طراحی شده با هوش مصنوعی شیپور" : "Powered by Sheypoor AI"}
           </span>
 
           <div className="flex items-center gap-2">

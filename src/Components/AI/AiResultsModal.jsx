@@ -163,12 +163,12 @@ export default function AiResultsModal({ isOpen, onClose, results, summary, quer
                 return (
                   <div
                     key={postId}
-                    className="group bg-light-3/50 dark:bg-night-surface/50 border border-light-0 dark:border-night-border rounded-2xl p-3 hover:border-main/40 dark:hover:border-white/20 transition-all"
+                    className="group bg-light-3/60 dark:bg-night-surface/60 border border-light-0 dark:border-night-border rounded-2xl p-3.5 hover:border-main/40 dark:hover:border-white/20 transition-all flex flex-col gap-3"
                   >
-                    <div className="flex gap-3">
+                    <div className="flex gap-3 items-start">
                       {/* Thumbnail */}
                       <Link to={`/dashboard/${postId}`} onClick={onClose} className="flex-shrink-0">
-                        <div className="relative w-24 h-24 tablet:w-28 tablet:h-28 rounded-xl overflow-hidden bg-light-2 dark:bg-night-card">
+                        <div className="relative w-20 h-20 tablet:w-24 tablet:h-24 rounded-xl overflow-hidden bg-light-2 dark:bg-night-card shadow-xs">
                           {hasImages ? (
                             <img
                               src={
@@ -185,14 +185,14 @@ export default function AiResultsModal({ isOpen, onClose, results, summary, quer
                               }}
                             />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center text-3xl text-dark-4">
+                            <div className="w-full h-full flex items-center justify-center text-2xl text-dark-4">
                               📷
                             </div>
                           )}
 
                           {/* Rank badge */}
                           {idx < 3 && (
-                            <div className="absolute top-1.5 rtl:right-1.5 ltr:left-1.5 w-6 h-6 rounded-md bg-main text-white text-xs font-bold flex items-center justify-center shadow-md">
+                            <div className="absolute top-1 rtl:right-1 ltr:left-1 w-5 h-5 rounded-md bg-main text-white text-[11px] font-bold flex items-center justify-center shadow-md">
                               {idx + 1}
                             </div>
                           )}
@@ -203,13 +203,13 @@ export default function AiResultsModal({ isOpen, onClose, results, summary, quer
                       <div className="flex-grow min-w-0 flex flex-col justify-between">
                         <div>
                           <Link to={`/dashboard/${postId}`} onClick={onClose}>
-                            <h4 className="text-body-2 font-semibold text-dark-0 dark:text-white line-clamp-1 group-hover:text-main transition-colors">
+                            <h4 className="text-body-2 font-bold text-dark-0 dark:text-white line-clamp-1 group-hover:text-main transition-colors">
                               {title}
                             </h4>
                           </Link>
 
                           {/* Price */}
-                          <div className="text-body-2 font-bold text-dark-0 dark:text-white mt-1">
+                          <div className="text-body-2 font-bold text-main dark:text-main-lighter mt-1">
                             {typeof priceInfo === "string" ? (
                               priceInfo
                             ) : (
@@ -222,74 +222,56 @@ export default function AiResultsModal({ isOpen, onClose, results, summary, quer
                             )}
                           </div>
 
-                          {/* Meta */}
-                          <div className="text-body-4 text-dark-3 dark:text-gray-400 mt-0.5 flex items-center gap-2">
-                            <span>{city}</span>
+                          {/* Meta & Score Badge */}
+                          <div className="mt-1.5 flex items-center gap-2 flex-wrap text-[11px] text-dark-3 dark:text-gray-400">
+                            <span>📍 {city}</span>
                             {timeLabel && <span>• {timeLabel}</span>}
-                          </div>
-                        </div>
-
-                        {/* Bottom row: Score badge + Actions */}
-                        <div className="flex items-center justify-between mt-2 gap-2">
-                          {/* Score badge */}
-                          <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-lg border text-xs font-semibold ${badge.color}`}>
-                            {/* Mini circular score */}
-                            <svg width="18" height="18" viewBox="0 0 36 36" className="flex-shrink-0">
-                              <circle cx="18" cy="18" r="14" fill="none" stroke="currentColor" strokeWidth="3" opacity="0.2" />
-                              <circle
-                                cx="18" cy="18" r="14" fill="none" stroke={ringColor} strokeWidth="3"
-                                strokeDasharray={`${(score / 100) * 88} 88`}
-                                strokeLinecap="round"
-                                transform="rotate(-90 18 18)"
-                              />
-                              <text x="18" y="22" textAnchor="middle" fill="currentColor" fontSize="11" fontWeight="bold">
-                                {score}
-                              </text>
-                            </svg>
-                            <span>{badge.label}</span>
-                          </div>
-
-                          {/* Action buttons */}
-                          <div className="flex items-center gap-1.5">
-                            {/* Bookmark */}
-                            <button
-                              onClick={(e) => handleBookmark(e, ad)}
-                              className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all ${
-                                bookmarked
-                                  ? "bg-main text-white"
-                                  : "bg-light-2 dark:bg-night-card text-dark-3 dark:text-gray-400 hover:text-main"
-                              }`}
-                              title={bookmarked ? "حذف نشان" : "ذخیره"}
-                            >
-                              <svg className="w-3.5 h-3.5" fill={bookmarked ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                              </svg>
-                            </button>
-
-                            {/* Negotiate */}
-                            <button
-                              onClick={() => setNegotiatePost(ad)}
-                              className="flex items-center gap-1 px-2 py-1 rounded-lg bg-main/10 dark:bg-main/20 text-main dark:text-main-lighter text-xs font-semibold hover:bg-main/20 dark:hover:bg-main/30 transition-colors"
-                              title={currentLang === "fa" ? "چانه‌زنی هوشمند" : "Smart Negotiate"}
-                            >
-                              <span>💬</span>
-                              <span>{currentLang === "fa" ? "چانه‌زنی" : "Negotiate"}</span>
-                            </button>
-
-                            {/* View */}
-                            <Link
-                              to={`/dashboard/${postId}`}
-                              onClick={onClose}
-                              className="flex items-center gap-1 px-2 py-1 rounded-lg bg-light-2 dark:bg-night-card text-dark-2 dark:text-gray-300 text-xs font-medium hover:bg-light-1 dark:hover:bg-night-border transition-colors"
-                            >
-                              <span>{currentLang === "fa" ? "مشاهده" : "View"}</span>
-                              <svg className={`w-3 h-3 ${currentLang === "fa" ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-                              </svg>
-                            </Link>
+                            <div className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md border text-[10px] font-bold ${badge.color}`}>
+                              <span>{score}%</span>
+                              <span>{badge.label}</span>
+                            </div>
                           </div>
                         </div>
                       </div>
+                    </div>
+
+                    {/* Action buttons row — Fully responsive flex layout */}
+                    <div className="flex items-center gap-2 pt-2 border-t border-light-1/80 dark:border-night-border/80">
+                      {/* Bookmark button */}
+                      <button
+                        onClick={(e) => handleBookmark(e, ad)}
+                        className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-all cursor-pointer ${
+                          bookmarked
+                            ? "bg-main text-white shadow-xs"
+                            : "bg-light-2 dark:bg-night-card text-dark-3 dark:text-gray-400 hover:text-main hover:bg-light-1"
+                        }`}
+                        title={bookmarked ? "حذف نشان" : "ذخیره"}
+                      >
+                        <svg className="w-4 h-4" fill={bookmarked ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                        </svg>
+                      </button>
+
+                      {/* Negotiate button */}
+                      <button
+                        onClick={() => setNegotiatePost(ad)}
+                        className="flex-1 py-2 px-3 rounded-xl bg-main/10 dark:bg-main/20 text-main dark:text-main-lighter text-xs font-bold hover:bg-main/20 dark:hover:bg-main/30 transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
+                      >
+                        <span>💬</span>
+                        <span>{currentLang === "fa" ? "پیشنهاد قیمت" : "Negotiate"}</span>
+                      </button>
+
+                      {/* View button (Closes modal and navigates to ad page) */}
+                      <Link
+                        to={`/dashboard/${postId}`}
+                        onClick={onClose}
+                        className="flex-1 py-2 px-3 rounded-xl bg-main hover:bg-main-lighter text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer active:scale-95 text-center"
+                      >
+                        <span>{currentLang === "fa" ? "مشاهده آگهی" : "View Listing"}</span>
+                        <svg className={`w-3.5 h-3.5 ${currentLang === "fa" ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </Link>
                     </div>
                   </div>
                 );
@@ -301,13 +283,13 @@ export default function AiResultsModal({ isOpen, onClose, results, summary, quer
           <div className="p-4 border-t border-light-1 dark:border-night-border flex-shrink-0 flex items-center justify-between bg-white dark:bg-night-card">
             <button
               onClick={onClose}
-              className="text-body-3 text-dark-3 dark:text-gray-400 hover:text-dark-0 dark:hover:text-white transition-colors"
+              className="py-1.5 px-4 rounded-xl bg-light-2 dark:bg-night-border text-body-3 font-semibold text-dark-2 dark:text-gray-300 hover:text-dark-0 dark:hover:text-white transition-colors cursor-pointer"
             >
               {currentLang === "fa" ? "بستن" : "Close"}
             </button>
-            <div className="flex items-center gap-1.5 text-body-4 text-dark-4 dark:text-gray-500">
-              <span>⚡</span>
-              <span>Powered by Gemini AI</span>
+            <div className="flex items-center gap-1.5 text-xs text-dark-4 dark:text-gray-500 font-medium">
+              <span>✨</span>
+              <span>{currentLang === "fa" ? "دستیار هوشمند شیپور" : "Sheypoor AI"}</span>
             </div>
           </div>
         </div>

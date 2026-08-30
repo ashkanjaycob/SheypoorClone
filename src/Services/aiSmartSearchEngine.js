@@ -16,7 +16,7 @@ export const PROCESSING_STEPS = {
     {
       id: "understand",
       icon: "🧠",
-      text: "درک معنایی و استخراج فیلترها با Gemini 2.5 Flash...",
+      text: "درک معنایی و استخراج هوشمند فیلترها...",
     },
     {
       id: "scan",
@@ -38,7 +38,7 @@ export const PROCESSING_STEPS = {
     {
       id: "understand",
       icon: "🧠",
-      text: "Understanding your request with Gemini 2.5 Flash...",
+      text: "Understanding your request with AI intelligence...",
     },
     {
       id: "scan",
@@ -60,7 +60,7 @@ export const PROCESSING_STEPS = {
     {
       id: "understand",
       icon: "🧠",
-      text: "Anfrage verstehen mit Gemini 2.5 Flash...",
+      text: "Anfrage verstehen mit KI-Intelligenz...",
     },
     { id: "scan", icon: "🔍", text: "Tiefenscan der Sheypoor-Datenbank..." },
     {

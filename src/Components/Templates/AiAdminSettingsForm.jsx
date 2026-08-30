@@ -122,8 +122,8 @@ export default function AiAdminSettingsForm() {
           </h3>
           <p className="text-body-3 text-dark-3 dark:text-gray-400 mt-0.5">
             {currentLang === "fa"
-              ? "پیکربندی مرکزی Gemini API برای دستیار هوشمند شیپور — تمامی کاربران از این تنظیمات بهره‌مند خواهند شد."
-              : "Central Gemini API configuration for Sheypoor AI — All users benefit from these settings."}
+              ? "پیکربندی مرکزی دستیار هوشمند شیپور — تمامی کاربران از این تنظیمات بهره‌مند خواهند شد."
+              : "Central configuration for Sheypoor AI — All users benefit from these settings."}
           </p>
         </div>
       </div>
@@ -133,7 +133,7 @@ export default function AiAdminSettingsForm() {
         <div>
           <div className="flex items-center justify-between mb-2">
             <label className="text-body-2 font-semibold text-dark-0 dark:text-white">
-              Google Gemini API Key
+              {currentLang === "fa" ? "کلید دسترسی هوش مصنوعی (API Key)" : "AI Access API Key"}
             </label>
             <a
               href="https://aistudio.google.com/app/apikey"
