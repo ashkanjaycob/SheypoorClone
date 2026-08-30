@@ -6,7 +6,7 @@
 
 import { getAiConfig } from "../Utils/aiStorage";
 import { getSavedLanguage } from "../Utils/i18n";
-import { sp } from "../Utils/numbers";
+import { sp } from "../Utils/Numbers";
 
 let activePageAgentInstance = null;
 

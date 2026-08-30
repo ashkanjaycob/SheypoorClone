@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useState, useEffect } from "react";
 import { generateNegotiationProposal } from "../../Services/aiAgent";
-import { sp } from "../../Utils/numbers";
+import { sp } from "../../Utils/Numbers";
 import { t, getSavedLanguage } from "../../Utils/i18n";
 import toast from "react-hot-toast";
 
