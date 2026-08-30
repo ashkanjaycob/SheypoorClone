@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getCookie } from "../Utils/cookie";
+import { getCookie, delCookie } from "../Utils/cookie";
 import { getNewTokens } from "../Services/Token";
 
 const api = axios.create({
@@ -23,32 +23,50 @@ api.interceptors.request.use(
 );
 
 api.interceptors.response.use(
-    (response) => {
-      return response;
-    },
-    async (error) => {
-      const originalRequest = error.config; // Use error.config to access the original request configuration
-      if (error.response && error.response.status === 401 && !originalRequest._retry) {
-        originalRequest._retry = true;
-        try {
-          const accessToken = await getNewTokens(); // Get new access token
-          if (accessToken) {
-            // Retry the original request with the new access token
-            originalRequest.headers['Authorization'] = `bearer ${accessToken}`;
-            return api(originalRequest);
-          } else {
-            // Failed to obtain new access token, handle error
-            console.error("Failed to obtain new access token");
-            // Throw an error or handle it accordingly
-          }
-        } catch (error) {
-          console.error("Error while refreshing token:", error);
-          // Throw an error or handle it accordingly
-        }
-      }
-      return Promise.reject(error); // Reject the promise to propagate the error further
-    }
-  );
+  (response) => {
+    return response;
+  },
+  async (error) => {
+    const originalRequest = error.config;
+    if (!originalRequest) return Promise.reject(error);
 
-  
+    // Never retry auth endpoints or requests that have already been retried once
+    const isAuthEndpoint =
+      originalRequest.url?.includes("auth/check-refresh-token") ||
+      originalRequest.url?.includes("auth/check-otp") ||
+      originalRequest.url?.includes("auth/send-otp");
+
+    if (
+      error.response &&
+      error.response.status === 401 &&
+      !originalRequest._retry &&
+      !isAuthEndpoint
+    ) {
+      originalRequest._retry = true;
+
+      const refreshToken = getCookie("refreshToken");
+      if (!refreshToken) {
+        delCookie("accessToken");
+        delCookie("refreshToken");
+        return Promise.reject(error);
+      }
+
+      try {
+        const accessToken = await getNewTokens();
+        if (accessToken) {
+          originalRequest.headers["Authorization"] = `bearer ${accessToken}`;
+          return api(originalRequest);
+        }
+      } catch (refreshErr) {
+        delCookie("accessToken");
+        delCookie("refreshToken");
+        return Promise.reject(refreshErr);
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
+
 export default api;
+
