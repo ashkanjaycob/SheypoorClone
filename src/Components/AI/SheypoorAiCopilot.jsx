@@ -557,16 +557,25 @@ export default function SheypoorAiCopilot() {
                       <div className="grid grid-cols-1 gap-2">
                         {msg.results.slice(0, 3).map((item, idx) => {
                           const ad = item.ad || item;
-                          const id = ad._id || ad.id;
-                          const title = ad.options?.title || ad.title || "آگهی شیپور";
-                          const price = ad.amount || ad.options?.price;
-                          const city = ad.options?.city || ad.city;
-                          const image = ad.images?.[0] || "/sheypoor-Logo.png";
+                          const id = ad._id || ad.id || "";
+                          const title = typeof (ad.options?.title || ad.title) === "string" 
+                            ? (ad.options?.title || ad.title) 
+                            : "آگهی شیپور";
+                          const rawPrice = ad.amount || ad.options?.price || ad.options?.amount;
+                          const priceInfo = formatAdPrice(rawPrice, currentLang);
+                          const formattedPrice = typeof priceInfo === "string" 
+                            ? priceInfo 
+                            : priceInfo && priceInfo.price 
+                            ? `${priceInfo.price} ${priceInfo.currency || ""}`.trim() 
+                            : (currentLang === "fa" ? "قیمت توافقی" : "Negotiable");
+                          const rawCity = ad.options?.city || ad.city || "";
+                          const city = typeof rawCity === "string" ? translateCity(rawCity, currentLang) : "";
+                          const image = (Array.isArray(ad.images) && ad.images[0]) || "/sheypoor-Logo.png";
 
                           return (
                             <Link
-                              key={idx}
-                              to={`/ad/${id}`}
+                              key={id || idx}
+                              to={`/dashboard/${id}`}
                               className="flex items-center gap-2.5 p-2 bg-white dark:bg-night-card rounded-xl border border-light-0 dark:border-night-border hover:border-main transition-all group"
                             >
                               <img
@@ -582,11 +591,11 @@ export default function SheypoorAiCopilot() {
                                   {title}
                                 </h5>
                                 <p className="text-[11px] font-bold text-main dark:text-main-lighter mt-0.5">
-                                  {formatAdPrice(price, currentLang)}
+                                  {formattedPrice}
                                 </p>
                                 {city && (
                                   <span className="text-[10px] text-dark-3 dark:text-gray-400">
-                                    📍 {translateCity(city, currentLang)}
+                                    📍 {city}
                                   </span>
                                 )}
                               </div>

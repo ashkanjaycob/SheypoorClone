@@ -1,4 +1,5 @@
 const setCookie = (tokens) => {
+  if (typeof document === "undefined") return;
   document.cookie = `accessToken=${tokens.accessToken}; max-age=${
     1 * 24 * 60 * 60
   }`;
@@ -10,6 +11,7 @@ const setCookie = (tokens) => {
 };
 
 const getCookie = (cookieName) => {
+  if (typeof document === "undefined") return undefined;
   return document.cookie
     .split(";")
     .find((token) => token.trim().split("=")[0] === cookieName)?.split("=")[1];
@@ -17,6 +19,7 @@ const getCookie = (cookieName) => {
 
 
 const delCookie = (cookieName) => {
+  if (typeof document === "undefined") return;
   document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
 };
 
