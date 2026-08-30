@@ -217,12 +217,12 @@ export default function SheypoorMascot({ onClick, isOpen, isProcessing }) {
         )}
 
         {/* Mascot Body Canvas Container (84px width, maintaining aspect ratio) */}
-        <div className="relative w-20 h-20 tablet:w-22 tablet:h-22 select-none">
-          {/* Base Layer: Body */}
+        <div className="relative w-20 h-20 tablet:w-22 tablet:h-22 select-none overflow-visible">
+          {/* Base Layer: Body (shifted 50px / 6% down) */}
           <motion.img
             src="/AI-MASCAT/body.png"
             alt="Body"
-            className="absolute inset-0 w-full h-full object-contain pointer-events-none drop-shadow-md origin-[50%_65%]"
+            className="absolute inset-0 w-full h-full object-contain pointer-events-none drop-shadow-md origin-[50%_65%] translate-y-[6%]"
             animate={{
               y: isProcessing ? [0, -2, 0] : [0, -3, 0],
             }}
@@ -233,11 +233,11 @@ export default function SheypoorMascot({ onClick, isOpen, isProcessing }) {
             }}
           />
 
-          {/* Left Hand Layer (Viewer's Left) */}
+          {/* Left Hand Layer (Viewer's Left - shifted 50px / 6% down) */}
           <motion.img
             src="/AI-MASCAT/leftHand.png"
             alt="Left Hand"
-            className="absolute inset-0 w-full h-full object-contain pointer-events-none drop-shadow-sm origin-[20%_60%]"
+            className="absolute inset-0 w-full h-full object-contain pointer-events-none drop-shadow-sm origin-[20%_60%] translate-y-[6%]"
             animate={{
               y: isProcessing ? [-2, -6, -2] : isHovered ? [-1, 2, -1] : [0, -3, 0],
               rotate: isProcessing ? [0, -10, 0] : isHovered ? [0, -6, 0] : [0, 2, 0],
@@ -249,11 +249,11 @@ export default function SheypoorMascot({ onClick, isOpen, isProcessing }) {
             }}
           />
 
-          {/* Right Hand Layer (Viewer's Right - Waving Hand!) */}
+          {/* Right Hand Layer (Viewer's Right - Waving Hand - shifted 50px / 6% down) */}
           <motion.img
             src="/AI-MASCAT/rightHand.png"
             alt="Right Hand"
-            className="absolute inset-0 w-full h-full object-contain pointer-events-none drop-shadow-sm origin-[80%_60%]"
+            className="absolute inset-0 w-full h-full object-contain pointer-events-none drop-shadow-sm origin-[80%_60%] translate-y-[6%]"
             animate={{
               y: isProcessing
                 ? [-3, -8, -3] // Raising hand towards chin while thinking
@@ -343,11 +343,11 @@ export default function SheypoorMascot({ onClick, isOpen, isProcessing }) {
             transition={{ type: "spring", stiffness: 160, damping: 14 }}
           />
 
-          {/* Top Antenna / Hat (Proportioned on canvas) */}
+          {/* Top Antenna / Hat (Proportioned on canvas - shifted 50px / 6% up) */}
           <motion.img
             src="/AI-MASCAT/hat.png"
             alt="Hat"
-            className="absolute inset-0 w-full h-full object-contain pointer-events-none drop-shadow-sm origin-[50%_20%]"
+            className="absolute inset-0 w-full h-full object-contain pointer-events-none drop-shadow-sm origin-[50%_20%] -translate-y-[6%]"
             animate={{
               rotate: isProcessing
                 ? [-10, 10, -10] // Wobbling antenna when thinking!

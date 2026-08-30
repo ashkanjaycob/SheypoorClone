@@ -275,14 +275,14 @@ const mascotConfig = ${JSON.stringify(tweaks, null, 2)};`;
                 </>
               )}
 
-              {/* 1. Body Base Layer */}
+              {/* 1. Body Base Layer (shifted 50px / 6% down) */}
               {visibleLayers.body && (
                 <motion.img
                   src="/AI-MASCAT/body.png"
                   alt="Body"
-                  className="absolute inset-0 w-full h-full object-contain pointer-events-none drop-shadow-lg origin-[50%_65%]"
+                  className="absolute inset-0 w-full h-full object-contain pointer-events-none drop-shadow-lg origin-[50%_65%] translate-y-[6%]"
                   style={{
-                    transform: `translate(${tweaks.bodyLeft}%, ${tweaks.bodyTop}%) scale(${tweaks.bodyScale})`,
+                    transform: `translate(${tweaks.bodyLeft}%, calc(${tweaks.bodyTop}% + 6%)) scale(${tweaks.bodyScale})`,
                   }}
                   animate={{
                     y:
@@ -300,12 +300,12 @@ const mascotConfig = ${JSON.stringify(tweaks, null, 2)};`;
                 />
               )}
 
-              {/* 2. Left Hand Layer */}
+              {/* 2. Left Hand Layer (shifted 50px / 6% down) */}
               {visibleLayers.leftHand && (
                 <motion.img
                   src="/AI-MASCAT/leftHand.png"
                   alt="Left Hand"
-                  className="absolute inset-0 w-full h-full object-contain pointer-events-none drop-shadow-md origin-[25%_60%]"
+                  className="absolute inset-0 w-full h-full object-contain pointer-events-none drop-shadow-md origin-[25%_60%] translate-y-[6%]"
                   animate={{
                     y:
                       activeVariant === "thinking"
@@ -328,12 +328,12 @@ const mascotConfig = ${JSON.stringify(tweaks, null, 2)};`;
                 />
               )}
 
-              {/* 3. Right Hand Layer */}
+              {/* 3. Right Hand Layer (shifted 50px / 6% down) */}
               {visibleLayers.rightHand && (
                 <motion.img
                   src="/AI-MASCAT/rightHand.png"
                   alt="Right Hand"
-                  className="absolute inset-0 w-full h-full object-contain pointer-events-none drop-shadow-md origin-[75%_65%]"
+                  className="absolute inset-0 w-full h-full object-contain pointer-events-none drop-shadow-md origin-[75%_65%] translate-y-[6%]"
                   animate={{
                     y:
                       activeVariant === "thinking"
@@ -466,12 +466,12 @@ const mascotConfig = ${JSON.stringify(tweaks, null, 2)};`;
                 />
               )}
 
-              {/* 9. Top Antenna / Hat */}
+              {/* 9. Top Antenna / Hat (shifted 50px / 6% up) */}
               {visibleLayers.hat && (
                 <motion.img
                   src="/AI-MASCAT/hat.png"
                   alt="Hat"
-                  className="absolute inset-0 w-full h-full object-contain pointer-events-none drop-shadow-md origin-[50%_20%]"
+                  className="absolute inset-0 w-full h-full object-contain pointer-events-none drop-shadow-md origin-[50%_20%] -translate-y-[6%]"
                   animate={{
                     rotate:
                       activeVariant === "thinking"
