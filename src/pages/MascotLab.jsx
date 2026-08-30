@@ -335,282 +335,314 @@ export default function MascotLab() {
 
               {/* 1. Body Layer */}
               {visibleLayers.body && (
-                <motion.img
-                  src="/AI-MASCAT/body.png"
-                  alt="Body"
-                  className={`absolute inset-0 w-full h-full object-contain pointer-events-none drop-shadow-lg origin-[50%_65%] transition-all ${
-                    selectedPartKey === "body" && globalSettings.showBoxes
-                      ? "filter drop-shadow-[0_0_12px_rgba(59,130,246,0.8)]"
-                      : ""
-                  }`}
+                <div
+                  className="absolute inset-0 w-full h-full pointer-events-none origin-[50%_65%]"
                   style={{
                     transform: `translate(${parts.body.x}%, ${parts.body.y}%) scale(${parts.body.scale})`,
                   }}
-                  animate={{
-                    y:
-                      activeVariant === "sleeping"
-                        ? [0, 3, 0]
-                        : activeVariant === "excited"
-                        ? [-4, 5, -4]
-                        : [0, -globalSettings.floatDistance, 0],
-                  }}
-                  transition={{
-                    duration: activeVariant === "excited" ? 0.6 : globalSettings.floatDuration,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  }}
-                />
+                >
+                  <motion.img
+                    src="/AI-MASCAT/body.png"
+                    alt="Body"
+                    className={`w-full h-full object-contain drop-shadow-lg ${
+                      selectedPartKey === "body" && globalSettings.showBoxes
+                        ? "filter drop-shadow-[0_0_16px_rgba(59,130,246,0.9)] brightness-110"
+                        : ""
+                    }`}
+                    animate={{
+                      y:
+                        activeVariant === "sleeping"
+                          ? [0, 3, 0]
+                          : activeVariant === "excited"
+                          ? [-4, 5, -4]
+                          : [0, -globalSettings.floatDistance, 0],
+                    }}
+                    transition={{
+                      duration: activeVariant === "excited" ? 0.6 : globalSettings.floatDuration,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }}
+                  />
+                </div>
               )}
 
               {/* 2. Left Hand Layer */}
               {visibleLayers.leftHand && (
-                <motion.img
-                  src="/AI-MASCAT/leftHand.png"
-                  alt="Left Hand"
-                  className={`absolute inset-0 w-full h-full object-contain pointer-events-none drop-shadow-md origin-[20%_60%] transition-all ${
-                    selectedPartKey === "leftHand" && globalSettings.showBoxes
-                      ? "filter drop-shadow-[0_0_12px_rgba(59,130,246,0.8)]"
-                      : ""
-                  }`}
+                <div
+                  className="absolute inset-0 w-full h-full pointer-events-none origin-[20%_60%]"
                   style={{
                     transform: `translate(${parts.leftHand.x}%, ${parts.leftHand.y}%) scale(${parts.leftHand.scale})`,
                   }}
-                  animate={{
-                    y:
-                      activeVariant === "thinking"
-                        ? [-2, -8, -2]
-                        : activeVariant === "excited"
-                        ? [-8, 4, -8]
-                        : [0, -globalSettings.floatDistance * 1.1, 0],
-                    rotate:
-                      activeVariant === "thinking"
-                        ? [0, -12, 0]
-                        : activeVariant === "excited"
-                        ? [-15, 10, -15]
-                        : [0, 3, 0],
-                  }}
-                  transition={{
-                    duration: activeVariant === "excited" ? 0.6 : globalSettings.floatDuration * 0.9,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  }}
-                />
+                >
+                  <motion.img
+                    src="/AI-MASCAT/leftHand.png"
+                    alt="Left Hand"
+                    className={`w-full h-full object-contain drop-shadow-md origin-[20%_60%] ${
+                      selectedPartKey === "leftHand" && globalSettings.showBoxes
+                        ? "filter drop-shadow-[0_0_16px_rgba(59,130,246,0.9)] brightness-110"
+                        : ""
+                    }`}
+                    animate={{
+                      y:
+                        activeVariant === "thinking"
+                          ? [-2, -8, -2]
+                          : activeVariant === "excited"
+                          ? [-8, 4, -8]
+                          : [0, -globalSettings.floatDistance * 1.1, 0],
+                      rotate:
+                        activeVariant === "thinking"
+                          ? [0, -12, 0]
+                          : activeVariant === "excited"
+                          ? [-15, 10, -15]
+                          : [0, 3, 0],
+                    }}
+                    transition={{
+                      duration: activeVariant === "excited" ? 0.6 : globalSettings.floatDuration * 0.9,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }}
+                  />
+                </div>
               )}
 
               {/* 3. Right Hand Layer */}
               {visibleLayers.rightHand && (
-                <motion.img
-                  src="/AI-MASCAT/rightHand.png"
-                  alt="Right Hand"
-                  className={`absolute inset-0 w-full h-full object-contain pointer-events-none drop-shadow-md origin-[80%_60%] transition-all ${
-                    selectedPartKey === "rightHand" && globalSettings.showBoxes
-                      ? "filter drop-shadow-[0_0_12px_rgba(59,130,246,0.8)]"
-                      : ""
-                  }`}
+                <div
+                  className="absolute inset-0 w-full h-full pointer-events-none origin-[80%_60%]"
                   style={{
                     transform: `translate(${parts.rightHand.x}%, ${parts.rightHand.y}%) scale(${parts.rightHand.scale})`,
                   }}
-                  animate={{
-                    y:
-                      activeVariant === "thinking"
-                        ? [-4, -12, -4]
-                        : activeVariant === "waving"
-                        ? [-2, -8, -2]
-                        : activeVariant === "excited"
-                        ? [-12, 6, -12]
-                        : [0, -globalSettings.floatDistance * 1.1, 0],
-                    rotate:
-                      activeVariant === "thinking"
-                        ? [0, 24, 8, 24, 0]
-                        : activeVariant === "waving"
-                        ? [0, 26, -10, 26, 0]
-                        : activeVariant === "excited"
-                        ? [15, -15, 15]
-                        : [0, -3, 0],
-                  }}
-                  transition={{
-                    duration:
-                      activeVariant === "waving"
-                        ? globalSettings.waveSpeed
-                        : activeVariant === "excited"
-                        ? 0.5
-                        : globalSettings.floatDuration,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  }}
-                />
+                >
+                  <motion.img
+                    src="/AI-MASCAT/rightHand.png"
+                    alt="Right Hand"
+                    className={`w-full h-full object-contain drop-shadow-md origin-[80%_60%] ${
+                      selectedPartKey === "rightHand" && globalSettings.showBoxes
+                        ? "filter drop-shadow-[0_0_16px_rgba(59,130,246,0.9)] brightness-110"
+                        : ""
+                    }`}
+                    animate={{
+                      y:
+                        activeVariant === "thinking"
+                          ? [-4, -12, -4]
+                          : activeVariant === "waving"
+                          ? [-2, -8, -2]
+                          : activeVariant === "excited"
+                          ? [-12, 6, -12]
+                          : [0, -globalSettings.floatDistance * 1.1, 0],
+                      rotate:
+                        activeVariant === "thinking"
+                          ? [0, 24, 8, 24, 0]
+                          : activeVariant === "waving"
+                          ? [0, 26, -10, 26, 0]
+                          : activeVariant === "excited"
+                          ? [15, -15, 15]
+                          : [0, -3, 0],
+                    }}
+                    transition={{
+                      duration:
+                        activeVariant === "waving"
+                          ? globalSettings.waveSpeed
+                          : activeVariant === "excited"
+                          ? 0.5
+                          : globalSettings.floatDuration,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }}
+                  />
+                </div>
               )}
 
               {/* 4. Left Eye */}
               {visibleLayers.leftEye && (
-                <motion.img
-                  src="/AI-MASCAT/leftEye.png"
-                  alt="Left Eye"
-                  className={`absolute inset-0 w-full h-full object-contain pointer-events-none origin-[39%_50%] transition-all ${
-                    selectedPartKey === "leftEye" && globalSettings.showBoxes
-                      ? "filter drop-shadow-[0_0_12px_rgba(59,130,246,0.8)]"
-                      : ""
-                  }`}
+                <div
+                  className="absolute inset-0 w-full h-full pointer-events-none origin-[39%_50%]"
                   style={{
                     transform: `translate(${parts.leftEye.x}%, ${parts.leftEye.y}%) scale(${parts.leftEye.scale})`,
                   }}
-                  animate={{
-                    scaleY: isBlinking || activeVariant === "sleeping" ? 0.08 : 1,
-                    scaleX: activeVariant === "excited" ? 1.2 : 1,
-                    x:
-                      activeVariant === "thinking"
-                        ? [-3, 3, -3]
-                        : mouseOffset.x * 0.9,
-                    y:
-                      activeVariant === "thinking"
-                        ? [-5, -7, -5]
-                        : mouseOffset.y * 0.9,
-                  }}
-                  transition={{
-                    scaleY: { duration: 0.1 },
-                    x: { duration: activeVariant === "thinking" ? 2.6 : 0.2, repeat: activeVariant === "thinking" ? Infinity : 0 },
-                    y: { duration: activeVariant === "thinking" ? 2.6 : 0.2, repeat: activeVariant === "thinking" ? Infinity : 0 },
-                  }}
-                />
+                >
+                  <motion.img
+                    src="/AI-MASCAT/leftEye.png"
+                    alt="Left Eye"
+                    className={`w-full h-full object-contain origin-[39%_50%] ${
+                      selectedPartKey === "leftEye" && globalSettings.showBoxes
+                        ? "filter drop-shadow-[0_0_16px_rgba(59,130,246,0.9)] brightness-125"
+                        : ""
+                    }`}
+                    animate={{
+                      scaleY: isBlinking || activeVariant === "sleeping" ? 0.08 : 1,
+                      scaleX: activeVariant === "excited" ? 1.2 : 1,
+                      x:
+                        activeVariant === "thinking"
+                          ? [-3, 3, -3]
+                          : mouseOffset.x * 0.9,
+                      y:
+                        activeVariant === "thinking"
+                          ? [-5, -7, -5]
+                          : mouseOffset.y * 0.9,
+                    }}
+                    transition={{
+                      scaleY: { duration: 0.1 },
+                      x: { duration: activeVariant === "thinking" ? 2.6 : 0.2, repeat: activeVariant === "thinking" ? Infinity : 0 },
+                      y: { duration: activeVariant === "thinking" ? 2.6 : 0.2, repeat: activeVariant === "thinking" ? Infinity : 0 },
+                    }}
+                  />
+                </div>
               )}
 
               {/* 5. Right Eye */}
               {visibleLayers.rightEye && (
-                <motion.img
-                  src="/AI-MASCAT/rightEye.png"
-                  alt="Right Eye"
-                  className={`absolute inset-0 w-full h-full object-contain pointer-events-none origin-[61%_50%] transition-all ${
-                    selectedPartKey === "rightEye" && globalSettings.showBoxes
-                      ? "filter drop-shadow-[0_0_12px_rgba(59,130,246,0.8)]"
-                      : ""
-                  }`}
+                <div
+                  className="absolute inset-0 w-full h-full pointer-events-none origin-[61%_50%]"
                   style={{
                     transform: `translate(${parts.rightEye.x}%, ${parts.rightEye.y}%) scale(${parts.rightEye.scale})`,
                   }}
-                  animate={{
-                    scaleY: isBlinking || activeVariant === "sleeping" ? 0.08 : 1,
-                    scaleX: activeVariant === "excited" ? 1.2 : 1,
-                    x:
-                      activeVariant === "thinking"
-                        ? [-3, 3, -3]
-                        : mouseOffset.x * 0.9,
-                    y:
-                      activeVariant === "thinking"
-                        ? [-5, -7, -5]
-                        : mouseOffset.y * 0.9,
-                  }}
-                  transition={{
-                    scaleY: { duration: 0.1 },
-                    x: { duration: activeVariant === "thinking" ? 2.6 : 0.2, repeat: activeVariant === "thinking" ? Infinity : 0 },
-                    y: { duration: activeVariant === "thinking" ? 2.6 : 0.2, repeat: activeVariant === "thinking" ? Infinity : 0 },
-                  }}
-                />
+                >
+                  <motion.img
+                    src="/AI-MASCAT/rightEye.png"
+                    alt="Right Eye"
+                    className={`w-full h-full object-contain origin-[61%_50%] ${
+                      selectedPartKey === "rightEye" && globalSettings.showBoxes
+                        ? "filter drop-shadow-[0_0_16px_rgba(59,130,246,0.9)] brightness-125"
+                        : ""
+                    }`}
+                    animate={{
+                      scaleY: isBlinking || activeVariant === "sleeping" ? 0.08 : 1,
+                      scaleX: activeVariant === "excited" ? 1.2 : 1,
+                      x:
+                        activeVariant === "thinking"
+                          ? [-3, 3, -3]
+                          : mouseOffset.x * 0.9,
+                      y:
+                        activeVariant === "thinking"
+                          ? [-5, -7, -5]
+                          : mouseOffset.y * 0.9,
+                    }}
+                    transition={{
+                      scaleY: { duration: 0.1 },
+                      x: { duration: activeVariant === "thinking" ? 2.6 : 0.2, repeat: activeVariant === "thinking" ? Infinity : 0 },
+                      y: { duration: activeVariant === "thinking" ? 2.6 : 0.2, repeat: activeVariant === "thinking" ? Infinity : 0 },
+                    }}
+                  />
+                </div>
               )}
 
               {/* 6. Lips / Mouth */}
               {visibleLayers.lips && (
-                <motion.img
-                  src="/AI-MASCAT/lips.png"
-                  alt="Lips"
-                  className={`absolute inset-0 w-full h-full object-contain pointer-events-none origin-[50%_60%] transition-all ${
-                    selectedPartKey === "lips" && globalSettings.showBoxes
-                      ? "filter drop-shadow-[0_0_12px_rgba(59,130,246,0.8)]"
-                      : ""
-                  }`}
+                <div
+                  className="absolute inset-0 w-full h-full pointer-events-none origin-[50%_60%]"
                   style={{
                     transform: `translate(${parts.lips.x}%, ${parts.lips.y}%) scale(${parts.lips.scale})`,
                   }}
-                  animate={{
-                    scaleY:
-                      activeVariant === "talking"
-                        ? [1, 1.5, 0.8, 1.4, 1]
-                        : activeVariant === "excited"
-                        ? 1.25
-                        : 1,
-                    scaleX: activeVariant === "excited" ? 1.15 : 1,
-                    y: (activeVariant === "thinking" ? -3 : 0) + mouseOffset.y * 0.6,
-                    x: mouseOffset.x * 0.6,
-                  }}
-                  transition={{
-                    scaleY: { duration: activeVariant === "talking" ? 0.6 : 0.2, repeat: activeVariant === "talking" ? Infinity : 0 },
-                    type: "spring",
-                    stiffness: 200,
-                    damping: 15,
-                  }}
-                />
+                >
+                  <motion.img
+                    src="/AI-MASCAT/lips.png"
+                    alt="Lips"
+                    className={`w-full h-full object-contain origin-[50%_60%] ${
+                      selectedPartKey === "lips" && globalSettings.showBoxes
+                        ? "filter drop-shadow-[0_0_16px_rgba(59,130,246,0.9)] brightness-125"
+                        : ""
+                    }`}
+                    animate={{
+                      scaleY:
+                        activeVariant === "talking"
+                          ? [1, 1.5, 0.8, 1.4, 1]
+                          : activeVariant === "excited"
+                          ? 1.25
+                          : 1,
+                      scaleX: activeVariant === "excited" ? 1.15 : 1,
+                      y: (activeVariant === "thinking" ? -3 : 0) + mouseOffset.y * 0.6,
+                      x: mouseOffset.x * 0.6,
+                    }}
+                    transition={{
+                      scaleY: { duration: activeVariant === "talking" ? 0.6 : 0.2, repeat: activeVariant === "talking" ? Infinity : 0 },
+                      type: "spring",
+                      stiffness: 200,
+                      damping: 15,
+                    }}
+                  />
+                </div>
               )}
 
               {/* 7. Head Helmet */}
               {visibleLayers.head && (
-                <motion.img
-                  src="/AI-MASCAT/head.png"
-                  alt="Head"
-                  className={`absolute inset-0 w-full h-full object-contain pointer-events-none drop-shadow-lg transition-all ${
-                    selectedPartKey === "head" && globalSettings.showBoxes
-                      ? "filter drop-shadow-[0_0_12px_rgba(59,130,246,0.8)]"
-                      : ""
-                  }`}
+                <div
+                  className="absolute inset-0 w-full h-full pointer-events-none origin-[50%_50%]"
                   style={{
                     transform: `translate(${parts.head.x}%, ${parts.head.y}%) scale(${parts.head.scale})`,
                   }}
-                  animate={{
-                    x: mouseOffset.x * 0.4,
-                    y:
-                      (activeVariant === "thinking"
-                        ? -3
-                        : activeVariant === "sleeping"
-                        ? 3
-                        : 0) +
-                      mouseOffset.y * 0.4,
-                    rotate: activeVariant === "thinking" ? -8 : mouseOffset.x * 0.5,
-                  }}
-                  transition={{ type: "spring", stiffness: 160, damping: 14 }}
-                />
+                >
+                  <motion.img
+                    src="/AI-MASCAT/head.png"
+                    alt="Head"
+                    className={`w-full h-full object-contain drop-shadow-lg ${
+                      selectedPartKey === "head" && globalSettings.showBoxes
+                        ? "filter drop-shadow-[0_0_16px_rgba(59,130,246,0.9)] brightness-110"
+                        : ""
+                    }`}
+                    animate={{
+                      x: mouseOffset.x * 0.4,
+                      y:
+                        (activeVariant === "thinking"
+                          ? -3
+                          : activeVariant === "sleeping"
+                          ? 3
+                          : 0) +
+                        mouseOffset.y * 0.4,
+                      rotate: activeVariant === "thinking" ? -8 : mouseOffset.x * 0.5,
+                    }}
+                    transition={{ type: "spring", stiffness: 160, damping: 14 }}
+                  />
+                </div>
               )}
 
               {/* 8. Top Antenna / Hat */}
               {visibleLayers.hat && (
-                <motion.img
-                  src="/AI-MASCAT/hat.png"
-                  alt="Hat"
-                  className={`absolute inset-0 w-full h-full object-contain pointer-events-none drop-shadow-md origin-[50%_20%] transition-all ${
-                    selectedPartKey === "hat" && globalSettings.showBoxes
-                      ? "filter drop-shadow-[0_0_12px_rgba(59,130,246,0.8)]"
-                      : ""
-                  }`}
+                <div
+                  className="absolute inset-0 w-full h-full pointer-events-none origin-[50%_20%]"
                   style={{
                     transform: `translate(${parts.hat.x}%, ${parts.hat.y}%) scale(${parts.hat.scale})`,
                   }}
-                  animate={{
-                    rotate:
-                      activeVariant === "thinking"
-                        ? [-12, 12, -12]
-                        : activeVariant === "waving"
-                        ? [-8, 8, -8]
-                        : activeVariant === "excited"
-                        ? [-15, 15, -15]
-                        : [0, 2.5, -2.5, 0],
-                    y:
-                      activeVariant === "thinking"
-                        ? -4
-                        : activeVariant === "excited"
-                        ? [-2, 2, -2]
-                        : [0, -2, 0],
-                  }}
-                  transition={{
-                    rotate: {
-                      duration:
+                >
+                  <motion.img
+                    src="/AI-MASCAT/hat.png"
+                    alt="Hat"
+                    className={`w-full h-full object-contain drop-shadow-md origin-[50%_20%] ${
+                      selectedPartKey === "hat" && globalSettings.showBoxes
+                        ? "filter drop-shadow-[0_0_16px_rgba(59,130,246,0.9)] brightness-110"
+                        : ""
+                    }`}
+                    animate={{
+                      rotate:
                         activeVariant === "thinking"
-                          ? 0.7
+                          ? [-12, 12, -12]
+                          : activeVariant === "waving"
+                          ? [-8, 8, -8]
                           : activeVariant === "excited"
-                          ? 0.4
-                          : 2.5,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    },
-                    y: { duration: 2.5, repeat: Infinity, ease: "easeInOut" },
-                  }}
-                />
+                          ? [-15, 15, -15]
+                          : [0, 2.5, -2.5, 0],
+                      y:
+                        activeVariant === "thinking"
+                          ? -4
+                          : activeVariant === "excited"
+                          ? [-2, 2, -2]
+                          : [0, -2, 0],
+                    }}
+                    transition={{
+                      rotate: {
+                        duration:
+                          activeVariant === "thinking"
+                            ? 0.7
+                            : activeVariant === "excited"
+                            ? 0.4
+                            : 2.5,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                      },
+                      y: { duration: 2.5, repeat: Infinity, ease: "easeInOut" },
+                    }}
+                  />
+                </div>
               )}
             </motion.div>
           </div>
