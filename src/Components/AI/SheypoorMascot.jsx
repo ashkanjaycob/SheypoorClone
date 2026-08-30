@@ -51,6 +51,244 @@ export const MASCOT_OFFSETS = {
   lipsScale: 1,
 };
 
+/**
+ * Pure 3D Layered Visual Mascot Avatar component
+ * Can be rendered anywhere (Floating trigger, Overlay loading HUD, etc.)
+ */
+export function MascotVisualLayers({
+  isProcessing = false,
+  isHovered = false,
+  isBlinking = false,
+  mouseOffset = { x: 0, y: 0 },
+  sizeClass = "w-20 h-20 tablet:w-22 tablet:h-22",
+  showBadge = true,
+}) {
+  return (
+    <div className={`relative ${sizeClass} select-none overflow-visible`}>
+      {/* 1. Base Layer: Body */}
+      <div
+        className="absolute inset-0 w-full h-full pointer-events-none origin-[50%_65%]"
+        style={{
+          transform: `translate(${MASCOT_OFFSETS.bodyX}%, ${MASCOT_OFFSETS.bodyY}%) scale(${MASCOT_OFFSETS.bodyScale})`,
+        }}
+      >
+        <motion.img
+          src="/AI-MASCAT/body.png"
+          alt="Body"
+          className="w-full h-full object-contain drop-shadow-md origin-[50%_65%]"
+          animate={{
+            y: isProcessing ? [0, -3, 0] : [0, -3, 0],
+          }}
+          transition={{
+            duration: isProcessing ? 1.4 : 2.5,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+      </div>
+
+      {/* 2. Left Hand Layer (Viewer's Left) */}
+      <div
+        className="absolute inset-0 w-full h-full pointer-events-none origin-[20%_60%]"
+        style={{
+          transform: `translate(${MASCOT_OFFSETS.leftHandX}%, ${MASCOT_OFFSETS.leftHandY}%) scale(${MASCOT_OFFSETS.leftHandScale})`,
+        }}
+      >
+        <motion.img
+          src="/AI-MASCAT/leftHand.png"
+          alt="Left Hand"
+          className="w-full h-full object-contain drop-shadow-sm origin-[20%_60%]"
+          animate={{
+            y: isProcessing ? [-2, -6, -2] : isHovered ? [-1, 2, -1] : [0, -3, 0],
+            rotate: isProcessing ? [0, -10, 0] : isHovered ? [0, -6, 0] : [0, 2, 0],
+          }}
+          transition={{
+            duration: isProcessing ? 1.2 : 2.2,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+      </div>
+
+      {/* 3. Right Hand Layer (Viewer's Right - Waving Hand / Thinking chin tap) */}
+      <div
+        className="absolute inset-0 w-full h-full pointer-events-none origin-[80%_60%]"
+        style={{
+          transform: `translate(${MASCOT_OFFSETS.rightHandX}%, ${MASCOT_OFFSETS.rightHandY}%) scale(${MASCOT_OFFSETS.rightHandScale})`,
+        }}
+      >
+        <motion.img
+          src="/AI-MASCAT/rightHand.png"
+          alt="Right Hand"
+          className="w-full h-full object-contain drop-shadow-sm origin-[80%_60%]"
+          animate={{
+            y: isProcessing
+              ? [-4, -9, -4]
+              : isHovered
+              ? [-2, -6, -2]
+              : [0, -3, 0],
+            rotate: isProcessing
+              ? [0, 22, 8, 22, 0]
+              : isHovered
+              ? [0, 24, -6, 24, 0]
+              : [0, -2, 0],
+          }}
+          transition={{
+            duration: isProcessing ? 1.6 : isHovered ? 0.9 : 2.5,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+      </div>
+
+      {/* 4. Left Eye */}
+      <div
+        className="absolute inset-0 w-full h-full pointer-events-none origin-[39%_50%]"
+        style={{
+          transform: `translate(${MASCOT_OFFSETS.leftEyeX}%, ${MASCOT_OFFSETS.leftEyeY}%) scale(${MASCOT_OFFSETS.leftEyeScale})`,
+        }}
+      >
+        <motion.img
+          src="/AI-MASCAT/leftEye.png"
+          alt="Left Eye"
+          className="w-full h-full object-contain origin-[39%_50%]"
+          animate={{
+            scaleY: isBlinking ? 0.1 : 1,
+            scaleX: isHovered ? 1.1 : 1,
+            x: isProcessing
+              ? [-3, 3, -3]
+              : mouseOffset.x * 0.9,
+            y: isProcessing
+              ? [-4, -7, -4]
+              : mouseOffset.y * 0.9,
+          }}
+          transition={{
+            scaleY: { duration: 0.1 },
+            x: { duration: isProcessing ? 2.4 : 0.2, repeat: isProcessing ? Infinity : 0 },
+            y: { duration: isProcessing ? 2.4 : 0.2, repeat: isProcessing ? Infinity : 0 },
+          }}
+        />
+      </div>
+
+      {/* 5. Right Eye */}
+      <div
+        className="absolute inset-0 w-full h-full pointer-events-none origin-[61%_50%]"
+        style={{
+          transform: `translate(${MASCOT_OFFSETS.rightEyeX}%, ${MASCOT_OFFSETS.rightEyeY}%) scale(${MASCOT_OFFSETS.rightEyeScale})`,
+        }}
+      >
+        <motion.img
+          src="/AI-MASCAT/rightEye.png"
+          alt="Right Eye"
+          className="w-full h-full object-contain origin-[61%_50%]"
+          animate={{
+            scaleY: isBlinking ? 0.1 : 1,
+            scaleX: isHovered ? 1.1 : 1,
+            x: isProcessing
+              ? [-3, 3, -3]
+              : mouseOffset.x * 0.9,
+            y: isProcessing
+              ? [-4, -7, -4]
+              : mouseOffset.y * 0.9,
+          }}
+          transition={{
+            scaleY: { duration: 0.1 },
+            x: { duration: isProcessing ? 2.4 : 0.2, repeat: isProcessing ? Infinity : 0 },
+            y: { duration: isProcessing ? 2.4 : 0.2, repeat: isProcessing ? Infinity : 0 },
+          }}
+        />
+      </div>
+
+      {/* 6. Lips / Mouth */}
+      <div
+        className="absolute inset-0 w-full h-full pointer-events-none origin-[50%_60%]"
+        style={{
+          transform: `translate(${MASCOT_OFFSETS.lipsX}%, ${MASCOT_OFFSETS.lipsY}%) scale(${MASCOT_OFFSETS.lipsScale})`,
+        }}
+      >
+        <motion.img
+          src="/AI-MASCAT/lips.png"
+          alt="Lips"
+          className="w-full h-full object-contain origin-[50%_60%]"
+          animate={{
+            scale: isHovered ? 1.15 : isProcessing ? 0.85 : 1,
+            y: (isProcessing ? -2 : 0) + mouseOffset.y * 0.6,
+            x: mouseOffset.x * 0.6,
+          }}
+          transition={{ type: "spring", stiffness: 200, damping: 15 }}
+        />
+      </div>
+
+      {/* 7. Outer Helmet / Head Frame */}
+      <div
+        className="absolute inset-0 w-full h-full pointer-events-none origin-[50%_50%]"
+        style={{
+          transform: `translate(${MASCOT_OFFSETS.headX}%, ${MASCOT_OFFSETS.headY}%) scale(${MASCOT_OFFSETS.headScale})`,
+        }}
+      >
+        <motion.img
+          src="/AI-MASCAT/head.png"
+          alt="Head"
+          className="w-full h-full object-contain drop-shadow-md"
+          animate={{
+            x: isProcessing ? [-2, 2, -2] : mouseOffset.x * 0.4,
+            y: (isProcessing ? -4 : 0) + mouseOffset.y * 0.4,
+            rotate: isProcessing ? [-4, 4, -4] : mouseOffset.x * 0.5,
+          }}
+          transition={{
+            rotate: { duration: isProcessing ? 2.2 : 0.2, repeat: isProcessing ? Infinity : 0, ease: "easeInOut" },
+            x: { duration: isProcessing ? 2.2 : 0.2, repeat: isProcessing ? Infinity : 0, ease: "easeInOut" },
+            y: { type: "spring", stiffness: 160, damping: 14 },
+          }}
+        />
+      </div>
+
+      {/* 8. Top Antenna / Hat */}
+      <div
+        className="absolute inset-0 w-full h-full pointer-events-none origin-[50%_20%]"
+        style={{
+          transform: `translate(${MASCOT_OFFSETS.hatX}%, ${MASCOT_OFFSETS.hatY}%) scale(${MASCOT_OFFSETS.hatScale})`,
+        }}
+      >
+        <motion.img
+          src="/AI-MASCAT/hat.png"
+          alt="Hat"
+          className="w-full h-full object-contain drop-shadow-sm origin-[50%_20%]"
+          animate={{
+            rotate: isProcessing
+              ? [-12, 12, -12]
+              : isHovered
+              ? [-6, 6, -6]
+              : [0, 2, -2, 0],
+            y: isProcessing ? -3 : [0, -2, 0],
+          }}
+          transition={{
+            rotate: { duration: isProcessing ? 0.9 : 2.5, repeat: Infinity, ease: "easeInOut" },
+            y: { duration: 2.5, repeat: Infinity, ease: "easeInOut" },
+          }}
+        />
+      </div>
+
+      {/* Status Badge */}
+      {showBadge && (
+        <motion.span
+          animate={{
+            scale: isProcessing ? [1, 1.15, 1] : 1,
+          }}
+          transition={{ duration: 1, repeat: isProcessing ? Infinity : 0 }}
+          className={`absolute -top-1 -right-1 text-white text-[9px] font-black px-2 py-0.5 rounded-full shadow-lg border-2 border-white dark:border-night-card leading-none ${
+            isProcessing
+              ? "bg-gradient-to-r from-amber-500 to-orange-500"
+              : "bg-gradient-to-r from-main to-blue-500"
+          }`}
+        >
+          {isProcessing ? "🧠..." : "AI ✨"}
+        </motion.span>
+      )}
+    </div>
+  );
+}
+
 export default function SheypoorMascot({ onClick, isOpen, isProcessing }) {
   const [isHovered, setIsHovered] = useState(false);
   const [isBlinking, setIsBlinking] = useState(false);
@@ -145,7 +383,7 @@ export default function SheypoorMascot({ onClick, isOpen, isProcessing }) {
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={handleMouseLeave}
-      className="fixed bottom-6 rtl:left-6 ltr:right-6 z-50 flex flex-col items-end rtl:items-start gap-2 select-none"
+      className="fixed bottom-[74px] tablet:bottom-6 left-0 tablet:left-6 z-50 flex flex-col items-start gap-2 select-none"
     >
       {/* Speech Bubble */}
       <AnimatePresence>
@@ -155,7 +393,7 @@ export default function SheypoorMascot({ onClick, isOpen, isProcessing }) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.7, y: 10 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            className="relative w-64 p-3.5 bg-white/95 dark:bg-night-card/95 backdrop-blur-xl border border-main/30 dark:border-night-border rounded-2xl shadow-2xl"
+            className="relative w-64 p-3.5 bg-white/95 dark:bg-night-card/95 backdrop-blur-xl border border-main/30 dark:border-night-border rounded-2xl shadow-2xl ml-2 tablet:ml-0"
             dir={currentLang === "fa" ? "rtl" : "ltr"}
           >
             <button
@@ -191,7 +429,7 @@ export default function SheypoorMascot({ onClick, isOpen, isProcessing }) {
             </button>
 
             {/* Bubble Tail */}
-            <div className="absolute -bottom-2 rtl:left-8 ltr:right-8 w-4 h-4 bg-white/95 dark:bg-night-card/95 border-b border-r rtl:border-r-0 rtl:border-l border-main/30 dark:border-night-border transform rotate-45" />
+            <div className="absolute -bottom-2 left-6 tablet:left-8 w-4 h-4 bg-white/95 dark:bg-night-card/95 border-b border-r rtl:border-r-0 rtl:border-l border-main/30 dark:border-night-border transform rotate-45" />
           </motion.div>
         )}
       </AnimatePresence>
@@ -213,7 +451,7 @@ export default function SheypoorMascot({ onClick, isOpen, isProcessing }) {
           repeat: Infinity,
           ease: "easeInOut",
         }}
-        className="relative group p-1.5 focus:outline-none cursor-pointer"
+        className="relative group p-1 focus:outline-none cursor-pointer"
         aria-label="Sheypoor AI Assistant"
       >
         {/* Ambient Glow Aura */}
@@ -254,223 +492,14 @@ export default function SheypoorMascot({ onClick, isOpen, isProcessing }) {
           </>
         )}
 
-        {/* Mascot Body Canvas Container */}
-        <div className="relative w-20 h-20 tablet:w-22 tablet:h-22 select-none overflow-visible">
-          {/* 1. Base Layer: Body */}
-          <div
-            className="absolute inset-0 w-full h-full pointer-events-none origin-[50%_65%]"
-            style={{
-              transform: `translate(${MASCOT_OFFSETS.bodyX}%, ${MASCOT_OFFSETS.bodyY}%) scale(${MASCOT_OFFSETS.bodyScale})`,
-            }}
-          >
-            <motion.img
-              src="/AI-MASCAT/body.png"
-              alt="Body"
-              className="w-full h-full object-contain drop-shadow-md origin-[50%_65%]"
-              animate={{
-                y: isProcessing ? [0, -2, 0] : [0, -3, 0],
-              }}
-              transition={{
-                duration: isProcessing ? 1.5 : 2.5,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-            />
-          </div>
-
-          {/* 2. Left Hand Layer (Viewer's Left) */}
-          <div
-            className="absolute inset-0 w-full h-full pointer-events-none origin-[20%_60%]"
-            style={{
-              transform: `translate(${MASCOT_OFFSETS.leftHandX}%, ${MASCOT_OFFSETS.leftHandY}%) scale(${MASCOT_OFFSETS.leftHandScale})`,
-            }}
-          >
-            <motion.img
-              src="/AI-MASCAT/leftHand.png"
-              alt="Left Hand"
-              className="w-full h-full object-contain drop-shadow-sm origin-[20%_60%]"
-              animate={{
-                y: isProcessing ? [-2, -6, -2] : isHovered ? [-1, 2, -1] : [0, -3, 0],
-                rotate: isProcessing ? [0, -10, 0] : isHovered ? [0, -6, 0] : [0, 2, 0],
-              }}
-              transition={{
-                duration: isProcessing ? 1.2 : 2.2,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-            />
-          </div>
-
-          {/* 3. Right Hand Layer (Viewer's Right - Waving Hand!) */}
-          <div
-            className="absolute inset-0 w-full h-full pointer-events-none origin-[80%_60%]"
-            style={{
-              transform: `translate(${MASCOT_OFFSETS.rightHandX}%, ${MASCOT_OFFSETS.rightHandY}%) scale(${MASCOT_OFFSETS.rightHandScale})`,
-            }}
-          >
-            <motion.img
-              src="/AI-MASCAT/rightHand.png"
-              alt="Right Hand"
-              className="w-full h-full object-contain drop-shadow-sm origin-[80%_60%]"
-              animate={{
-                y: isProcessing
-                  ? [-3, -8, -3]
-                  : isHovered
-                  ? [-2, -6, -2]
-                  : [0, -3, 0],
-                rotate: isProcessing
-                  ? [0, 18, 5, 18, 0]
-                  : isHovered
-                  ? [0, 22, -8, 22, 0]
-                  : [0, -2, 0],
-              }}
-              transition={{
-                duration: isProcessing ? 2.5 : isHovered ? 0.9 : 2.5,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-            />
-          </div>
-
-          {/* 4. Left Eye */}
-          <div
-            className="absolute inset-0 w-full h-full pointer-events-none origin-[39%_50%]"
-            style={{
-              transform: `translate(${MASCOT_OFFSETS.leftEyeX}%, ${MASCOT_OFFSETS.leftEyeY}%) scale(${MASCOT_OFFSETS.leftEyeScale})`,
-            }}
-          >
-            <motion.img
-              src="/AI-MASCAT/leftEye.png"
-              alt="Left Eye"
-              className="w-full h-full object-contain origin-[39%_50%]"
-              animate={{
-                scaleY: isBlinking ? 0.1 : 1,
-                scaleX: isHovered ? 1.1 : 1,
-                x: isProcessing
-                  ? [-2, 2, -2]
-                  : mouseOffset.x * 0.9,
-                y: isProcessing
-                  ? [-4, -6, -4]
-                  : mouseOffset.y * 0.9,
-              }}
-              transition={{
-                scaleY: { duration: 0.1 },
-                x: { duration: isProcessing ? 2.8 : 0.2, repeat: isProcessing ? Infinity : 0 },
-                y: { duration: isProcessing ? 2.8 : 0.2, repeat: isProcessing ? Infinity : 0 },
-              }}
-            />
-          </div>
-
-          {/* 5. Right Eye */}
-          <div
-            className="absolute inset-0 w-full h-full pointer-events-none origin-[61%_50%]"
-            style={{
-              transform: `translate(${MASCOT_OFFSETS.rightEyeX}%, ${MASCOT_OFFSETS.rightEyeY}%) scale(${MASCOT_OFFSETS.rightEyeScale})`,
-            }}
-          >
-            <motion.img
-              src="/AI-MASCAT/rightEye.png"
-              alt="Right Eye"
-              className="w-full h-full object-contain origin-[61%_50%]"
-              animate={{
-                scaleY: isBlinking ? 0.1 : 1,
-                scaleX: isHovered ? 1.1 : 1,
-                x: isProcessing
-                  ? [-2, 2, -2]
-                  : mouseOffset.x * 0.9,
-                y: isProcessing
-                  ? [-4, -6, -4]
-                  : mouseOffset.y * 0.9,
-              }}
-              transition={{
-                scaleY: { duration: 0.1 },
-                x: { duration: isProcessing ? 2.8 : 0.2, repeat: isProcessing ? Infinity : 0 },
-                y: { duration: isProcessing ? 2.8 : 0.2, repeat: isProcessing ? Infinity : 0 },
-              }}
-            />
-          </div>
-
-          {/* 6. Lips / Mouth */}
-          <div
-            className="absolute inset-0 w-full h-full pointer-events-none origin-[50%_60%]"
-            style={{
-              transform: `translate(${MASCOT_OFFSETS.lipsX}%, ${MASCOT_OFFSETS.lipsY}%) scale(${MASCOT_OFFSETS.lipsScale})`,
-            }}
-          >
-            <motion.img
-              src="/AI-MASCAT/lips.png"
-              alt="Lips"
-              className="w-full h-full object-contain origin-[50%_60%]"
-              animate={{
-                scale: isHovered ? 1.15 : isProcessing ? 0.85 : 1,
-                y: (isProcessing ? -2 : 0) + mouseOffset.y * 0.6,
-                x: mouseOffset.x * 0.6,
-              }}
-              transition={{ type: "spring", stiffness: 200, damping: 15 }}
-            />
-          </div>
-
-          {/* 7. Outer Helmet / Head Frame */}
-          <div
-            className="absolute inset-0 w-full h-full pointer-events-none origin-[50%_50%]"
-            style={{
-              transform: `translate(${MASCOT_OFFSETS.headX}%, ${MASCOT_OFFSETS.headY}%) scale(${MASCOT_OFFSETS.headScale})`,
-            }}
-          >
-            <motion.img
-              src="/AI-MASCAT/head.png"
-              alt="Head"
-              className="w-full h-full object-contain drop-shadow-md"
-              animate={{
-                x: mouseOffset.x * 0.4,
-                y: (isProcessing ? -3 : 0) + mouseOffset.y * 0.4,
-                rotate: isProcessing ? -6 : mouseOffset.x * 0.5,
-              }}
-              transition={{ type: "spring", stiffness: 160, damping: 14 }}
-            />
-          </div>
-
-          {/* 8. Top Antenna / Hat */}
-          <div
-            className="absolute inset-0 w-full h-full pointer-events-none origin-[50%_20%]"
-            style={{
-              transform: `translate(${MASCOT_OFFSETS.hatX}%, ${MASCOT_OFFSETS.hatY}%) scale(${MASCOT_OFFSETS.hatScale})`,
-            }}
-          >
-            <motion.img
-              src="/AI-MASCAT/hat.png"
-              alt="Hat"
-              className="w-full h-full object-contain drop-shadow-sm origin-[50%_20%]"
-              animate={{
-                rotate: isProcessing
-                  ? [-10, 10, -10]
-                  : isHovered
-                  ? [-6, 6, -6]
-                  : [0, 2, -2, 0],
-                y: isProcessing ? -3 : [0, -2, 0],
-              }}
-              transition={{
-                rotate: { duration: isProcessing ? 0.8 : 2.5, repeat: Infinity, ease: "easeInOut" },
-                y: { duration: 2.5, repeat: Infinity, ease: "easeInOut" },
-              }}
-            />
-          </div>
-
-          {/* Status Badge */}
-          <motion.span
-            animate={{
-              scale: isProcessing ? [1, 1.15, 1] : 1,
-            }}
-            transition={{ duration: 1, repeat: isProcessing ? Infinity : 0 }}
-            className={`absolute -top-1 -right-1 text-white text-[9px] font-black px-2 py-0.5 rounded-full shadow-lg border-2 border-white dark:border-night-card leading-none ${
-              isProcessing
-                ? "bg-gradient-to-r from-amber-500 to-orange-500"
-                : "bg-gradient-to-r from-main to-blue-500"
-            }`}
-          >
-            {isProcessing ? "🧠..." : "AI ✨"}
-          </motion.span>
-        </div>
+        {/* Modular Layered Mascot Avatar */}
+        <MascotVisualLayers
+          isProcessing={isProcessing}
+          isHovered={isHovered}
+          isBlinking={isBlinking}
+          mouseOffset={mouseOffset}
+          showBadge={true}
+        />
       </motion.button>
     </div>
   );

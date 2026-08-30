@@ -1,8 +1,12 @@
+/* eslint-disable react/prop-types */
 import { useState, useEffect, useRef, useCallback } from "react";
+import { Link } from "react-router-dom";
 import { executeAgentCommand } from "../../Services/aiAgent";
 import { performSmartSearch } from "../../Services/aiSmartSearchEngine";
 import { getStoredChatHistory, saveChatHistory, clearChatHistory } from "../../Utils/aiStorage";
 import { getSavedLanguage } from "../../Utils/i18n";
+import { formatAdPrice, translateCity } from "../../Utils/adTranslator";
+import { requestNotificationPermission, sendAiNotification, isNotificationSupported } from "../../Services/aiNotificationService";
 import SheypoorMascot from "./SheypoorMascot";
 import AiProcessingOverlay from "./AiProcessingOverlay";
 import AiResultsModal from "./AiResultsModal";
@@ -14,8 +18,13 @@ export default function SheypoorAiCopilot() {
   const [isRunning, setIsRunning] = useState(false);
   const [activityLog, setActivityLog] = useState("");
   const [messages, setMessages] = useState([]);
-  const [isListening, setIsListening] = useState(false);
   const [currentLang, setCurrentLang] = useState(getSavedLanguage());
+
+  // Voice recording & preview state
+  const [isListening, setIsListening] = useState(false);
+  const [recordingSeconds, setRecordingSeconds] = useState(0);
+  const [voicePreview, setVoicePreview] = useState(null); // { audioUrl, duration, transcript }
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
 
   // AI Processing Overlay state
   const [isProcessing, setIsProcessing] = useState(false);
@@ -31,6 +40,10 @@ export default function SheypoorAiCopilot() {
 
   const chatEndRef = useRef(null);
   const recognitionRef = useRef(null);
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
+  const recordingTimerRef = useRef(null);
+  const audioPlayerRef = useRef(null);
   const chipsRef = useRef(null);
   const isDragging = useRef(false);
   const dragStart = useRef({ x: 0, scrollLeft: 0 });
@@ -53,7 +66,7 @@ export default function SheypoorAiCopilot() {
         sender: "assistant",
         text:
           currentLang === "fa"
-            ? "سلام! 👋 من دستیار هوشمند شیپور هستم. بهم بگو چی میخوای، بقیش با من! 🚀"
+            ? "سلام! 👋 من دستیار هوشمند شیپور هستم. بهم بگو چی میخوای، برات از بین آگهی‌های شیپور با بهترین قیمت پیدا کنم! 🚀"
             : currentLang === "de"
             ? "Hallo! 👋 Ich bin der Sheypoor AI-Assistent. Sag mir, was du suchst!"
             : "Hello! 👋 I'm your Sheypoor AI Assistant. Tell me what you need!",
@@ -68,7 +81,7 @@ export default function SheypoorAiCopilot() {
     if (isOpen) {
       chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages, isOpen, activityLog]);
+  }, [messages, isOpen, activityLog, voicePreview]);
 
   // ===== Mouse Drag Scroll for Chips =====
   const handleChipMouseDown = useCallback((e) => {
@@ -121,66 +134,138 @@ export default function SheypoorAiCopilot() {
     };
   }, [handleChipWheel, handleChipMouseMove, handleChipMouseUp, isOpen]);
 
-  // ===== Voice Input =====
-  const toggleVoiceInput = () => {
-    if (isListening) {
-      recognitionRef.current?.stop();
-      setIsListening(false);
-      return;
-    }
+  // ===== Voice Recording & Studio Review =====
+  const startRecording = async () => {
+    try {
+      audioChunksRef.current = [];
+      setRecordingSeconds(0);
+      setVoicePreview(null);
 
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
+      // 1. Audio stream capture for playback
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const mediaRecorder = new MediaRecorder(stream);
+        mediaRecorderRef.current = mediaRecorder;
+
+        mediaRecorder.ondataavailable = (event) => {
+          if (event.data.size > 0) {
+            audioChunksRef.current.push(event.data);
+          }
+        };
+
+        mediaRecorder.onstop = () => {
+          const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+          const audioUrl = URL.createObjectURL(audioBlob);
+          setVoicePreview((prev) => ({
+            ...prev,
+            audioUrl,
+            blob: audioBlob,
+            duration: recordingSeconds,
+          }));
+          // Stop media tracks
+          stream.getTracks().forEach((track) => track.stop());
+        };
+
+        mediaRecorder.start();
+      }
+
+      // 2. Speech recognition for real-time text transcription
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        const recognition = new SpeechRecognition();
+        recognition.lang = currentLang === "fa" ? "fa-IR" : currentLang === "de" ? "de-DE" : "en-US";
+        recognition.continuous = true;
+        recognition.interimResults = true;
+
+        recognition.onresult = (event) => {
+          let currentTranscript = "";
+          for (let i = 0; i < event.results.length; i++) {
+            currentTranscript += event.results[i][0].transcript;
+          }
+          setInputVal(currentTranscript);
+          setVoicePreview((prev) => ({
+            ...prev,
+            transcript: currentTranscript,
+          }));
+        };
+
+        recognition.onerror = (e) => {
+          console.warn("Speech recognition error:", e);
+        };
+
+        recognitionRef.current = recognition;
+        recognition.start();
+      }
+
+      setIsListening(true);
+
+      // Start timer
+      recordingTimerRef.current = setInterval(() => {
+        setRecordingSeconds((prev) => prev + 1);
+      }, 1000);
+    } catch (err) {
+      console.warn("Could not start recording:", err);
       toast.error(
         currentLang === "fa"
-          ? "مرورگر شما از ورودی صوتی پشتیبانی نمی‌کند."
-          : "Voice input is not supported in this browser."
+          ? "دسترسی به میکروفون امکان‌پذیر نشد."
+          : "Microphone access was denied or not supported."
       );
-      return;
-    }
-
-    try {
-      const recognition = new SpeechRecognition();
-      recognition.lang = currentLang === "fa" ? "fa-IR" : currentLang === "de" ? "de-DE" : "en-US";
-      recognition.continuous = false;
-      recognition.interimResults = false;
-
-      recognition.onstart = () => {
-        setIsListening(true);
-        toast(currentLang === "fa" ? "🎙️ در حال گوش دادن..." : "🎙️ Listening...", { icon: "🎙️" });
-      };
-
-      recognition.onresult = (event) => {
-        const transcript = event.results?.[0]?.[0]?.transcript;
-        if (transcript) {
-          setInputVal(transcript);
-          setTimeout(() => handleSendMessage(transcript), 400);
-        }
-      };
-
-      recognition.onerror = (e) => {
-        console.warn("Speech recognition error:", e);
-        setIsListening(false);
-      };
-
-      recognition.onend = () => {
-        setIsListening(false);
-      };
-
-      recognitionRef.current = recognition;
-      recognition.start();
-    } catch (e) {
-      console.warn("Speech recognition failed to start", e);
       setIsListening(false);
     }
   };
 
-  // ===== Smart AI Send (with freeze overlay + results modal) =====
+  const stopRecording = () => {
+    setIsListening(false);
+    if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      mediaRecorderRef.current.stop();
+    }
+
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch (e) {
+        console.warn(e);
+      }
+    }
+  };
+
+  const toggleVoiceRecording = () => {
+    if (isListening) {
+      stopRecording();
+    } else {
+      startRecording();
+    }
+  };
+
+  const discardVoicePreview = () => {
+    if (voicePreview?.audioUrl) {
+      URL.revokeObjectURL(voicePreview.audioUrl);
+    }
+    setVoicePreview(null);
+    setInputVal("");
+    setIsPlayingAudio(false);
+  };
+
+  const toggleAudioPlay = () => {
+    if (!audioPlayerRef.current) return;
+    if (isPlayingAudio) {
+      audioPlayerRef.current.pause();
+      setIsPlayingAudio(false);
+    } else {
+      audioPlayerRef.current.play();
+      setIsPlayingAudio(true);
+    }
+  };
+
+  // ===== Smart AI Send (with freeze overlay + results modal + inline cards) =====
   const handleSendMessage = async (textToSend) => {
     const text = (textToSend || inputVal).trim();
     if (!text || isRunning) return;
 
     setInputVal("");
+    discardVoicePreview();
 
     const userMsg = {
       id: `user-${Date.now()}`,
@@ -193,14 +278,13 @@ export default function SheypoorAiCopilot() {
     setMessages(updated);
     saveChatHistory(updated);
 
-    // Check if this is a simple command (theme, etc.) vs a search query
+    // Check if this is a simple UI command (theme, etc.)
     const lower = text.toLowerCase();
     const isSimpleCommand =
       lower.includes("دارک") || lower.includes("تاریک") || lower.includes("dark") ||
       lower.includes("لایت") || lower.includes("روشن") || lower.includes("light");
 
     if (isSimpleCommand) {
-      // Execute directly without overlay
       setIsRunning(true);
       setActivityLog(currentLang === "fa" ? "در حال اجرا..." : "Executing...");
       try {
@@ -247,13 +331,20 @@ export default function SheypoorAiCopilot() {
         setProcessingStepIndex(idx);
       });
 
-      // Add assistant message
+      // Add assistant message WITH embedded results preview cards
       const assistantMsg = {
         id: `assistant-${Date.now()}`,
         sender: "assistant",
         text: currentLang === "fa"
-          ? `🎯 ${results.length} آگهی مرتبط با درخواست شما پیدا کردم! نتایج آماده‌ست.`
-          : `🎯 Found ${results.length} relevant listings! Results are ready.`,
+          ? (results.length > 0
+              ? `🎯 ${results.length} آگهی منطبق با «${text}» از پایگاه داده شیپور برات گلچین کردم:`
+              : `🔍 آگهی دقیقی منطبق با «${text}» یافت نشد. می‌تونی فیلترها رو تغییر بدی.`)
+          : (results.length > 0
+              ? `🎯 Found ${results.length} matching listings for "${text}":`
+              : `🔍 No exact matches found for "${text}".`),
+        results: results || [],
+        summary,
+        intent,
         timestamp: new Date().toISOString(),
       };
       const finalMessages = [...updated, assistantMsg];
@@ -264,6 +355,14 @@ export default function SheypoorAiCopilot() {
       setSearchResults(results);
       setSearchSummary(summary);
       setSearchIntent(intent);
+
+      // Trigger optional system notification if user permitted
+      if (results.length > 0) {
+        sendAiNotification({
+          title: `🤖 دستیار شیپور: ${results.length} آگهی جدید یافت شد`,
+          body: `نتایج جستجوی «${text}» با بالاترین تطابق آماده بررسی است.`,
+        });
+      }
 
       // Small delay for the last step to complete visually
       await new Promise((r) => setTimeout(r, 600));
@@ -302,6 +401,15 @@ export default function SheypoorAiCopilot() {
     toast.success(currentLang === "fa" ? "تاریخچه پاک شد" : "History cleared");
   };
 
+  const handleRequestNotification = async () => {
+    const res = await requestNotificationPermission();
+    if (res === "granted") {
+      toast.success(currentLang === "fa" ? "نوتیفیکیشن هوش مصنوعی فعال شد 🔔" : "AI Notifications enabled 🔔");
+    } else {
+      toast(currentLang === "fa" ? "نوتیفیکیشن فعال نشد یا توسط مرورگر رد شد." : "Notifications denied or not allowed.");
+    }
+  };
+
   // Quick Prompt Chips
   const quickChips = [
     {
@@ -338,7 +446,7 @@ export default function SheypoorAiCopilot() {
 
   return (
     <>
-      {/* Animated Mascot (replaces old button) */}
+      {/* Animated Mascot (Sticky left-0 and bottom-[74px] on mobile above bottom nav) */}
       <SheypoorMascot
         onClick={() => setIsOpen(!isOpen)}
         isOpen={isOpen}
@@ -348,7 +456,7 @@ export default function SheypoorAiCopilot() {
       {/* Main AI Chat Panel */}
       {isOpen && (
         <div
-          className="fixed bottom-24 rtl:left-4 ltr:right-4 tablet:rtl:left-6 tablet:ltr:right-6 z-50 w-[92vw] max-w-[400px] h-[540px] max-h-[80vh] bg-white/95 dark:bg-night-card/95 backdrop-blur-xl border border-light-0 dark:border-night-border rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-fade-in text-dark-0 dark:text-white"
+          className="fixed bottom-[80px] tablet:bottom-24 left-2 right-2 tablet:left-6 tablet:right-auto z-50 w-auto tablet:w-[430px] max-w-[450px] h-[550px] max-h-[78vh] bg-white/95 dark:bg-night-card/95 backdrop-blur-xl border border-light-0 dark:border-night-border rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-fade-in text-dark-0 dark:text-white"
           dir={currentLang === "fa" ? "rtl" : "ltr"}
         >
           {/* Header */}
@@ -373,8 +481,17 @@ export default function SheypoorAiCopilot() {
               </div>
             </div>
 
-            {/* Header Tools — NO settings icon for users */}
+            {/* Header Tools */}
             <div className="flex items-center gap-1">
+              {isNotificationSupported() && (
+                <button
+                  onClick={handleRequestNotification}
+                  className="w-7 h-7 rounded-lg text-dark-3 dark:text-gray-400 hover:bg-light-2 dark:hover:bg-night-surface flex items-center justify-center transition-colors"
+                  title={currentLang === "fa" ? "فعالسازی اعلان‌ها" : "Enable notifications"}
+                >
+                  🔔
+                </button>
+              )}
               <button
                 onClick={handleClearHistory}
                 className="w-7 h-7 rounded-lg text-dark-3 dark:text-gray-400 hover:bg-light-2 dark:hover:bg-night-surface flex items-center justify-center transition-colors"
@@ -407,7 +524,7 @@ export default function SheypoorAiCopilot() {
                     if (!isDragging.current) handleSendMessage(chip.cmd);
                   }}
                   disabled={isRunning}
-                  className="px-2.5 py-1 rounded-full text-xs font-medium bg-white dark:bg-night-card border border-light-0 dark:border-night-border hover:border-main/50 text-dark-2 dark:text-gray-300 hover:text-main dark:hover:text-white whitespace-nowrap shadow-xs transition-all disabled:opacity-50"
+                  className="px-2.5 py-1 rounded-full text-xs font-medium bg-white dark:bg-night-card border border-light-0 dark:border-night-border hover:border-main/50 text-dark-2 dark:text-gray-300 hover:text-main dark:hover:text-white whitespace-nowrap shadow-xs transition-all disabled:opacity-50 cursor-pointer"
                 >
                   {label}
                 </button>
@@ -416,14 +533,15 @@ export default function SheypoorAiCopilot() {
           </div>
 
           {/* Messages Stream */}
-          <div className="p-4 space-y-3 overflow-y-auto flex-grow text-body-3 scrollbar-themed">
+          <div className="p-4 space-y-3.5 overflow-y-auto flex-grow text-body-3 scrollbar-themed">
             {messages.map((msg) => (
               <div
                 key={msg.id}
                 className={`flex flex-col ${msg.sender === "user" ? "items-end" : "items-start"}`}
               >
+                {/* Message Bubble */}
                 <div
-                  className={`max-w-[85%] p-3 rounded-2xl leading-relaxed text-body-3 shadow-xs ${
+                  className={`max-w-[88%] p-3 rounded-2xl leading-relaxed text-body-3 shadow-xs ${
                     msg.sender === "user"
                       ? "bg-main text-white rounded-br-none rtl:rounded-bl-none rtl:rounded-br-2xl"
                       : msg.isError
@@ -431,7 +549,69 @@ export default function SheypoorAiCopilot() {
                       : "bg-light-2 dark:bg-night-surface border border-light-0 dark:border-night-border text-dark-0 dark:text-gray-100 rounded-bl-none rtl:rounded-br-none rtl:rounded-bl-2xl"
                   }`}
                 >
-                  {msg.text}
+                  <p>{msg.text}</p>
+
+                  {/* Inline Similar Ads Cards in Chat */}
+                  {msg.results && msg.results.length > 0 && (
+                    <div className="mt-3 pt-3 border-t border-dark-4/10 dark:border-white/10 space-y-2">
+                      <div className="grid grid-cols-1 gap-2">
+                        {msg.results.slice(0, 3).map((item, idx) => {
+                          const ad = item.ad || item;
+                          const id = ad._id || ad.id;
+                          const title = ad.options?.title || ad.title || "آگهی شیپور";
+                          const price = ad.amount || ad.options?.price;
+                          const city = ad.options?.city || ad.city;
+                          const image = ad.images?.[0] || "/sheypoor-Logo.png";
+
+                          return (
+                            <Link
+                              key={idx}
+                              to={`/ad/${id}`}
+                              className="flex items-center gap-2.5 p-2 bg-white dark:bg-night-card rounded-xl border border-light-0 dark:border-night-border hover:border-main transition-all group"
+                            >
+                              <img
+                                src={image}
+                                alt={title}
+                                className="w-12 h-12 rounded-lg object-cover bg-light-2 flex-shrink-0"
+                                onError={(e) => {
+                                  e.target.src = "/sheypoor-Logo.png";
+                                }}
+                              />
+                              <div className="flex-1 min-w-0">
+                                <h5 className="text-xs font-bold text-dark-0 dark:text-white truncate group-hover:text-main transition-colors">
+                                  {title}
+                                </h5>
+                                <p className="text-[11px] font-bold text-main dark:text-main-lighter mt-0.5">
+                                  {formatAdPrice(price, currentLang)}
+                                </p>
+                                {city && (
+                                  <span className="text-[10px] text-dark-3 dark:text-gray-400">
+                                    📍 {translateCity(city, currentLang)}
+                                  </span>
+                                )}
+                              </div>
+                              <span className="text-xs text-dark-4 group-hover:text-main rtl:rotate-180">
+                                ➔
+                              </span>
+                            </Link>
+                          );
+                        })}
+                      </div>
+
+                      {/* View full results button */}
+                      <button
+                        onClick={() => {
+                          setSearchResults(msg.results);
+                          setSearchSummary(msg.summary || "");
+                          setSearchIntent(msg.intent || null);
+                          setShowResults(true);
+                        }}
+                        className="w-full mt-1.5 py-1.5 px-3 bg-gradient-to-r from-main to-blue-500 hover:from-main-lighter hover:to-blue-400 text-white rounded-xl text-xs font-bold shadow-xs transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
+                      >
+                        <span>📋 مشاهده کامل نتایج ({msg.results.length} آگهی)</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -450,6 +630,65 @@ export default function SheypoorAiCopilot() {
             <div ref={chatEndRef} />
           </div>
 
+          {/* Voice Preview & Audio Player Studio Card (before sending) */}
+          {voicePreview && (
+            <div className="p-3 bg-gradient-to-r from-main/10 via-blue-500/10 to-indigo-500/10 border-t border-main/20 flex flex-col gap-2 flex-shrink-0 animate-fade-in">
+              <audio
+                ref={audioPlayerRef}
+                src={voicePreview.audioUrl}
+                onEnded={() => setIsPlayingAudio(false)}
+                className="hidden"
+              />
+
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={toggleAudioPlay}
+                    className="w-8 h-8 rounded-full bg-main text-white flex items-center justify-center shadow-md active:scale-90 transition-transform"
+                    title={isPlayingAudio ? "توقف پخش" : "پخش ویس"}
+                  >
+                    {isPlayingAudio ? "⏸️" : "▶️"}
+                  </button>
+                  <div>
+                    <p className="text-[11px] font-bold text-dark-1 dark:text-white">
+                      {currentLang === "fa" ? "ویس ضبط‌شده" : "Recorded Audio"}
+                    </p>
+                    <p className="text-[10px] text-dark-3 dark:text-gray-400 font-mono">
+                      00:{String(voicePreview.duration || recordingSeconds).padStart(2, "0")}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={discardVoicePreview}
+                    className="p-1.5 rounded-lg text-red-500 hover:bg-red-500/10 text-xs transition-colors"
+                    title={currentLang === "fa" ? "حذف و ضبط مجدد" : "Discard"}
+                  >
+                    🗑️ {currentLang === "fa" ? "حذف" : "Delete"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSendMessage(inputVal || voicePreview.transcript)}
+                    className="py-1 px-3 bg-main hover:bg-main-lighter text-white rounded-lg text-xs font-bold shadow-xs active:scale-95 transition-all"
+                  >
+                    🚀 {currentLang === "fa" ? "ارسال" : "Send"}
+                  </button>
+                </div>
+              </div>
+
+              {/* Editable transcribed text info */}
+              <div className="text-[11px] text-dark-2 dark:text-gray-300 bg-white/70 dark:bg-night-card/70 p-2 rounded-lg border border-light-0 dark:border-night-border">
+                <span className="font-semibold text-main dark:text-main-lighter">
+                  {currentLang === "fa" ? "متن تشخیص داده‌شده: " : "Transcribed: "}
+                </span>
+                <span>{inputVal || (currentLang === "fa" ? "(می‌توانید در کادر زیر متن را ویرایش یا ارسال کنید)" : "(You can edit below)")}</span>
+              </div>
+            </div>
+          )}
+
           {/* Chat Input Box */}
           <div className="p-3 border-t border-light-1 dark:border-night-border flex-shrink-0 bg-white dark:bg-night-card">
             <form
@@ -459,19 +698,23 @@ export default function SheypoorAiCopilot() {
               }}
               className="flex items-center gap-2"
             >
-              {/* Voice Input Button */}
+              {/* Voice Recording / Stop Button */}
               <button
                 type="button"
-                onClick={toggleVoiceInput}
+                onClick={toggleVoiceRecording}
                 disabled={isRunning}
-                className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${
+                className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all cursor-pointer ${
                   isListening
-                    ? "bg-accent-red text-white animate-pulse"
+                    ? "bg-accent-red text-white animate-pulse shadow-md"
                     : "bg-light-2 dark:bg-night-surface text-dark-3 dark:text-gray-300 hover:bg-light-1 dark:hover:bg-night-border"
                 }`}
-                title={isListening ? "توقف" : "ورودی صوتی"}
+                title={isListening ? "توقف ضبط ویس" : "ضبط ویس برای هوش مصنوعی"}
               >
-                🎙️
+                {isListening ? (
+                  <span className="text-xs font-mono font-bold">{recordingSeconds}s</span>
+                ) : (
+                  "🎙️"
+                )}
               </button>
 
               {/* Text Input */}
@@ -480,9 +723,9 @@ export default function SheypoorAiCopilot() {
                 value={inputVal}
                 onChange={(e) => setInputVal(e.target.value)}
                 placeholder={
-                  currentLang === "fa"
-                    ? "بگو چی میخوای... (مثلاً: گوشی سامسونگ تمیز)"
-                    : "Tell me what you need..."
+                  isListening
+                    ? (currentLang === "fa" ? "در حال گوش دادن... صحبت کنید 🎙️" : "Listening... Speak now 🎙️")
+                    : (currentLang === "fa" ? "بگو چی میخوای... (مثلاً: خودرو زیر ۵۰۰ میلیون)" : "Tell me what you need...")
                 }
                 disabled={isRunning}
                 className="flex-grow px-3.5 py-2 bg-light-2 dark:bg-night-surface border border-light-0 dark:border-night-border rounded-xl text-body-3 focus:outline-none focus:border-main disabled:opacity-50"
@@ -492,7 +735,7 @@ export default function SheypoorAiCopilot() {
               <button
                 type="submit"
                 disabled={isRunning || !inputVal.trim()}
-                className="w-9 h-9 rounded-xl bg-main hover:bg-main-lighter text-white flex items-center justify-center transition-all disabled:opacity-40 active:scale-95 shadow-md flex-shrink-0"
+                className="w-9 h-9 rounded-xl bg-main hover:bg-main-lighter text-white flex items-center justify-center transition-all disabled:opacity-40 active:scale-95 shadow-md flex-shrink-0 cursor-pointer"
               >
                 <svg
                   className={`w-4 h-4 ${currentLang === "fa" ? "rotate-180" : ""}`}
@@ -508,7 +751,7 @@ export default function SheypoorAiCopilot() {
         </div>
       )}
 
-      {/* AI Processing Overlay (Full-screen freeze with HUD) */}
+      {/* AI Processing Overlay (Full-screen freeze with HUD + live thinking 3D Mascot) */}
       <AiProcessingOverlay
         isActive={isProcessing}
         currentStep={processingStep}
