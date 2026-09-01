@@ -131,13 +131,6 @@ export default function AddToHomeScreenPrompt() {
     }
   };
 
-  // Switch preview mode for manual developer testing
-  const switchPreview = (targetPlatform) => {
-    setPreviewMode(targetPlatform);
-    setPlatform(targetPlatform);
-    setIsOpen(true);
-  };
-
   // If already standalone (and not previewing), do not render
   if (isStandalone && !previewMode) {
     return null;
@@ -146,42 +139,7 @@ export default function AddToHomeScreenPrompt() {
   const activePlatform = previewMode || platform;
 
   return (
-    <>
-      {/* Discreet Developer / Preview Testing Controls */}
-      <div className="fixed bottom-20 left-4 z-40 hidden laptop:flex items-center gap-1.5 bg-white/90 dark:bg-night-surface/90 backdrop-blur-md border border-light-0 dark:border-night-border rounded-full px-3 py-1.5 shadow-card-hover text-body-4">
-        <span className="text-dark-3 dark:text-night-muted font-medium">تست A2HS:</span>
-        <button
-          onClick={() => switchPreview("ios")}
-          className={`px-2 py-0.5 rounded-full font-semibold transition-colors ${
-            activePlatform === "ios" && isOpen
-              ? "bg-main text-white"
-              : "bg-light-1 dark:bg-night-card text-dark-1 dark:text-night-text hover:bg-light-0"
-          }`}
-        >
-          مدل iOS
-        </button>
-        <button
-          onClick={() => switchPreview("android")}
-          className={`px-2 py-0.5 rounded-full font-semibold transition-colors ${
-            activePlatform === "android" && isOpen
-              ? "bg-main text-white"
-              : "bg-light-1 dark:bg-night-card text-dark-1 dark:text-night-text hover:bg-light-0"
-          }`}
-        >
-          مدل Android
-        </button>
-        {isOpen && (
-          <button
-            onClick={() => setIsOpen(false)}
-            className="text-accent-red font-bold px-1 hover:opacity-80"
-            title="بستن تست"
-          >
-            ✕
-          </button>
-        )}
-      </div>
-
-      <AnimatePresence>
+    <AnimatePresence>
         {isOpen && activePlatform && (
           <div className="fixed inset-0 z-50 flex items-end justify-center pointer-events-none p-0 sm:p-4">
             {/* Backdrop overlay */}
@@ -389,6 +347,5 @@ export default function AddToHomeScreenPrompt() {
           </div>
         )}
       </AnimatePresence>
-    </>
   );
 }
