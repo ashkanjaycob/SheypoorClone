@@ -6,6 +6,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import Layout from "./Components/Layout/Layout";
 import ScrollToTop from "./Components/Layout/ScrollToTop";
 import SheypoorAiCopilot from "./Components/AI/SheypoorAiCopilot";
+import AddToHomeScreenPrompt from "./Components/Layout/AddToHomeScreenPrompt";
 import '../src/styles/index.css';
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
           <Router />
         </Layout>
         <SheypoorAiCopilot />
+        <AddToHomeScreenPrompt />
       </BrowserRouter>
       <ReactQueryDevtools />
     </QueryClientProvider>

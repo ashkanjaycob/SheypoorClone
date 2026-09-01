@@ -3,6 +3,10 @@ import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
+  server: {
+    host: true, // Listen on all addresses, including LAN and public addresses
+    port: 5173,
+  },
   plugins: [
     react(),
     VitePWA({

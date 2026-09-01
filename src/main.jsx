@@ -8,13 +8,14 @@ import "./styles/fonts.css";
 // لودینگ صفحه
 function SplashScreen() {
   return (
-    <div style={{ textAlign: "center", padding: "50px" }}>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-light-3 dark:bg-night-bg p-8 transition-colors duration-200">
       <img
-        src="/icons/icon-512x512.png"
-        alt="App Icon"
-        style={{ width: "100px" }}
+        src="/Sheypoor-192.png"
+        alt="شیپور"
+        className="w-20 h-20 rounded-sheypoor shadow-card mb-4 animate-pulse-soft object-cover"
       />
-      <h1>در حال بارگذاری...</h1>
+      <h1 className="text-heading-4 font-bold text-dark-0 dark:text-night-text">شیپور</h1>
+      <p className="text-body-3 text-dark-3 dark:text-night-muted mt-2">در حال بارگذاری...</p>
     </div>
   );
 }
@@ -37,8 +38,8 @@ function MainApp() {
     checkIsMobile();
 
     if (isMobile) {
-      // نمایش لودینگ فقط برای موبایل
-      const timer = setTimeout(() => setIsLoading(false), 3000); // مدت زمان لودینگ
+      // نمایش لودینگ کوتاه و روان فقط برای موبایل
+      const timer = setTimeout(() => setIsLoading(false), 900); // مدت زمان لودینگ کوتاه و سریع
       return () => clearTimeout(timer);
     } else {
       // اگر دستگاه موبایل نیست
