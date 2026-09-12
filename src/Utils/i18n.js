@@ -1,7 +1,13 @@
 /**
  * Sheypoor Internationalization (i18n) Engine
  * Supported Languages: Persian (fa, RTL), English (en, LTR), German (de, LTR)
+ *
+ * Geo-location detection integration:
+ * - setLanguage marks user choice as manual unless { isManual: false } is passed
+ * - initGeoLanguage() bootstraps auto-detection at app start
  */
+
+import { MANUAL_LANG_KEY, initGeoLanguageDetection } from "./geoDetection";
 
 export const LANG_KEY = "sheypoor_lang";
 
@@ -332,11 +338,22 @@ export const TRANSLATIONS = {
 };
 
 /**
+ * Normalizes language codes (handles "du" alias for German)
+ */
+export function normalizeLanguage(lang) {
+  if (!lang) return LANGUAGES.FA;
+  const lower = lang.toLowerCase().trim();
+  if (lower === "du") return LANGUAGES.DE;
+  if (Object.values(LANGUAGES).includes(lower)) return lower;
+  return LANGUAGES.FA;
+}
+
+/**
  * Gets currently saved language
  */
 export function getSavedLanguage() {
   if (typeof window === "undefined") return LANGUAGES.FA;
-  return localStorage.getItem(LANG_KEY) || LANGUAGES.FA;
+  return normalizeLanguage(localStorage.getItem(LANG_KEY) || LANGUAGES.FA);
 }
 
 /**
@@ -347,13 +364,24 @@ export function isRtl(lang = getSavedLanguage()) {
 }
 
 /**
- * Sets current language and updates HTML attributes
+ * Sets current language and updates HTML attributes.
+ * @param {string} lang - Language code ("fa", "en", "de", or "du" alias)
+ * @param {Object} [options]
+ * @param {boolean} [options.isManual=true] - If true, marks as user-chosen (geo-detection won't override)
  */
-export function setLanguage(lang) {
+export function setLanguage(lang, options = {}) {
   if (typeof window === "undefined") return;
-  localStorage.setItem(LANG_KEY, lang);
-  applyLanguage(lang);
-  window.dispatchEvent(new CustomEvent("sheypoor_lang_changed", { detail: lang }));
+  const { isManual = true } = options;
+  const normalized = normalizeLanguage(lang);
+  localStorage.setItem(LANG_KEY, normalized);
+  applyLanguage(normalized);
+
+  // Track whether this was a deliberate user choice
+  if (isManual) {
+    localStorage.setItem(MANUAL_LANG_KEY, "true");
+  }
+
+  window.dispatchEvent(new CustomEvent("sheypoor_lang_changed", { detail: normalized }));
 }
 
 /**
@@ -381,7 +409,18 @@ export function t(key, params = {}, lang = getSavedLanguage()) {
   return text;
 }
 
-// Initial bootstrap
+/**
+ * Convenience wrapper: initializes geo-based language detection at app startup.
+ * Call this once from main.jsx.
+ */
+export function initGeoLanguage() {
+  return initGeoLanguageDetection({
+    setLanguageFn: (lang) => setLanguage(lang, { isManual: false }),
+    applyLanguageFn: applyLanguage,
+  });
+}
+
+// Initial bootstrap — just apply whatever is saved (geo init happens in main.jsx)
 if (typeof window !== "undefined") {
   applyLanguage();
 }
