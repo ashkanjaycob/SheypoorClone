@@ -1,20 +1,30 @@
 /* eslint-disable react/prop-types */
 import { useState, useEffect, useRef } from "react";
 import { getSavedTheme, setTheme, THEMES } from "../../Utils/theme";
-import { getSavedLanguage, setLanguage, LANGUAGES } from "../../Utils/i18n";
+import { getSavedLanguage, setLanguage, LANGUAGES, initGeoLanguage } from "../../Utils/i18n";
+import { getDetectedCountry, setUserLanguageManual, isUserLanguageManual } from "../../Utils/geoDetection";
 
 function ThemeLanguageToggle({ compact = false }) {
   const [currentTheme, setCurrentTheme] = useState(getSavedTheme());
   const [currentLang, setCurrentLang] = useState(getSavedLanguage());
   const [isOpen, setIsOpen] = useState(false);
+  const [detectedCountry, setDetectedCountry] = useState(getDetectedCountry());
+  const [isAutoMode, setIsAutoMode] = useState(!isUserLanguageManual());
   const menuRef = useRef(null);
 
   useEffect(() => {
     const handleThemeChange = (e) => setCurrentTheme(e.detail || getSavedTheme());
     const handleLangChange = (e) => setCurrentLang(e.detail || getSavedLanguage());
+    const handleGeoDetected = (e) => {
+      if (e.detail?.country) {
+        setDetectedCountry(e.detail.country);
+        setIsAutoMode(!isUserLanguageManual());
+      }
+    };
 
     window.addEventListener("sheypoor_theme_changed", handleThemeChange);
     window.addEventListener("sheypoor_lang_changed", handleLangChange);
+    window.addEventListener("sheypoor_geo_detected", handleGeoDetected);
 
     const handleClickOutside = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
@@ -26,6 +36,7 @@ function ThemeLanguageToggle({ compact = false }) {
     return () => {
       window.removeEventListener("sheypoor_theme_changed", handleThemeChange);
       window.removeEventListener("sheypoor_lang_changed", handleLangChange);
+      window.removeEventListener("sheypoor_geo_detected", handleGeoDetected);
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
@@ -36,14 +47,34 @@ function ThemeLanguageToggle({ compact = false }) {
   };
 
   const handleSelectLang = (newLang) => {
-    setLanguage(newLang);
+    setLanguage(newLang); // isManual defaults to true in setLanguage
     setCurrentLang(newLang);
+    setIsAutoMode(false);
+  };
+
+  const handleAutoDetect = () => {
+    setUserLanguageManual(false);
+    setIsAutoMode(true);
+    initGeoLanguage();
   };
 
   const langLabels = {
     [LANGUAGES.FA]: { flag: "🇮🇷", label: "فا", name: "فارسی" },
     [LANGUAGES.EN]: { flag: "🇬🇧", label: "EN", name: "English" },
     [LANGUAGES.DE]: { flag: "🇩🇪", label: "DE", name: "Deutsch" },
+  };
+
+  const countryFlags = {
+    IR: "🇮🇷",
+    DE: "🇩🇪",
+    AT: "🇦🇹",
+    GLOBAL: "🌐",
+  };
+
+  const autoDetectLabels = {
+    [LANGUAGES.FA]: "تشخیص خودکار",
+    [LANGUAGES.EN]: "Auto Detect",
+    [LANGUAGES.DE]: "Automatisch",
   };
 
   const themeLabels = {
@@ -129,6 +160,22 @@ function ThemeLanguageToggle({ compact = false }) {
                 );
               })}
             </div>
+            {/* Auto-Detect Button */}
+            <button
+              type="button"
+              onClick={handleAutoDetect}
+              className={`mt-1.5 w-full py-1.5 px-2 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition-all ${
+                isAutoMode
+                  ? "bg-emerald-500/15 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 font-bold ring-1 ring-emerald-500/30"
+                  : "bg-light-2 dark:bg-night-surface text-dark-3 dark:text-gray-400 hover:bg-light-1 dark:hover:bg-night-hover"
+              }`}
+            >
+              <span>{countryFlags[detectedCountry] || "🌐"}</span>
+              <span>{autoDetectLabels[currentLang] || autoDetectLabels.en}</span>
+              {isAutoMode && (
+                <span className="text-emerald-600 dark:text-emerald-400 font-bold">✓</span>
+              )}
+            </button>
           </div>
 
           <div className="border-t border-light-1 dark:border-night-border my-2" />
